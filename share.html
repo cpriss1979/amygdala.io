@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Three Sides — SHARE</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+   
+    <!-- Favicons -->
+    <link rel="icon" type="image/svg+xml" sizes="any" href="/3-sides-planner.io/favicon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="/3-sides-planner.io/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/3-sides-planner.io/favicon-16.png">
+    <link rel="apple-touch-icon" href="/3-sides-planner.io/icon-192.png"> <!-- iOS Home screen -->
+    
+    <link rel="manifest" href="manifest.webmanifest">
+
+    <script type="module">
+        import { auth, db } from './firebase-init.js';
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        const LOCAL_MARK = 'gs_session_ack_ts';
+        onAuthStateChanged(auth, (user) => {
+            if (!user) return;
+            const uref = doc(db, 'users', user.uid);
+            onSnapshot(uref, async (snap) => {
+                const bump = snap?.data()?.sessionBumpedAt?.toMillis?.() || 0;
+                const seen = parseInt(localStorage.getItem(LOCAL_MARK) || '0', 10);
+                if (bump > seen) {
+                    localStorage.setItem(LOCAL_MARK, String(bump));
+                    try { await signOut(auth); } finally { location.replace('login.html'); }
+                }
+            });
+        });
+    </script>
+    
+    <!-- prefs bootstrap: put in <head> of every page -->
+    <script>
+        (function () {
+            const PREFS_KEY = 'gs_prefs';
+            let p = {};
+            try { p = JSON.parse(localStorage.getItem(PREFS_KEY) || '{}'); } catch { }
+            document.documentElement.style.setProperty('--motion-scale', p.reducedMotion ? '0' : '1');
+            document.documentElement.style.setProperty('--text-size', p.largerText ? '1.1rem' : '1rem');
+        })();
+    </script>
+        
+   <style>
+        body {
+            font: 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            padding: 1rem;
+            margin: 0
+        }
+
+        .ok {
+            padding: .75rem 1rem;
+            border: 1px solid rgba(0, 0, 0, .15);
+            border-radius: 12px;
+            background: #f7f7ff;
+            max-width: 700px
+        }
+    </style>
+</head>
+
+<body>
+    <p class="ok">Adding shared content…</p>
+    <script>
+        const base = location.pathname.startsWith('/3Sides.io/') ? '/3Sides.io/' : '/';
+        const go = (path) => location.replace(base + path);
+
+        // We declared method: "GET" in the manifest; read ?title=&text=&url=
+        const q = new URLSearchParams(location.search);
+        const payload = {
+            title: q.get('title') || '',
+            text: q.get('text') || '',
+            url: q.get('url') || ''
+        };
+
+        try {
+            const key = `inbox:share:${Date.now()}`;
+            localStorage.setItem(key, JSON.stringify(payload));
+        } catch { }
+
+        // Redirect into your journal page to import/use it
+        go('journal.html?from=share');
+    </script>
+</body>
+
+</html>

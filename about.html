@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en" data-ready="0">
+
+<head>
+  <!-- prefs bootstrap: put in <head> of every page -->
+  <script>
+    (function () {
+      const PREFS_KEY = 'gs_prefs';
+      let p = {};
+      try { p = JSON.parse(localStorage.getItem(PREFS_KEY) || '{}'); } catch { }
+      document.documentElement.style.setProperty('--motion-scale', p.reducedMotion ? '0' : '1');
+      document.documentElement.style.setProperty('--text-size', p.largerText ? '1.1rem' : '1rem');
+    })();
+  </script>
+  
+  <!-- At the top of delete-account.html <body> or in <head> -->
+  <script type="module">
+    import './firebase-init.js'; // ensures app/auth/db are initialized
+  </script>
+  
+  <!-- prefs bootstrap: put in <head> of every page -->
+  <script>
+    (function () {
+      const PREFS_KEY = 'gs_prefs';
+      let p = {};
+      try { p = JSON.parse(localStorage.getItem(PREFS_KEY) || '{}'); } catch { }
+      document.documentElement.style.setProperty('--motion-scale', p.reducedMotion ? '0' : '1');
+      document.documentElement.style.setProperty('--text-size', p.largerText ? '1.1rem' : '1rem');
+    })();
+  </script>
+  
+  <!-- 0) AUTH GUARD — FIRST in <head> on PROTECTED pages -->
+  <script>
+    (function () {
+      const PUBLIC_PAGES = ["index.html", "important-numbers.html", "privacy.html", "login.html", "register.html"];
+      const path = location.pathname.split("/").pop() || "index.html";
+      if (PUBLIC_PAGES.includes(path)) return; // no-op on public pages
+
+      // Hide immediately to avoid UI flash on protected pages
+      document.documentElement.style.visibility = "hidden";
+
+      const goLogin = () => {
+        location.href = "login.html?next=" + encodeURIComponent(location.href);
+      };
+
+      // Try Firebase; fall back to a temporary session flag if needed
+      (async () => {
+        try {
+          const { getAuth, onAuthStateChanged } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
+          const { auth } = await import("./firebase-init.js");
+          onAuthStateChanged(auth, (user) => {
+            if (!user) return goLogin();
+            document.documentElement.style.visibility = "";
+            document.documentElement.setAttribute("data-ready", "1");
+          });
+        } catch (e) {
+          const authed = sessionStorage.getItem("fs_logged_in") === "1"; // temporary fallback
+          if (!authed) return goLogin();
+          document.documentElement.style.visibility = "";
+          document.documentElement.setAttribute("data-ready", "1");
+        }
+      })();
+    })();
+  </script>
+      
+  <!-- 1) FOUC guard: keep hidden until we flip data-ready -->
+  <style>
+    html:not([data-ready="1"]) {
+      visibility: hidden;
+    }
+  </style>
+
+  <!-- 2) Base paint so Safari/Chrome UI bars don’t flash wrong colors -->
+  <style>
+    html,
+    body {
+      min-height: 100%;
+      margin: 0;
+      background-color: rgb(3, 3, 82);
+      /* hard navy on first paint */
+    }
+  </style>
+
+<!-- Noscript fallback -->
+<noscript>
+  <style>
+    html {
+      visibility: visible
+    }
+  </style>
+</noscript>
+
+  <!-- Meta -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Three Sides — ABOUT</title>
+  <meta name="description" content="Gentle, themeable planner for tracking mood, routines, and wellness." />
+  <!-- Will be updated at runtime to your theme’s accent -->
+  <meta name="theme-color" content="#6a5acd">
+
+  <!-- PWA -->
+<!-- Absolute (good for GitHub Pages) -->
+<link rel="manifest" href="manifest.webmanifest">
+
+  <!-- Favicons -->
+  <link rel="icon" type="image/svg+xml" sizes="any" href="/3-sides-planner.io/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/.3-sides-plannerio/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/3-sides-planner.io/favicon-16.png">
+  <link rel="apple-touch-icon" href="/3-sides-planner.io/icon-192.png"> <!-- iOS Home screen -->
+
+  <!-- Fonts + global CSS -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="mainTheme.css">
+  <!-- Service worker registration -->
+  <script src="sw-register.js"></script>
+  
+  <!-- Reveal & BFCache handling -->
+  <script>
+    (function () {
+      const html = document.documentElement;
+      function reveal() { html.setAttribute("data-ready", "1"); html.style.visibility = "visible"; }
+
+      if (document.readyState === "interactive" || document.readyState === "complete") {
+        reveal();
+      } else {
+        document.addEventListener("DOMContentLoaded", reveal, { once: true });
+      }
+      // Safari back/forward cache
+      window.addEventListener("pageshow", (e) => { if (e.persisted) reveal(); });
+      window.addEventListener("pagehide", () => { html.removeAttribute("data-ready"); });
+    })();
+  </script>
+
+  <!-- Early Theme Boot: apply saved theme instantly + set meta theme-color -->
+  <script>
+    (function () {
+      try {
+        const root = document.documentElement;
+        const userKey = localStorage.getItem('currentUser') || 'anon';
+        const savedTheme =
+          localStorage.getItem(userKey + ':themeClass') ||
+          localStorage.getItem('themeClass') ||
+          localStorage.getItem('themeClass:last') ||
+          'theme-original';
+
+        // Apply only the theme-* class; keep any others
+        const keep = (root.className || '').split(/\s+/).filter(Boolean).filter(c => !c.startsWith('theme-'));
+        root.className = [...keep, savedTheme].join(' ');
+
+        // Match browser UI bars to your theme accent
+        const meta = document.querySelector('meta[name="theme-color"]') || (function () {
+          const m = document.createElement('meta'); m.name = 'theme-color'; document.head.appendChild(m); return m;
+        })();
+        const cs = getComputedStyle(root);
+        meta.content = (cs.getPropertyValue('--accent-color') || cs.getPropertyValue('--accent') || '#6a5acd').trim() || '#6a5acd';
+      } catch { }
+    })();
+  </script>
+
+  <!-- ============= Page-local CSS (only for this page)===============  -->
+  <style>
+
+    html,
+    body {
+      height: 100%;
+      min-height: 100svh;
+      /* iOS safe viewport */
+  background-color: rgb(3, 3, 82);
+}
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #333;
+      padding: 2rem;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+      box-sizing: border-box;
+      padding-bottom: max(2rem, env(safe-area-inset-bottom));
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+      color: yellow;
+    }
+
+    .theme-section {
+      margin-bottom: .97rem;
+      padding: .5rem;
+      border-left: 7px solid rgb(151, 180, 221); /* ---- border to left of theme containers */
+      background-color: white !important; /* background of theme containers */
+      /* pink box */
+      border-radius: 8px;
+    }
+
+    .theme-section h2 {
+      margin: 0 0 .5rem 0;
+      color: purple;
+      background: inherit !important;
+      /* sit on the pink */
+      padding: .25rem .25rem;
+      border-radius: 6px;
+    }
+
+    .theme-section p {
+      margin: 0;
+    }
+
+    /* ----------- back to theme ---------------- */
+    .backToTheme {
+      display: inline-block;
+      margin: 2rem auto 0;
+      padding: 10px 20px;
+      background-color: #000 !important;
+      color: #fff !important;
+      font-size: 1rem;
+      font-weight: 600;
+      border: 1px solid white;
+      border-radius: 8px;
+      text-decoration: none;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+      transition: background-color .3s, transform .2s;
+      text-align: center;
+    }
+
+    .backToTheme:hover {
+      background-color: #222 !important;
+      transform: scale(1.03);
+    }
+
+    .backToTheme:active {
+      transform: scale(0.98);
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 0 1rem max(1.5rem, env(safe-area-inset-bottom));
+      }
+    }
+
+  /* ================= register css add ons ================ */
+/* ADDED: tiny legal footer style for the Privacy link */
+/* make the Privacy link visible + themed and keep it above nav */
+.legal-footer {
+  text-align: center;
+  font-size: 0.9rem;
+  margin: 0.5rem 0 6.5rem !important; /* push it above the nav */
+  color: var(--text-color) !important;
+}
+
+.legal-footer {
+  text-align:center;
+  font-size:.9rem;
+  margin: .5rem 0 6.5rem !important;
+  color: var(--text-color) !important;
+}
+
+/* Privacy link at the bottom: make it match the accent */
+.legal-footer a { color: #C9BBFF !important; }              /* link color */
+.legal-footer a:hover { text-decoration: underline; filter: brightness(1.12); }
+  
+ 
+/* ================= navbar overrides ============= */
+/* === Glow Standard Bottom Nav (namespaced) === */
+:root{
+  --gs-nav-h: 64px;
+  --gs-nav-fs: 12px;   /* label */
+  --gs-nav-ico: 20px;  /* emoji */
+  --gs-nav-bg: #fafafa;
+  --gs-nav-border: rgba(69,111,179,.25);
+  --gs-nav-text: rgba(69,111,179,1);
+  --gs-nav-active: #0b6cc4;
+}
+
+/* Reserve space for the fixed bar (opt-in via body.gs-has-nav) */
+body.gs-has-nav{
+  padding-bottom: calc(var(--gs-nav-h) + env(safe-area-inset-bottom, 0px));
+}
+
+/* The fixed bar */
+footer.gs-nav{
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  height: var(--gs-nav-h);
+  background: var(--gs-nav-bg);
+  border-top: 1px solid var(--gs-nav-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 env(safe-area-inset-left,8px) 0 env(safe-area-inset-right,8px);
+  z-index: 1000;
+  overflow: hidden;
+  box-sizing: border-box;
+  /* normalize inheritance so pages can’t change it */
+  font-size: 0; line-height: 1; font-family: inherit;
+}
+
+/* Items are equal columns */
+.gs-nav__item{
+  flex: 1 1 0;
+  min-width: 0;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  text-decoration: none;
+  color: var(--gs-nav-text);
+  white-space: nowrap;
+  padding: 0; margin: 0;
+  box-sizing: border-box;
+}
+
+/* Explicit sizes (prevents page font from changing the bar) */
+.gs-nav__item .ico { font-size: var(--gs-nav-ico); display:block; line-height:1; }
+.gs-nav__item span { font-size: var(--gs-nav-fs); display:block; line-height:1; }
+
+/* Active + hover */
+.gs-nav__item[aria-current="page"]{ color: var(--gs-nav-active); font-weight: 700; }
+.gs-nav__item:hover{ color:#72aadf; }
+
+body{
+  background-color: black;
+}
+
+h2{
+  font-size: 1.25rem;
+}
+
+p{
+  font-size: 1rem;
+  }
+
+
+/* =================== accessability (from systemSettings.html) =================== */
+/*------------ accesability increase font size --------------- */
+/* Default fallbacks in case gs_prefs hasn't been set yet */
+:root {
+  --text-size: 1rem;
+  --motion-scale: 1;
+}
+
+/* Base text uses the variable from gs_prefs */
+body {
+  font-size: var(--text-size, 1rem);
+}
+
+/* Let most things inherit body size, instead of hardcoding rems */
+p,
+input[type="text"],
+textarea,
+.toolkit-item span,
+.button,
+.button-purple,
+.idea-item,
+#toolkitList .idea-text {
+  font-size: 1em; /* 1em = whatever body is (1rem or 1.1rem, etc.) */
+}
+
+/* Scale headings relative to --text-size so they grow/shrink too */
+h1.three-d-title,
+h1.three-d-title-two {
+  font-size: calc(var(--text-size, 1rem) * 1.7);
+}
+
+/* ------ text inside the top of the teal container ------ */
+h3,
+.dreamy-box h3 {
+  font-size: calc(var(--text-size, 1rem) * 1.25);
+}
+
+/* ----------------------- reduce motion ----------*/
+/* Use --motion-scale to tone down motion on this page */
+.icon-button,
+.button,
+.toolkit-entry button,
+.dropdown-icon-btn {
+  transition:
+    transform calc(150ms * var(--motion-scale, 1)),
+    background-color 0.3s ease,
+    box-shadow calc(150ms * var(--motion-scale, 1));
+}
+
+/* When motion-scale is 0, this becomes scale(1) (no “pop” on hover) */
+.icon-button:hover,
+.button:hover,
+.toolkit-entry button:hover,
+.dropdown-icon-btn:hover {
+  transform: scale(calc(1 + (0.03 * var(--motion-scale, 1))));
+}
+
+  </style>
+
+<body>
+  <h1 style="color: yellow !important;">About the Themes</h1>
+
+  <!-- All text inside this section inherits the deep blue color -->
+  <section id="theme-list" style="color: rgb(3, 3, 82) !important;">
+
+  <div class="theme-section">
+    <h2>Bingo Yellow</h2>
+    <p>Inspired by a game Brenton and I play with yellow cars. It’s joyful and playful, just like our bond.</p>
+  </div>
+
+  <div class="theme-section">
+    <h2>Bumblebee Yellow</h2>
+    <p>Brenton’s childhood nickname was “Bumblebee.” This theme celebrates his energy, resilience, and the love between
+      a mom and son.</p>
+  </div>
+
+  <div class="theme-section">
+    <h2>Stella Peach</h2>
+    <p>A tribute to Carlie, who welcomed me with kindness and gave me the sacred gift of time with Delilah. This theme
+      represents new beginnings, trust, and warmth.</p>
+  </div>
+
+  <div class="theme-section">
+    <h2>Santafe Red</h2>
+    <p>For Rick. He’s always loved trains—especially the Santa Fe line—and red has always been his favorite color. This
+      theme reflects his passion, creativity, and the unique joy he brings into our lives. Just like his hobbies, it’s
+      full of motion, nostalgia, and color—and just like Rick, it stands out in the best way.</p>
+  </div>
+
+  <div class="theme-section">
+    <h2>Dolphin Blue</h2>
+    <p>This theme is named for Bre. From a special vacation with her and Brenton, where we swam with dolphins at the
+      Indianapolis Zoo. It’s calm, joyful, and full of shared memories.</p>
+  </div>
+
+  <div class="theme-section">
+    <h2>Moonlight Blue</h2>
+    <p>Named after Luna. We don’t see her often, but when we do, it brings real joy and happiness. This soft blue
+      reflects those moments—bright, peaceful, and deeply meaningful.</p>
+  </div>
+
+  <div class="theme-section">
+    <h2>JR Green</h2>
+    <p>Named after my brother JR. A strong, classic green that honors our bond and the steady foundation he represents.
+    </p>
+  </div>
+
+  <div class="theme-section">
+    <h2>Monkey Green</h2>
+    <p>Braden’s dad used to call him “Monkey,” and now he uses that nickname for the people he loves. It’s playful,
+      affectionate, and full of love.</p>
+  </div>
+
+  <div class="theme-section">
+    <h2>Golf Green</h2>
+    <p>For my dad, who i used to golf with when i was a teenager. He who now golfs almost every day in his retirement.
+      This grounded green reflects his calm spirit, steady habits, and how deeply he values his routines. He’s always
+      been consistent and dependable, and this color is a quiet tribute to the peace and strength he brings me.</p>
+  </div>
+
+  <div class="theme-section">
+    <h2>Strawberry Pink</h2>
+    <p>Named after my granddaughter, who has a world full of strawberry-themed everything. This color is sweet, joyful,
+      and
+      bursting with her bright little spirit. Babysitting her has been one of the greatest joys of my life—a beautiful
+      reminder of innocence, giggles, and unconditional love.
+      This theme is for her—for all the sunshine she brings, and the way she’s filled my
+      heart in ways only a granddaughter can.
+    </p>
+  </div>
+
+  <div class="theme-section">
+    <h2>Shortcake Pink</h2>
+    <p>For Everly. I gave her my Strawberry Shortcake baby blanket from when I was little. Though I haven’t gotten to
+      have a relationship with her, she’s always in my heart.</p>
+  </div>
+
+  <div class="theme-section">
+    <h2>Prissy Pink</h2>
+    <p>My signature color—feminine, strong, and soft. This theme represents self-love and embracing who I am fully.</p>
+  </div>
+
+  <div class="theme-section">
+    <h2>Date Rose</h2>
+    <p>Rick was the first man to ever give me flowers—and he still surprises me with them sometimes. This theme is for
+      him and the love we’ve built together.</p>
+  </div>
+
+  <div class="theme-section">
+    <h2>Sunburst Purple</h2>
+    <p>For my moms favorite color, and a memory shared about a <em>Sunburst Beauty
+        Pageant</em> rhinestone pin that meant the world to me,
+      being stolen from our hotel room at one of my other pageants. It’s more than just purple—it’s about her love and
+      support I have always felt from her.</p>
+  </div>
+
+  <div class="theme-section">
+    <h2>Bubby-Bear Brown</h2>
+    <p>Braden’s nickname is “Bubby.” I added “Bear” to reflect his strength, protectiveness, and quiet warmth. This
+      theme feels earthy and deeply loving—just like him.</p>
+  </div>
+
+  <div class="theme-section">
+    <h2>Brady Blue</h2>
+    <p>Inspired by the Brady Bunch. Rick and I have always said our family is like theirs—blended, chosen, and built
+      with love. This theme is for everyone in our life who became family, whether by blood or by heart.</p>
+  </div>
+
+  <div class="theme-section">
+    <h2>Original Theme</h2>
+    <p>The very first design before the colors had names. It’s where everything started—a simple beginning that led to
+      something full of meaning.</p>
+  </div>
+
+  <div class="legal-footer">
+    View our
+    <a href="privacy.html" rel="noopener">Privacy Policy</a>
+    and
+    <a href="terms.html" rel="noopener">Terms of Use</a>.
+    </div>
+<!-- ========== IDENTICAL NAV HTML (copy this exact block to every page) ========== -->
+<!-- Standard Bottom Nav (use on every page) -->
+<footer class="gs-nav">
+  <a href="index.html" class="gs-nav__item"><span class="ico">🏠</span><span>Home</span></a>
+  <a href="toolkit-hub.html" class="gs-nav__item" data-auth="true"><span class="ico">🧰</span><span>Toolkit</span></a>
+  <a href="wellness.html" class="gs-nav__item" data-auth="true"><span class="ico">💖</span><span>Wellness</span></a>
+  <a href="pet.html" class="gs-nav__item" data-auth="true"><span class="ico">🐾</span><span>Pet</span></a>
+  <a href="important-numbers.html" class="gs-nav__item"><span class="ico">🆘</span><span>Help</span></a>
+  <a href="systemSettings.html" class="gs-nav__item" data-auth="true"><span class="ico">☸</span><span>Settings</span></a>
+</footer>        
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Body background (navy)
+      document.body.style.setProperty('background-color', '#3bb5b3', 'important');
+
+      // H1 (yellow)
+      const h1 = document.querySelector('h1');
+      if (h1) h1.style.setProperty('color', 'black', 'important');
+
+      // Force all H2s inside the theme list to deep blue
+      document.querySelectorAll('#theme-list h2').forEach(h => {
+        h.style.setProperty('color', 'black', 'important');
+      });
+
+      // Legal footer text + link to soft pink (keep your link inheriting)
+      const lf = document.querySelector('.legal-footer');
+      if (lf) {
+        lf.style.setProperty('color', 'rgb(250, 230, 250)', 'important');
+        lf.querySelectorAll('a').forEach(a => a.style.setProperty('color', 'inherit', 'important'));
+      }
+    });
+  </script>
+  
+  <script>
+    /* ========== GLOBAL NAV SCRIPT (tiny, repeat on every page) ========== */
+    (function () {
+      // 1) Mark current tab active
+      const here = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
+      document.querySelectorAll('.bottom-nav .nav-icon').forEach(a => {
+        const href = (a.getAttribute('href') || '').toLowerCase();
+        if (href === here) a.setAttribute('aria-current', 'page');
+      });
+
+      // 2) Gate authed links (replace with your real auth check if needed)
+      const isAuthed = !!localStorage.getItem('currentUser');
+      document.querySelectorAll('.bottom-nav [data-auth="true"]').forEach(a => {
+        if (isAuthed) return;
+        a.addEventListener('click', (e) => {
+          e.preventDefault();
+          const dest = a.getAttribute('href') || 'index.html';
+          location.href = `login.html?next=${encodeURIComponent(dest)}`;
+        });
+      });
+    })();
+  </script>
+  
+  <!-- Optional: live theme sync from Firestore while signed in -->
+  <script type="module">
+    (async () => {
+      function syncMetaTheme() {
+        try {
+          const cs = getComputedStyle(document.documentElement);
+          const accent = (cs.getPropertyValue('--accent-color') || cs.getPropertyValue('--accent') || '#6a5acd').trim() || '#6a5acd';
+          const meta = document.querySelector('meta[name="theme-color"]') || (() => {
+            const m = document.createElement('meta'); m.name = 'theme-color'; document.head.appendChild(m); return m;
+          })();
+          meta.content = accent;
+        } catch { }
+      }
+
+      function applyThemeClass(themeClass) {
+        const root = document.documentElement;
+        const next = themeClass || 'theme-original';
+        const keep = (root.className || '').split(/\s+/).filter(Boolean).filter(c => !c.startsWith('theme-'));
+        const curr = (root.className.match(/\btheme-[^\s]+/g) || [])[0];
+        if (curr === next) { syncMetaTheme(); return; }
+        root.className = [...keep, next].join(' ');
+        try {
+          const userKey = localStorage.getItem('currentUser') || 'anon';
+          localStorage.setItem(userKey + ':themeClass', next);
+          localStorage.setItem('themeClass:last', next);
+        } catch { }
+        syncMetaTheme();
+      }
+
+      try {
+        const { auth, db } = await import('./firebase-init.js');
+        const { onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
+        const { doc, onSnapshot } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+
+        onAuthStateChanged(auth, (user) => {
+          if (!user) { syncMetaTheme(); return; }
+          onSnapshot(
+            doc(db, 'users', user.uid),
+            (snap) => {
+              const t = snap.exists() ? (snap.data()?.themeClass || '') : '';
+              if (t) applyThemeClass(t); else syncMetaTheme();
+            },
+            () => { /* ignore errors on this static page */ }
+          );
+        });
+      } catch {
+        // No Firebase here? Fine—Early Theme Boot already applied theme; keep bars in sync.
+        syncMetaTheme();
+      }
+    })();
+  </script>
+  
+  </head>
+
+</body>
+
+</html>

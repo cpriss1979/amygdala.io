@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Three Sides — OPEN FILE</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    
+    <script type="module">
+        import { auth, db } from './firebase-init.js';
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        const LOCAL_MARK = 'gs_session_ack_ts';
+        onAuthStateChanged(auth, (user) => {
+            if (!user) return;
+            const uref = doc(db, 'users', user.uid);
+            onSnapshot(uref, async (snap) => {
+                const bump = snap?.data()?.sessionBumpedAt?.toMillis?.() || 0;
+                const seen = parseInt(localStorage.getItem(LOCAL_MARK) || '0', 10);
+                if (bump > seen) {
+                    localStorage.setItem(LOCAL_MARK, String(bump));
+                    try { await signOut(auth); } finally { location.replace('login.html'); }
+                }
+            });
+        });
+    </script>
+    
+    <!-- Favicons -->
+    <link rel="icon" type="image/svg+xml" sizes="any" href="/3-sides-planner.io/favicon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/3-sides-planner.io/favicon-16.png">
+    <link rel="apple-touch-icon" href="/3-sides-planner.io/icon-192.png"> <!-- iOS Home screen -->
+
+    <!-- prefs bootstrap: put in <head> of every page -->
+    <script>
+        (function () {
+            const PREFS_KEY = 'gs_prefs';
+            let p = {};
+            try { p = JSON.parse(localStorage.getItem(PREFS_KEY) || '{}'); } catch { }
+            document.documentElement.style.setProperty('--motion-scale', p.reducedMotion ? '0' : '1');
+            document.documentElement.style.setProperty('--text-size', p.largerText ? '1.1rem' : '1rem');
+        })();
+    </script>
+        
+    <style>
+        :root {
+            color-scheme: light dark;
+        }
+
+        body {
+            font: 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            padding: 1rem;
+            margin: 0
+        }
+
+        .card {
+            border: 1px solid rgba(0, 0, 0, .15);
+            border-radius: 12px;
+            padding: 1rem;
+            max-width: 700px
+        }
+
+        .muted {
+            opacity: .7
+        }
+
+        .btn {
+            display: inline-block;
+            margin-top: .75rem;
+            padding: .5rem 1rem;
+            border: 1px solid #000;
+            border-radius: 10px;
+            text-decoration: none
+        }
+
+        pre {
+            white-space: pre-wrap;
+            word-break: break-word;
+            background: rgba(0, 0, 0, .04);
+            padding: .75rem;
+            border-radius: 10px
+        }
+
+
+
+/* ================= navbar overrides ============= */
+/* === Glow Standard Bottom Nav (namespaced) === */
+:root{
+  --gs-nav-h: 64px;
+  --gs-nav-fs: 12px;   /* label */
+  --gs-nav-ico: 20px;  /* emoji */
+  --gs-nav-bg: #fafafa;
+  --gs-nav-border: rgba(69,111,179,.25);
+  --gs-nav-text: rgba(69,111,179,1);
+  --gs-nav-active: #0b6cc4;
+}
+
+/* Reserve space for the fixed bar (opt-in via body.gs-has-nav) */
+body.gs-has-nav{
+  padding-bottom: calc(var(--gs-nav-h) + env(safe-area-inset-bottom, 0px));
+}
+
+/* The fixed bar */
+footer.gs-nav{
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  height: var(--gs-nav-h);
+  background: var(--gs-nav-bg);
+  border-top: 1px solid var(--gs-nav-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 env(safe-area-inset-left,8px) 0 env(safe-area-inset-right,8px);
+  z-index: 1000;
+  overflow: hidden;
+  box-sizing: border-box;
+  /* normalize inheritance so pages can’t change it */
+  font-size: 0; line-height: 1; font-family: inherit;
+}
+
+/* Items are equal columns */
+.gs-nav__item{
+  flex: 1 1 0;
+  min-width: 0;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  text-decoration: none;
+  color: var(--gs-nav-text);
+  white-space: nowrap;
+  padding: 0; margin: 0;
+  box-sizing: border-box;
+}
+
+/* Explicit sizes (prevents page font from changing the bar) */
+.gs-nav__item .ico { font-size: var(--gs-nav-ico); display:block; line-height:1; }
+.gs-nav__item span { font-size: var(--gs-nav-fs); display:block; line-height:1; }
+
+/* Active + hover */
+.gs-nav__item[aria-current="page"]{ color: var(--gs-nav-active); font-weight: 700; }
+.gs-nav__item:hover{ color:#72aadf; }
+
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <h1>Opening file…</h1>
+        <p class="muted">If nothing happens, this feature requires the app to be <b>installed on desktop Chrome/Edge</b>
+            and launched via “Open with” the PWA.</p>
+        <a class="btn" href="index.html">Back to Home</a>
+        <div id="preview" class="muted" style="margin-top:1rem;"></div>
+    </div>
+
+    <script>
+        // Helper to redirect correctly on dev (/) and GH Pages (/three-sides-planner.io/)
+        const base = location.pathname.startsWith('/3-sides-planner.io/') ? '/3-sides-planner.io/' : '/';
+        const go = (path) => location.replace(base + path);
+
+        async function handleFiles(params) {
+            if (!params?.files?.length) { go('index.html'); return; }
+            const fileHandle = params.files[0];
+            const file = await fileHandle.getFile();
+            const text = await file.text();
+
+            // Persist for your journal page to pick up
+            const key = `inbox:file:${Date.now()}`;
+            try { localStorage.setItem(key, JSON.stringify({ name: file.name, text })); } catch { }
+
+            // Optional quick preview (good for debugging)
+            const pre = document.getElementById('preview');
+            pre.innerHTML = `<h3>Captured: ${file.name}</h3><pre>${text.slice(0, 2000)}</pre>`;
+
+            // Send to journal
+            setTimeout(() => go('journal.html?from=file'), 400);
+        }
+
+        // File Handling API (desktop installed PWAs)
+        if ('launchQueue' in window && 'files' in LaunchParams.prototype) {
+            launchQueue.setConsumer(handleFiles);
+        } else {
+            // Not supported → just go home
+            go('index.html');
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>3-Sides — REGISTER</title>
+  <meta name="description" content="Create a Three Sides account so your wellness data stays saved and in sync." />
+
+  <!-- Service worker -->
+  <script src="sw-register.js"></script>
+
+  <!-- Firebase boot -->
+  <script type="module">
+    import './firebase-init.js';
+  </script>
+
+  <!-- Global session bump listener -->
+  <script type="module">
+    import { auth, db } from './firebase-init.js';
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const LOCAL_MARK = 'gs_session_ack_ts';
+    onAuthStateChanged(auth, (user) => {
+      if (!user) return;
+      const uref = doc(db, 'users', user.uid);
+      onSnapshot(uref, async (snap) => {
+        const bump = snap?.data()?.sessionBumpedAt?.toMillis?.() || 0;
+        const seen = parseInt(localStorage.getItem(LOCAL_MARK) || '0', 10);
+        if (bump > seen) {
+          localStorage.setItem(LOCAL_MARK, String(bump));
+          try { await signOut(auth); } finally { location.replace('login.html'); }
+        }
+      });
+    });
+  </script>
+
+  <!-- prefs bootstrap -->
+  <script>
+    (function () {
+      const PREFS_KEY = 'gs_prefs';
+      let p = {};
+      try { p = JSON.parse(localStorage.getItem(PREFS_KEY) || '{}'); } catch { }
+      document.documentElement.style.setProperty('--motion-scale', p.reducedMotion ? '0' : '1');
+      document.documentElement.style.setProperty('--text-size', p.largerText ? '1.1rem' : '1rem');
+    })();
+  </script>
+
+  <!-- PWA manifest + icons -->
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/svg+xml" sizes="any" href="/3-sides-planner.io/favicon.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/3-sides-planner.io/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/3-sides-planner.io/favicon-16.png" />
+  <link rel="apple-touch-icon" href="/3-sides-planner.io/icon-192.png" />
+
+  <style>
+    :root {
+      --page-bg: #c7f5f2;
+      --page-bg-2: #a7e7dd;
+      --card-bg: #ffffff;
+      --accent: #ff6fa9;
+      --accent-soft: #ffe3f2;
+      --text-main: #134e4a;
+      --text-muted: #4b5563;
+      --radius-lg: 24px;
+      --shadow-soft: 0 16px 40px rgba(15, 23, 42, 0.22);
+      --max-width: 430px;
+    }
+  
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+  
+    /* NEW: lock horizontal width */
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+  
+    body {
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #e5fbff 0, var(--page-bg) 50%, var(--page-bg-2) 100%);
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+      color: var(--text-main);
+    }
+  
+    .shell {
+      width: 100%;
+      max-width: var(--max-width);
+      padding: 20px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  
+    .auth-card {
+      width: 100%;
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-soft);
+      padding: 22px 18px 16px;
+      display: flex;
+      flex-direction: column;
+    }
+  
+    .auth-header {
+      text-align: center;
+      margin-bottom: 14px;
+    }
+  
+    .auth-title {
+      margin: 0;
+      font-size: 1.7rem;
+      color: black;
+    }
+  
+    .auth-sub {
+      margin: 4px 0 0;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+  
+    .login-container {
+      max-width: 360px;
+      width: 100%;
+      margin: 0 auto;
+    }
+  
+    form {
+      margin: 14px 0 6px;
+    }
+  
+    .auth-group {
+      margin-bottom: 0.75rem;
+      text-align: left;
+    }
+  
+    .auth-label {
+      display: block;
+      font-size: 0.85rem;
+      margin-bottom: 4px;
+      color: var(--text-main);
+    }
+  
+    .auth-input {
+      width: 100%;
+      height: 44px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid #cbd5e1;
+      font-size: 0.95rem;
+      outline: none;
+    }
+  
+    .auth-input::placeholder {
+      color: rgba(0, 0, 0, 0.45);
+      font-weight: 500;
+    }
+  
+    .auth-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(255, 111, 169, 0.28);
+    }
+  
+    .password-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  
+    .password-row .auth-input {
+      flex: 1 1 auto;
+    }
+  
+    .toggle-pass {
+      border-radius: 999px;
+      border: 1px solid #cbd5e1;
+      background: var(--accent-soft);
+      color: #4b5563;
+      padding: 8px 11px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      min-width: 64px;
+      line-height: 1;
+      white-space: nowrap;
+    }
+  
+    .toggle-pass:active {
+      transform: translateY(1px);
+    }
+  
+    .auth-button {
+      width: 100%;
+      border: none;
+      border-radius: 999px;
+      padding: 11px 14px;
+      margin-top: 6px;
+      font-size: 1rem;
+      font-weight: 600;
+      background: var(--accent);
+      color: #ffffff;
+      cursor: pointer;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease;
+      box-shadow: 0 10px 22px rgba(244, 114, 182, 0.45);
+    }
+  
+    .auth-button:active {
+      transform: translateY(1px);
+      box-shadow: 0 5px 12px rgba(244, 114, 182, 0.35);
+    }
+  
+    #msg {
+      margin: 0.6rem 0 0;
+      padding: 0.55rem 0.7rem;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      text-align: left;
+    }
+  
+    #msg:empty {
+      margin: 0.25rem 0 0;
+      padding: 0;
+      border: none;
+    }
+  
+    .msg-error {
+      background: #fee2e2;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
+    }
+  
+    .msg-ok {
+      background: #ecfeff;
+      color: #155e75;
+      border: 1px solid #a5f3fc;
+    }
+  
+    .auth-links {
+      margin-top: 0.9rem;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+  
+    .auth-links a {
+      color: #9097de;
+      font-weight: 700;
+      text-decoration: none;
+    }
+  
+    .auth-links a:hover,
+    .auth-links a:focus {
+      color: #d39cff;
+      text-decoration: underline;
+    }
+  
+    .card-footer {
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid #e5e7eb;
+      text-align: center;
+      font-size: 0.8rem;
+      color: #9ca3af;
+    }
+  
+    .backToApp {
+      display: inline-block;
+      margin-bottom: 4px;
+      font-size: 0.9rem;
+      color: rgb(201, 108, 201);
+      text-decoration: none;
+    }
+  
+    .backToApp:hover,
+    .backToApp:focus {
+      text-decoration: underline;
+    }
+  
+    .legal-footer {
+      font-size: 0.8rem;
+    }
+  
+    .legal-footer a {
+      color: #9097de;
+      text-decoration: underline;
+    }
+  
+    @media (max-width: 600px) {
+      .shell {
+        padding: 16px 12px;
+      }
+  
+      .auth-card {
+        border-radius: 20px;
+      }
+    }
+  </style>
+  
+</head>
+
+<body>
+  <div class="shell">
+    <div class="auth-card">
+      <div class="auth-header">
+        <h1 class="auth-title">Register</h1>
+        <p class="auth-sub">Create your Three Sides account so your wellness data stays saved and in sync.</p>
+      </div>
+
+      <div class="login-container">
+        <form id="registerForm" novalidate>
+          <div class="auth-group">
+            <label class="auth-label" for="name">Display name (optional)</label>
+            <input id="name" type="text" class="auth-input" placeholder="Display name (optional)" autocomplete="name" />
+          </div>
+
+          <div class="auth-group">
+            <label class="auth-label" for="email">Email</label>
+            <input id="email" type="email" class="auth-input" placeholder="Email (required)" autocomplete="username"
+              inputmode="email" required />
+          </div>
+
+          <div class="auth-group">
+            <label class="auth-label" for="pass">Password</label>
+            <div class="password-row">
+              <input id="pass" type="password" class="auth-input" placeholder="Password (required)"
+                autocomplete="new-password" required />
+              <button type="button" id="togglePass" class="toggle-pass" aria-pressed="false" aria-label="Show password">
+                Show
+              </button>
+            </div>
+          </div>
+
+          <button id="registerBtn" type="submit" class="auth-button" disabled>Register</button>
+        </form>
+
+        <div id="msg" aria-live="polite"></div>
+
+        <p class="auth-links">
+          Already have an account?
+          <a id="loginLink" href="login.html">Login here</a>
+        </p>
+      </div>
+
+      <div class="card-footer">
+        <a href="index.html" class="backToApp">← Back to App</a>
+        <div class="legal-footer">
+          View our
+          <a href="privacy.html" rel="noopener">Privacy Policy</a>
+          and
+          <a href="terms.html" rel="noopener">Terms of Use</a>.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- form submit → button click -->
+  <script>
+    document.getElementById('registerForm')?.addEventListener('submit', function (e) {
+      e.preventDefault();
+      document.getElementById('registerBtn')?.click();
+    });
+
+    // show / hide password
+    (function () {
+      const passInput = document.getElementById('pass');
+      const toggleBtn = document.getElementById('togglePass');
+      if (!passInput || !toggleBtn) return;
+
+      toggleBtn.addEventListener('click', () => {
+        const isHidden = passInput.type === 'password';
+        passInput.type = isHidden ? 'text' : 'password';
+        toggleBtn.textContent = isHidden ? 'Hide' : 'Show';
+        toggleBtn.setAttribute('aria-pressed', String(isHidden));
+        passInput.focus();
+      });
+    })();
+  </script>
+
+  <!-- ================= Firebase register logic ================= -->
+  <script type="module">
+    import { auth, db } from "./firebase-init.js";
+    import {
+      setPersistence,
+      browserLocalPersistence,
+      createUserWithEmailAndPassword,
+      updateProfile,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const $ = (id) => document.getElementById(id);
+    const isEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+
+    const nameEl = $("name");
+    const emailEl = $("email");
+    const passEl = $("pass");
+    const btn = $("registerBtn");
+    const msg = $("msg");
+
+    const setMsg = (text, kind) => {
+      if (!msg) return;
+      msg.textContent = text || "";
+      msg.classList.remove("msg-error", "msg-ok");
+      if (kind) msg.classList.add(kind);
+    };
+
+    // Carry ?next to login link
+    const qsNext = new URLSearchParams(location.search).get("next");
+    const loginLink = $("loginLink");
+    if (loginLink) {
+      loginLink.href = `login.html${qsNext ? `?next=${encodeURIComponent(qsNext)}` : ""}`;
+    }
+
+    const valid = () => isEmail((emailEl?.value || "").trim()) && (passEl?.value || "").length >= 6;
+
+    const sync = () => {
+      if (!btn) return;
+      btn.disabled = !valid();
+    };
+
+    const showEmailHint = () => {
+      const email = (emailEl?.value || "").trim();
+      if (!email) {
+        setMsg("");
+        return;
+      }
+      if (!isEmail(email)) {
+        setMsg(
+          email.includes("@")
+            ? "Enter a valid email (e.g., name@example.com)."
+            : "Please use your full email address (e.g., name@example.com).",
+          "msg-error"
+        );
+      } else {
+        setMsg("");
+      }
+    };
+
+    const showPassHint = () => {
+      const n = (passEl?.value || "").length;
+      if (n > 0 && n < 6) {
+        setMsg("Password must be at least 6 characters.", "msg-error");
+      } else if (isEmail((emailEl?.value || "").trim())) {
+        setMsg("");
+      }
+    };
+
+    [nameEl, emailEl, passEl].forEach(el => el?.addEventListener("keydown", e => {
+      if (e.key === "Enter") btn?.click();
+    }));
+
+    emailEl?.addEventListener("input", () => {
+      sync();
+      if (msg.textContent) showEmailHint();
+    });
+    emailEl?.addEventListener("blur", showEmailHint);
+
+    passEl?.addEventListener("input", () => {
+      sync();
+      showPassHint();
+    });
+    passEl?.addEventListener("blur", showPassHint);
+
+    sync();
+
+    await setPersistence(auth, browserLocalPersistence);
+
+    btn?.addEventListener("click", async (e) => {
+      e.preventDefault();
+      if (!valid()) {
+        showEmailHint();
+        showPassHint();
+        return;
+      }
+
+      try {
+        setMsg("Creating account…");
+        btn.disabled = true;
+
+        const email = (emailEl.value || "").trim();
+        const pass = passEl.value || "";
+        const displayName = (nameEl.value || "").trim();
+
+        const cred = await createUserWithEmailAndPassword(auth, email, pass);
+
+        if (displayName) {
+          try { await updateProfile(cred.user, { displayName }); } catch { }
+        }
+
+        // ensure user doc and default theme
+        await setDoc(
+          doc(db, "users", cred.user.uid),
+          { themeClass: "theme-original" },
+          { merge: true }
+        );
+
+        const dest = qsNext || sessionStorage.getItem("postLoginRedirect") || "index.html";
+        sessionStorage.removeItem("postLoginRedirect");
+        location.assign(dest);
+      } catch (err) {
+        console.error(err);
+        setMsg(err.code || err.message || "Registration failed.", "msg-error");
+        btn.disabled = false;
+      }
+    });
+
+    onAuthStateChanged(auth, (u) => {
+      console.log("[register] user:", u ? u.uid : "(none)");
+    });
+  </script>
+</body>
+
+</html>

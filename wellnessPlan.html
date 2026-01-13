@@ -1,0 +1,1520 @@
+<!-- This is the everyday wellness page that has the wellness form -->
+<!DOCTYPE html>
+<html lang="en" data-ready="0">
+
+<head>
+  <!-- prefs bootstrap: put in <head> of every page -->
+  <script>
+    (function () {
+      const PREFS_KEY = 'gs_prefs';
+      let p = {};
+      try { p = JSON.parse(localStorage.getItem(PREFS_KEY) || '{}'); } catch { }
+      document.documentElement.style.setProperty('--motion-scale', p.reducedMotion ? '0' : '1');
+      document.documentElement.style.setProperty('--text-size', p.largerText ? '1.1rem' : '1rem');
+    })();
+  </script>
+
+  <script>
+    (function () {
+      const PUBLIC_PAGES = ["index.html", "important-numbers.html", "privacy.html", "login.html", "register.html"];
+      const path = location.pathname.split("/").pop() || "index.html";
+      if (PUBLIC_PAGES.includes(path)) return; // no-op on public pages
+
+      // Hide immediately to avoid UI flash on protected pages
+      document.documentElement.style.visibility = "hidden";
+
+      const goLogin = () => {
+        location.href = "login.html?next=" + encodeURIComponent(location.href);
+      };
+
+      // Try Firebase; fall back to a temporary session flag if needed
+      (async () => {
+        try {
+          const { getAuth, onAuthStateChanged } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
+          const { auth } = await import("./firebase-init.js");
+          onAuthStateChanged(auth, (user) => {
+            if (!user) return goLogin();
+            document.documentElement.style.visibility = "";
+            document.documentElement.setAttribute("data-ready", "1");
+          });
+        } catch (e) {
+          const authed = sessionStorage.getItem("fs_logged_in") === "1"; // temporary fallback
+          if (!authed) return goLogin();
+          document.documentElement.style.visibility = "";
+          document.documentElement.setAttribute("data-ready", "1");
+        }
+      })();
+    })();
+  </script>
+
+  <meta charset="UTF-8" />
+
+  <script src="sw-register.js" defer></script>
+
+  <!-- At the top of delete-account.html <body> or in <head> -->
+  <script type="module">
+    import './firebase-init.js'; // ensures app/auth/db are initialized
+  </script>
+
+  <script type="module">
+    import { auth, db } from './firebase-init.js';
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const LOCAL_MARK = 'gs_session_ack_ts';
+    onAuthStateChanged(auth, (user) => {
+      if (!user) return;
+      const uref = doc(db, 'users', user.uid);
+      onSnapshot(uref, async (snap) => {
+        const bump = snap?.data()?.sessionBumpedAt?.toMillis?.() || 0;
+        const seen = parseInt(localStorage.getItem(LOCAL_MARK) || '0', 10);
+        if (bump > seen) {
+          localStorage.setItem(LOCAL_MARK, String(bump));
+          try { await signOut(auth); } finally { location.replace('login.html'); }
+        }
+      });
+    });
+  </script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="mainTheme.css" />
+  <!-- Absolute (good for GitHub Pages) -->
+  <link rel="manifest" href="manifest.webmanifest">
+
+  <!-- Favicons -->
+  <link rel="icon" type="image/svg+xml" sizes="any" href="/3-sides-planner.io/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/3-sides-planner.io/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/3-sides-planner.io/favicon-16.png">
+  <link rel="apple-touch-icon" href="/3-sides-planner.io/icon-192.png"> <!-- iOS Home screen -->
+
+  <script type="module" src="auth.js"></script>
+
+  <title>Three Sides Planner — EVERYDAY WELLNESS</title>
+
+  <!-- prefs bootstrap: put in <head> of every page -->
+  <script>
+    (function () {
+      const PREFS_KEY = 'gs_prefs';
+      let p = {};
+      try { p = JSON.parse(localStorage.getItem(PREFS_KEY) || '{}'); } catch { }
+      document.documentElement.style.setProperty('--motion-scale', p.reducedMotion ? '0' : '1');
+      document.documentElement.style.setProperty('--text-size', p.largerText ? '1.1rem' : '1rem');
+    })();
+  </script>
+
+  <!-- Prevent flash of wrong theme -->
+  <style>
+    /* Hide ONLY until data-ready=1, then the page stays visible */
+    html:not([data-ready="1"]) {
+      visibility: hidden;
+    }
+  </style>
+
+  <noscript>
+    <style>
+      html {
+        visibility: visible
+      }
+    </style>
+  </noscript>
+
+  <!-- Instant theme prepaint (before any CSS/JS loads) -->
+  <script>
+    (function () {
+      try {
+        var r = document.documentElement;
+        var cached =
+          localStorage.getItem("themeClass") ||
+          localStorage.getItem("themeClass:last") ||
+          "theme-original";
+        (r.className.match(/\btheme-[^\s]+/g) || []).forEach(c => r.classList.remove(c));
+        r.classList.add(cached);
+        // If you're hiding html via `html{visibility:hidden}`, reveal now
+        r.style.visibility = "visible";
+      } catch { }
+    })();
+  </script>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+
+    h3::after {
+      content: "";
+      display: block;
+      width: 60%;
+      margin: 0.5rem auto 0 auto;
+      border-bottom: 3px solid #257069;
+    }
+
+    strong {
+      color: black !important;
+    }
+
+    .button-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      margin: 2rem 0;
+      flex-wrap: wrap;
+    }
+
+    .icon-button {
+      background-color: black;
+      color: black !important;
+      border: 1px solid white;
+      padding: 5px 10px;
+      font-size: 1rem;
+      border-radius: 10px;
+      margin: 0 10px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    textarea {
+      width: 100%;
+      box-sizing: border-box;
+      /* ← prevents overflows! */
+      min-height: 100px;
+      margin: auto;
+      display: block;
+      padding: 10px;
+      font-size: 1rem;
+      border: 1px solid #5f2d5e;
+      border-radius: 5px;
+      background-color: rgb(250, 230, 250) !important;
+    }
+
+    label {
+      display: block;
+      text-align: center;
+      font-weight: bold;
+
+    }
+
+    /* Print Styling */
+    @media print {
+      body {
+        background: white !important;
+        color: black !important;
+        font-family: Georgia, serif;
+        padding: 0;
+        margin: 0;
+      }
+
+      .gradient-section-box2 {
+        background-color: rgb(250, 230, 250);
+        /* Soft lavender purple */
+        padding: 2rem 2rem;
+        margin-top: 1rem;
+        margin-bottom: 2rem;
+        border-radius: 1rem;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        border-top: 5px solid #ffffffcc;
+        border-bottom: 5px solid #ffffffcc;
+        box-sizing: border-box;
+      }
+
+      .container.wellness-wrapper {
+        box-sizing: border-box;
+        /* ← add this */
+      }
+
+      /* everyday wellness container */
+      .container.wellness-wrapper {
+        background: white;
+        border-top: 5px solid #ffffffcc;
+        border-bottom: 5px solid #ffffffcc;
+        padding: 1rem 2rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        max-width: 650px;
+        margin: 0 auto;
+        /* ← centers it again */
+        border-radius: 1rem;
+        /* optional for a softer look */
+      }
+
+      textarea {
+        display: none !important;
+      }
+
+      .print-only {
+        white-space: pre-wrap;
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+        padding: 0.5rem 0;
+      }
+
+      .icon-button,
+      .button-row,
+      .backToApp,
+      nav,
+      footer {
+        display: none !important;
+      }
+
+      h1,
+      h3 {
+        text-align: center;
+        color: black !important;
+      }
+
+
+      label {
+        text-align: left;
+        margin: 1rem 0 0.5rem;
+      }
+    }
+
+    .gradient-section-box2 {
+      color: black !important;
+    }
+
+    .gradient-section-box2 {
+      background-color: rgb(3, 3, 82);
+      padding: 2rem 0rem;
+      /* 🪄 no side padding */
+      border-radius: 0;
+      /* flatten the box feel */
+      box-shadow: none;
+      /* remove the card-style shadow */
+      border-top: 5px solid #ffffffcc;
+      border-bottom: 5px solid #ffffffcc;
+      box-sizing: border-box;
+      width: 100vw;
+      /* 🧠 full viewport width */
+      margin: 0;
+      /* no centering */
+      color: white !important;
+    }
+
+    h3 {
+      text-align: center;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin-top: 1rem;
+      font-size: 1.30rem;
+      font-weight: normal;
+      color: var(--text-color) !important;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 0 1rem;
+        box-sizing: border-box;
+      }
+    }
+
+    /* --------------------- Mobile-safe media query -------------------- */
+    @media (max-width: 600px) {
+      .image-text-box {
+        width: 100%;
+        max-width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+        border-radius: 0;
+        padding: 1rem 0.75rem;
+        text-align: left;
+        /* optional: center if you prefer */
+      }
+
+      .hero-image {
+        width: 100%;
+        height: auto;
+        display: block;
+        margin: 0 auto;
+      }
+
+      .hero-caption,
+      .image-text-box p {
+        font-size: 1rem;
+        line-height: 1.4;
+      }
+    }
+
+    /* Container Around Chart and Button */
+    .feel-good-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      margin: 2rem auto;
+      width: 100%;
+      max-width: 600px;
+      box-sizing: border-box;
+    }
+
+    .feel-good-container h3 {
+      margin-bottom: 0.3rem;
+    }
+
+    .icon-button {
+      background-color: rgb(221, 151, 221);
+      color: black !important;
+      font-size: 1rem;
+      font-weight: 600;
+      border: 1px solid white;
+      border-radius: 8px;
+      padding: 10px 20px;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+      transition: background-color 0.3s, transform 0.2s;
+      text-align: center;
+      margin: .5rem;
+    }
+
+    /* -------------------- NAV ICON CONSISTENCY -------------------- */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      border-top: 1px solid rgba(69, 111, 179, 0.903);
+      display: flex;
+      justify-content: space-around;
+      padding: 0.8rem 0;
+      z-index: 1000;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .bottom-nav {
+      overflow-x: auto;
+      /* makes sure it scrolls rather than overflows */
+      max-width: 100vw;
+      box-sizing: border-box;
+    }
+
+    .nav-icon {
+      text-decoration: none;
+      color: rgba(69, 111, 179, 0.903);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      transition: color 0.3s ease;
+    }
+
+    .nav-icon span {
+      font-size: 0.75rem;
+      margin-top: 0.2rem;
+      color: rgba(69, 111, 179, 0.903);
+    }
+
+    .nav-icon:hover,
+    .nav-icon:focus {
+      color: #72aadf;
+      outline: none;
+    }
+
+    textarea,
+    button,
+    input,
+    .icon-button {
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding-bottom: 5rem;
+      /* height of the nav */
+    }
+
+    html,
+    body {
+      scroll-behavior: smooth;
+      overscroll-behavior-y: contain;
+      /* or 'none' if needed */
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      /* ✅ prevents horizontal scroll */
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 10;
+      padding: 0;
+      min-height: 100vh;
+      box-sizing: border-box;
+      width: 100%;
+      padding-bottom: 4rem;
+      /* for footer space */
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    @media print {
+
+      /* hide stuff we don't want on paper */
+      .bottom-nav,
+      .torn-paper-divider,
+      #sparkleWrapper,
+      .backToApp,
+      .icon-button {
+        display: none !important;
+      }
+
+      body {
+        background: #fff !important;
+        color: #000 !important;
+      }
+
+      textarea {
+        border: 1px solid #000 !important;
+        background: #fff !important;
+        color: #000 !important;
+        min-height: 3em;
+      }
+    }
+
+    @media print {
+      textarea {
+        display: block !important;
+      }
+    }
+
+    /* make the Privacy link visible + themed and keep it above nav */
+    .legal-footer {
+      text-align: center;
+      font-size: 0.9rem;
+      margin: 0.5rem 0 6.5rem !important;
+      /* push it above the nav */
+      color: var(--text-color) !important;
+    }
+
+    .legal-footer a {
+      color: inherit;
+      text-decoration: underline;
+    }
+
+    /* ================ privacy link above fixed nav =================== */
+    .legal-footer {
+      text-align: center;
+      font-size: .9rem;
+      margin: .5rem 0 6.5rem !important;
+      color: var(--text-color) !important;
+    }
+
+    .legal-footer a {
+      color: inherit;
+      text-decoration: underline;
+    }
+
+    /* ======================= add save/ delete button style ================= */
+    .saved-plan-title {
+      margin: .25rem 0 1rem;
+      text-align: center;
+      font-weight: 800;
+    }
+
+    .saved-plan-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: .75rem;
+    }
+
+    .saved-row {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      padding: .75rem .9rem;
+    }
+
+    .saved-label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: .25rem;
+      opacity: .9;
+    }
+
+    .saved-value {
+      white-space: pre-wrap;
+      line-height: 1.35;
+    }
+
+    /* Buttons consistency */
+    .icon-button.secondary {
+      background: #ffd782;
+      border: 1px solid #fff;
+      font-weight: 800;
+    }
+
+    .icon-button.destructive {
+      background: #ffb0b0;
+      border: 1px solid #fff;
+      font-weight: 800;
+    }
+
+    @media print {
+      .saved-row {
+        background: #fff;
+        border: 1px solid #000;
+      }
+
+      .icon-button {
+        display: none !important;
+      }
+    }
+
+    /* ============= create different save/input pages =============== */
+    /* Top-right action link */
+    .top-action {
+      position: sticky;
+      top: 0;
+      display: flex;
+      justify-content: flex-end;
+      padding: .03rem 1rem 0;
+      z-index: 5;
+    }
+
+    .top-action a {
+      text-decoration: underline;
+      font-weight: 800;
+      cursor: pointer;
+      color: var(--text-color, #fff);
+      background: transparent;
+      border: 0;
+      padding: .25rem .5rem;
+    }
+
+    /* Views we toggle */
+    #formView {
+      display: none;
+    }
+
+    #planView {
+      display: none;
+    }
+
+    /* Saved Plan Card — white container, black text */
+    .saved-plan-title {
+      margin: .25rem 0 1rem;
+      text-align: center;
+      font-weight: 800;
+      color: #000;
+    }
+
+    .saved-plan-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: .95rem;
+    }
+
+    .saved-row {
+      background: rgb(3, 3, 82);
+      background: #fff;
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      border-radius: 10px;
+      padding: .75rem .9rem;
+    }
+
+    .saved-label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: .25rem;
+      opacity: .9;
+      color: #111;
+    }
+
+    .saved-value {
+      white-space: pre-wrap;
+      line-height: 1.65;
+      color: #000;
+    }
+
+    .icon-button.secondary {
+      background: #ffd782;
+      border: 1px solid #fff;
+      font-weight: 800;
+    }
+
+    .icon-button.destructive {
+      background: #ffb0b0;
+      border: 1px solid #fff;
+      font-weight: 800;
+    }
+
+    @media print {
+
+      .top-action,
+      .icon-button {
+        display: none !important;
+      }
+
+      .saved-row {
+        background: #fff;
+        border: 1px solid #000;
+      }
+    }
+
+    /* ================= navbar overrides ============= */
+    /* === Glow Standard Bottom Nav (namespaced) === */
+    :root {
+      --gs-nav-h: 64px;
+      --gs-nav-fs: 12px;
+      /* label */
+      --gs-nav-ico: 20px;
+      /* emoji */
+      --gs-nav-bg: #fafafa;
+      --gs-nav-border: rgba(69, 111, 179, .25);
+      --gs-nav-text: rgba(69, 111, 179, 1);
+      --gs-nav-active: #0b6cc4;
+    }
+
+    /* Reserve space for the fixed bar (opt-in via body.gs-has-nav) */
+    body.gs-has-nav {
+      padding-bottom: calc(var(--gs-nav-h) + env(safe-area-inset-bottom, 0px));
+    }
+
+    /* The fixed bar */
+    footer.gs-nav {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: var(--gs-nav-h);
+      background: var(--gs-nav-bg);
+      border-top: 1px solid var(--gs-nav-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 0 env(safe-area-inset-left, 8px) 0 env(safe-area-inset-right, 8px);
+      z-index: 1000;
+      overflow: hidden;
+      box-sizing: border-box;
+      /* normalize inheritance so pages can’t change it */
+      font-size: 0;
+      line-height: 1;
+      font-family: inherit;
+    }
+
+    /* Items are equal columns */
+    .gs-nav__item {
+      flex: 1 1 0;
+      min-width: 0;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      text-decoration: none;
+      color: var(--gs-nav-text);
+      white-space: nowrap;
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+    }
+
+    /* Explicit sizes (prevents page font from changing the bar) */
+    .gs-nav__item .ico {
+      font-size: var(--gs-nav-ico);
+      display: block;
+      line-height: 1;
+    }
+
+    .gs-nav__item span {
+      font-size: var(--gs-nav-fs);
+      display: block;
+      line-height: 1;
+    }
+
+    /* Active + hover */
+    .gs-nav__item[aria-current="page"] {
+      color: var(--gs-nav-active);
+      font-weight: 700;
+    }
+
+    .gs-nav__item:hover {
+      color: #72aadf;
+    }
+
+    /* ===== Teal refresh for Saved Plan section ===== */
+    :root {
+      --teal-500: #3bb5b3;
+      /* container */
+      --teal-700: #0f766e;
+      /* button (same teal we used for buttons) */
+      --teal-700-hover: #115e59;
+      /* hover */
+    }
+
+    /* Keep inner cards white and readable */
+    .saved-row {
+      background: #fff !important;
+      border: 1px solid rgba(0, 0, 0, .12);
+      color: #000;
+    }
+
+    /* Title on teal */
+    .saved-plan-title {
+      color: #ffffff !important;
+    }
+
+    /* Delete Saved Plan button → same teal as our other buttons */
+    .icon-button.destructive {
+      background: var(--teal-700) !important;
+      color: #ecfdf5 !important;
+      border: none !important;
+      box-shadow: 0 6px 18px rgba(15, 118, 110, .30);
+    }
+
+    .icon-button.destructive:hover,
+    .icon-button.destructive:focus-visible {
+      background: var(--teal-700-hover) !important;
+      color: #ecfdf5 !important;
+    }
+
+    .saved-plan-title {
+      text-shadow: 0 1px 8px rgba(0, 0, 0, .15);
+    }
+
+    .icon-button {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #ffc6e0;
+      color: black;
+      font-size: 1rem;
+      font-weight: bold;
+      border: 1px solid #d394b0;
+      border-radius: 8px;
+      text-decoration: none;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(255, 255, 255, .2);
+      transition: background-color .3s, transform .2s;
+      text-align: center;
+    }
+
+    .icon-button:hover {
+      background-color: #cd8fc3 !important;
+      transform: scale(1.03);
+    }
+
+    textarea {
+      width: 100%;
+      box-sizing: border-box;
+      min-height: 100px;
+      margin: auto;
+      display: block;
+      padding: 10px;
+      font-size: 1rem;
+      border: 1px solid #5f2d5e;
+      border-radius: 5px;
+      background-color: #ffffff !important;
+      /* ✅ pure white now */
+    }
+
+    /* === Uniform Save / Clear buttons just for this page === */
+    .feel-good-container {
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    /* Base button (Clear) */
+    .icon-button {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #ffc6e0;
+      color: black;
+      font-size: 1rem;
+      font-weight: bold;
+      border: 1px solid #d394b0;
+      border-radius: 8px;
+      text-decoration: none;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(255, 255, 255, .2);
+      transition: background-color .3s, transform .2s;
+      text-align: center;
+    }
+
+    /* Solid accent button (Save) */
+    .icon-button.secondary {
+      background: var(--teal-700, #0f766e);
+      color: #ffffff;
+    }
+
+    /* Hover / focus */
+    .icon-button:hover,
+    .icon-button:focus-visible {
+      transform: translateY(-1px);
+    }
+
+    .icon-button.secondary:hover,
+    .icon-button.secondary:focus-visible {
+      background: var(--teal-700-hover, #115e59);
+    }
+
+    .icon-button:not(.secondary):hover,
+    .icon-button:not(.secondary):focus-visible {
+      background: rgba(15, 118, 110, .06);
+    }
+
+    /* === FINAL uniform Save / Clear buttons for Everyday Wellness === */
+    .feel-good-container {
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    /* Base style (Clear) */
+    .icon-button {
+      appearance: none;
+      border-radius: 999px;
+      padding: 0.65rem 1.4rem;
+      border: 1px solid #0f766e !important;
+      /* same border for both */
+      background: #ffffff !important;
+      color: #0f766e !important;
+      font-size: 0.95rem;
+      font-weight: 600;
+      min-width: 120px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, .08);
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      transition:
+        background-color .2s ease,
+        color .2s ease,
+        transform .1s ease;
+    }
+
+    /* Solid accent (Save) */
+    .icon-button.secondary {
+      background: #0f766e !important;
+      color: #ffffff !important;
+      border: 1px solid #0f766e !important;
+      /* match border */
+    }
+
+    /* Hover / focus */
+    .icon-button:hover,
+    .icon-button:focus-visible {
+      transform: translateY(-1px);
+    }
+
+    .icon-button.secondary:hover,
+    .icon-button.secondary:focus-visible {
+      background: #115e59 !important;
+    }
+
+    .icon-button:not(.secondary):hover,
+    .icon-button:not(.secondary):focus-visible {
+      background: rgba(15, 118, 110, .06);
+    }
+
+    .three-d-title {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 1.7rem;
+      font-weight: bold;
+      text-align: center;
+      text-shadow: 2px 2px rgba(0, 0, 0, .2);
+      color: var(--text-color) !important;
+      margin: 1.5rem 0 1rem;
+      /* breathing room above and below */
+    }
+
+    .section-heading {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      text-align: center;
+      color: rgb(40, 130, 180);
+      letter-spacing: 1px;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.25);
+      margin: 1.25rem 0 0.75rem;
+    }
+
+    /* optional little underline like the HUB vibe */
+    .section-heading::after {
+      content: "";
+      display: block;
+      width: 60%;
+      margin: 0.4rem auto 0;
+      border-bottom: 3px solid #257069;
+    }
+
+    .saved-plan-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.4rem;
+      /* was .95rem */
+    }
+
+    .saved-row {
+      padding: 0.55rem 0.8rem;
+      /* was .75rem .9rem */
+    }
+
+    /*================= --- Everyday Wellness card shell =============--- */
+
+    body.gs-has-nav {
+      background: var(--bg-color, #eaf3ff);
+      /* soft themed background */
+    }
+
+    /* ===== Layout: make teal saved-plan fill to bottom & pin Privacy above nav ===== */
+
+    /* Main column: title + top-action + plan/form views */
+    .page-shell {
+      min-height: calc(100vh - var(--gs-nav-h));
+      /* leave room for fixed nav */
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* The “Saved Wellness Plan” area should take up the remaining height */
+    #planView {
+      flex: 1 0 auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Keep the rows on top and the delete button at the bottom of the teal card */
+    .saved-plan-grid {
+      flex: 1 0 auto;
+    }
+
+    /* Privacy link always sits at the bottom, above fixed nav */
+    .legal-footer {
+      flex: 0 0 auto;
+      text-align: center;
+      font-size: 0.9rem;
+      margin: 0;
+      padding: 0.5rem 0 calc(var(--gs-nav-h) + env(safe-area-inset-bottom, 0px) + 4px);
+      color: var(--text-color) !important;
+    }
+
+    .legal-footer a {
+      color: inherit;
+      text-decoration: underline;
+    }
+
+    /* Main column: title + toggle + plan/form views */
+    .page-shell {
+      flex: 1 0 auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* === Saved Wellness Plan: teal band like Journal page === */
+
+    /* full-bleed teal section that stretches to the bottom */
+    .saved-plan-wrap {
+      flex: 1 0 auto;
+      /* grow within #planView */
+      width: 100vw;
+      max-width: none;
+      position: relative;
+      left: 50%;
+      transform: translateX(-50%);
+      /* center the 100vw band */
+
+      padding: 1.5rem clamp(12px, 3vw, 24px);
+      background: var(--teal-500, #3bb5b3) !important;
+      color: #062e2d;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    /* planView fills the available height under the title */
+    #planView {
+      flex: 1 0 auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Grid of rows stretches; delete button sits at the bottom */
+    .saved-plan-grid {
+      flex: 1 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .saved-row {
+      background: #fff !important;
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      border-radius: 10px;
+      padding: 0.55rem 0.8rem;
+    }
+
+    .saved-label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+      opacity: 0.9;
+      color: #111;
+    }
+
+    .saved-value {
+      white-space: pre-wrap;
+      line-height: 1.65;
+      color: #000;
+    }
+
+    /* little space above the delete button row */
+    .saved-plan-wrap>div:last-child {
+      margin-top: 1rem;
+    }
+
+    /* make the “Saved Wellness Plan” heading pop on teal */
+    .saved-plan-title {
+      color: #ecfdf5 !important;
+      text-shadow: 0 1px 8px rgba(0, 0, 0, .15);
+    }
+
+    /* ================= privacy footer  ================ */
+    .legal-footer {
+      text-align: center;
+      font-size: 0.9rem;
+      margin-top: 8px;
+      color: var(--text-color) !important;
+      /* NEW: match theme text color */
+    }
+
+    .legal-footer a {
+      color: inherit;
+      /* NEW: use same color as parent */
+      text-decoration: underline;
+    }
+
+    /*=====================  Privacy link sits at bottom of teal section, above the fixed nav */
+    .legal-footer {
+      text-align: center;
+      font-size: .9rem;
+      margin: 0;
+      color: var(--text-color);
+    }
+
+    .legal-footer a {
+      color: inherit;
+      text-decoration: underline;
+    }
+
+    
+/* =================== accessability (from systemSettings.html) =================== */
+/*------------ accesability increase font size --------------- */
+/* Default fallbacks in case gs_prefs hasn't been set yet */
+:root {
+  --text-size: 1rem;
+  --motion-scale: 1;
+}
+
+/* Base text uses the variable from gs_prefs */
+body {
+  font-size: var(--text-size, 1rem);
+}
+
+/* Let most things inherit body size, instead of hardcoding rems */
+p,
+input[type="text"],
+textarea,
+.toolkit-item span,
+.button,
+.button-purple,
+.idea-item,
+#toolkitList .idea-text {
+  font-size: 1em; /* 1em = whatever body is (1rem or 1.1rem, etc.) */
+}
+
+/* Scale headings relative to --text-size so they grow/shrink too */
+h1.three-d-title,
+h1.three-d-title-two {
+  font-size: calc(var(--text-size, 1rem) * 1.7);
+}
+
+/* ------ text inside the top of the teal container ------ */
+h3,
+.dreamy-box h3 {
+  font-size: calc(var(--text-size, 1rem) * 1.25);
+}
+
+/* ----------------------- reduce motion ----------*/
+/* Use --motion-scale to tone down motion on this page */
+.icon-button,
+.button,
+.toolkit-entry button,
+.dropdown-icon-btn {
+  transition:
+    transform calc(150ms * var(--motion-scale, 1)),
+    background-color 0.3s ease,
+    box-shadow calc(150ms * var(--motion-scale, 1));
+}
+
+/* When motion-scale is 0, this becomes scale(1) (no “pop” on hover) */
+.icon-button:hover,
+.button:hover,
+.toolkit-entry button:hover,
+.dropdown-icon-btn:hover {
+  transform: scale(calc(1 + (0.03 * var(--motion-scale, 1))));
+}
+
+  </style>
+</head>
+
+<body class="gs-has-nav">
+  <div class="page-shell">
+    <!-- Top (THEME-COLORED) HEADER -->
+    <h1 class="three-d-title" style="
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          font-size: 1.7rem;
+          font-weight: bold;
+          text-align: center;
+          text-shadow: 2px 2px rgba(0, 0, 0, 0.2);
+          color: rgb(40, 130, 180);
+          letter-spacing: 1.5px;
+          margin: 1.5rem 0 1rem;
+          padding-top: 4%;
+        ">
+      My Mental Health Plan
+    </h1>
+
+    <!-- Top-right link (still in theme area) -->
+    <div class="top-action">
+      <a id="toggleLink">Create a wellness plan</a>
+    </div>
+
+    <!-- TEAL SECTION: everything below is solid teal -->
+    <div class="teal-shell">
+      <!-- ======== VIEW: Saved Plan (default if exists) ======== -->
+      <div id="planView">
+        <div id="savedPlanMount"></div>
+      </div>
+
+      <!-- ======== VIEW: Form (default if no saved plan) ======== -->
+      <div id="formView">
+        <form id="wellnessForm">
+          <div class="container wellness-wrapper">
+            <h3 class="section-heading">🌼 Everyday Wellness</h3>
+
+
+            <label for="wellnessLook">
+              When I’m at my best, here’s how I feel and show up in the world:<br><br>
+              <textarea id="wellnessLook"
+                placeholder="Describe what you feel like when you're in a good place..."></textarea>
+            </label><br>
+
+            <label for="dailyHabits">
+              Gentle routines that help me stay well:<br><br>
+              <textarea id="dailyHabits"
+                placeholder="List the daily habits, rituals, or actions that support your wellness..."></textarea>
+            </label><br>
+
+            <h3 class="section-heading">🌀 When I Feel Off Balance</h3>
+
+            <label for="triggerList">
+              Things that tend to make life feel harder for me:<br><br>
+              <textarea id="triggerList" placeholder="What situations or stressors throw you off?"></textarea>
+            </label><br>
+
+            <label for="afterTriggered">
+              What helps me find my footing again:<br><br>
+              <textarea id="afterTriggered" placeholder="What grounds you or helps you feel safe again?"></textarea>
+            </label><br>
+
+            <h3 class="section-heading">⚠️ Early Warning Signs</h3>
+
+            <label for="warningSigns">
+              How I know something might be shifting:<br><br>
+              <textarea id="warningSigns"
+                placeholder="What are the first signs you're starting to feel off?"></textarea>
+            </label><br>
+
+            <h3 class="section-heading">🛟 Support Plan</h3>
+
+            <label for="actionPlan">
+              Ways I can care for myself when I notice those signs:<br><br>
+              <textarea id="actionPlan" placeholder="Write down your go-to coping tools and healing steps."></textarea>
+            </label><br>
+
+            <label for="anotherAction">
+              How others can support me if I need help:<br><br>
+              <textarea id="anotherAction"
+                placeholder="Be honest about what kind of support helps from others."></textarea>
+            </label>
+
+            <div class="feel-good-container">
+              <button type="button" class="icon-button secondary" onclick="savePlan()">💾 Save</button>
+              <button type="button" class="icon-button" onclick="resetForm()">🗑️ Clear</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Privacy link pinned at bottom of teal area -->
+    <div class="legal-footer">
+      View our <a href="privacy.html" rel="noopener">Privacy Policy</a>.
+    </div>
+
+    <!-- ========== IDENTICAL NAV HTML (copy this exact block to every page) ========== -->
+    <!-- Standard Bottom Nav (use on every page) -->
+    <footer class="gs-nav">
+      <a href="index.html" class="gs-nav__item"><span class="ico">🏠</span><span>Home</span></a>
+      <a href="toolkit-hub.html" class="gs-nav__item" data-auth="true"><span
+          class="ico">🧰</span><span>Toolkit</span></a>
+      <a href="wellness.html" class="gs-nav__item" data-auth="true"><span class="ico">💖</span><span>Wellness</span></a>
+      <a href="pet.html" class="gs-nav__item" data-auth="true"><span class="ico">🐾</span><span>Pet</span></a>
+      <a href="important-numbers.html" class="gs-nav__item"><span class="ico">🆘</span><span>Help</span></a>
+      <a href="systemSettings.html" class="gs-nav__item" data-auth="true"><span
+          class="ico">☸</span><span>Settings</span></a>
+    </footer>
+
+    <!-- ================== page script =================== -->
+    <script type="module">
+      import { auth, db } from "./firebase-init.js";
+      import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+      import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+      /* ---------- THEME ---------- */
+      function applyThemeClass(themeClass) {
+        const root = document.documentElement;
+        const next = themeClass || "theme-original";
+        (root.className.match(/\btheme-[^\s]+/g) || []).forEach(c => root.classList.remove(c));
+        root.classList.add(next);
+        try {
+          localStorage.setItem("themeClass", next);
+          localStorage.setItem("themeClass:last", next);
+          if (auth?.currentUser?.uid) {
+            localStorage.setItem(`themeClass:${auth.currentUser.uid}`, next);
+          }
+        } catch { }
+      }
+
+      /* ---------- IDs / Labels ---------- */
+      const FIELD_IDS = [
+        "wellnessLook", "dailyHabits", "triggerList", "afterTriggered",
+        "warningSigns", "actionPlan", "anotherAction"
+      ];
+      const LABELS = {
+        wellnessLook: "When I’m at my best:",
+        dailyHabits: "Gentle routines:",
+        triggerList: "Things that make life harder:",
+        afterTriggered: "What helps me find footing:",
+        warningSigns: "Early warning signs:",
+        actionPlan: "Ways I can care for myself:",
+        anotherAction: "How others can support me:"
+      };
+
+      const qs = id => document.getElementById(id);
+      const fields = () => FIELD_IDS.map(id => qs(id)).filter(Boolean);
+      const draftKey = uid => `wellnessPlanDraft:${uid}`;
+      const savedKey = uid => `wellnessPlanSaved:${uid}`;
+
+      /* ---------- Drafts (separate from Saved; does NOT overwrite saved) ---------- */
+      function loadDraft(uid) {
+        try {
+          const saved = JSON.parse(localStorage.getItem(draftKey(uid)) || "{}");
+          fields().forEach(el => { if (typeof saved[el.id] === "string") el.value = saved[el.id]; });
+        } catch { }
+      }
+      function saveDraft(uid) {
+        const data = {};
+        fields().forEach(el => (data[el.id] = el.value || ""));
+        try { localStorage.setItem(draftKey(uid), JSON.stringify(data)); } catch { }
+      }
+      const debounce = (fn, ms = 250) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
+      const debouncedSave = debounce(saveDraft, 250);
+
+      /* ---------- Saved Plan rendering (persistent until Delete) ---------- */
+      function escapeHTML(s) {
+        return (s ?? "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+      function getSaved(uid) {
+        try { return JSON.parse(localStorage.getItem(savedKey(uid)) || "null"); }
+        catch { return null; }
+      }
+      function renderSaved(uid) {
+        const mount = qs("savedPlanMount");
+        if (!mount) return;
+        const data = getSaved(uid);
+        if (!data) { mount.innerHTML = ""; return; }
+
+        const rows = FIELD_IDS
+          .filter(id => (data[id] || "").trim().length)
+          .map(id => `
+            <div class="saved-row">
+              <span class="saved-label">${LABELS[id] || id}</span>
+              <div class="saved-value">${escapeHTML((data[id] || "").trim())}</div>
+            </div>`
+          ).join("");
+
+        mount.innerHTML = `
+  <div class="saved-plan-wrap">
+    <h1
+      class="saved-plan-title"
+      style="
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-size: 1.25rem;
+        font-weight: 700;
+        text-align: center;
+        letter-spacing: 1px;
+        color: #ecfdf5;
+        margin: 0 0 0.75rem;
+        text-shadow: 1px 1px 4px rgba(0,0,0,0.25);
+      "
+    >
+      ✅ Saved Wellness Plan
+    </h1>
+    <div class="saved-plan-grid">
+      ${rows || `<div class="saved-row"><div class="saved-value">No content.</div></div>`}
+    </div>
+    <div style="text-align:center;margin-top:1rem;">
+      <button type="button" class="icon-button destructive" onclick="deleteSavedPlan()">🗑️ Delete Saved Plan</button>
+    </div>
+  </div>
+`;
+      }
+
+      /* ---------- View toggling ---------- */
+      function showPlanView() {
+        qs("planView").style.display = "block";
+        qs("formView").style.display = "none";
+        const link = qs("toggleLink");
+        if (link) link.textContent = "Create a wellness plan";
+      }
+      function showFormView() {
+        qs("planView").style.display = "none";
+        qs("formView").style.display = "block";
+        const link = qs("toggleLink");
+        if (link) link.textContent = "View saved plan";
+      }
+      function wireToggle(uid) {
+        const link = qs("toggleLink");
+        if (!link) return;
+        link.onclick = () => {
+          if (qs("formView").style.display === "block") {
+            if (getSaved(uid)) { showPlanView(); }  // only switch back if a saved plan exists
+          } else {
+            showFormView();
+          }
+        };
+      }
+
+      /* ---------- Actions ---------- */
+      function doSave(uid) {
+        const payload = {};
+        fields().forEach(el => payload[el.id] = (el.value || "").trim());
+        payload.savedAt = new Date().toISOString();
+        try { localStorage.setItem(savedKey(uid), JSON.stringify(payload)); } catch { }
+        renderSaved(uid);
+        showPlanView();                                // open to saved after save
+        try { navigator.vibrate?.(20); } catch { }
+        qs("savedPlanMount")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+      window.savePlan = () => {
+        const uid = auth?.currentUser?.uid;
+        if (!uid) return;
+        doSave(uid);
+      };
+      window.deleteSavedPlan = () => {
+        const uid = auth?.currentUser?.uid;
+        if (!uid) return;
+        if (!confirm("Delete your saved wellness plan? This cannot be undone.")) return;
+        try { localStorage.removeItem(savedKey(uid)); } catch { }
+        renderSaved(uid);
+        showFormView();                                 // back to editor after delete
+      };
+      window.resetForm = () => {
+        const f = qs("wellnessForm");
+        if (f) f.reset();
+        fields().forEach(el => (el.value = ""));
+        try { if (auth?.currentUser?.uid) localStorage.removeItem(draftKey(auth.currentUser.uid)); } catch { }
+      };
+
+      /* ---------- Auth + Theme + Boot ---------- */
+      let unsubTheme = null;
+      onAuthStateChanged(auth, user => {
+        unsubTheme?.(); unsubTheme = null;
+
+        if (!user) {
+          location.replace("login.html?next=wellnessPlan.html");
+          return;
+        }
+
+        // Live theme
+        const userRef = doc(db, "users", user.uid);
+        unsubTheme = onSnapshot(
+          userRef,
+          snap => applyThemeClass(snap.exists() ? (snap.data().themeClass || "theme-original") : "theme-original"),
+          () => applyThemeClass("theme-original")
+        );
+
+        // Drafts autosave
+        loadDraft(user.uid);
+        const persist = () => debouncedSave(user.uid);
+        fields().forEach(el => el.addEventListener("input", persist));
+        window.addEventListener("visibilitychange", () => {
+          if (document.visibilityState === "hidden") saveDraft(user.uid);
+        });
+        window.addEventListener("pagehide", () => saveDraft(user.uid));
+
+        // Initial view
+        renderSaved(user.uid);
+        wireToggle(user.uid);
+        if (getSaved(user.uid)) {
+          showPlanView();   // ✅ open saved plan by default
+        } else {
+          showFormView();   // no saved plan yet → editor
+        }
+      });
+    </script>
+
+    <script>
+      /* ========== GLOBAL NAV SCRIPT (tiny, repeat on every page) ========== */
+      (function () {
+        // 1) Mark current tab active
+        const here = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
+        document.querySelectorAll('.bottom-nav .nav-icon').forEach(a => {
+          const href = (a.getAttribute('href') || '').toLowerCase();
+          if (href === here) a.setAttribute('aria-current', 'page');
+        });
+
+        // 2) Gate authed links (replace with your real auth check if needed)
+        const isAuthed = !!localStorage.getItem('currentUser');
+        document.querySelectorAll('.bottom-nav [data-auth="true"]').forEach(a => {
+          if (isAuthed) return;
+          a.addEventListener('click', (e) => {
+            e.preventDefault();
+            const dest = a.getAttribute('href') || 'index.html';
+            location.href = `login.html?next=${encodeURIComponent(dest)}`;
+          });
+        });
+      })();
+    </script>
+</body>
+
+</html>

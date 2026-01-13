@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Settings — Three Sides</title>
+
+  <!-- Firebase bootstrap -->
+  <script type="module">import './firebase-init.js';</script>
+
+  <script type="module">
+    import { auth, db } from './firebase-init.js';
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const LOCAL_MARK = 'gs_session_ack_ts';
+    onAuthStateChanged(auth, (user) => {
+      if (!user) return;
+      const uref = doc(db, 'users', user.uid);
+      onSnapshot(uref, async (snap) => {
+        const bump = snap?.data()?.sessionBumpedAt?.toMillis?.() || 0;
+        const seen = parseInt(localStorage.getItem(LOCAL_MARK) || '0', 10);
+        if (bump > seen) {
+          localStorage.setItem(LOCAL_MARK, String(bump));
+          try { await signOut(auth); } finally { location.replace('login.html'); }
+        }
+      });
+    });
+  </script>
+
+  <!-- prefs bootstrap: put in <head> of every page -->
+  <script>
+    (function () {
+      const PREFS_KEY = 'gs_prefs';
+      let p = {};
+      try { p = JSON.parse(localStorage.getItem(PREFS_KEY) || '{}'); } catch { }
+      document.documentElement.style.setProperty('--motion-scale', p.reducedMotion ? '0' : '1');
+      document.documentElement.style.setProperty('--text-size', p.largerText ? '1.1rem' : '1rem');
+    })();
+  </script>
+
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #0b1220;
+      --panel: #0f172a;
+      --ink: #e5e7eb;
+      --muted: #94a3b8;
+      --line: rgba(148, 163, 184, .18);
+      --ios-blue: #007aff;
+      --ios-blue-d: #0062d6;
+      --ios-red: #ff3b30;
+      --ios-red-d: #d9342a;
+      --ios-gray-fill: #2c2c2e;
+      --ios-gray-border: #3a3a3c;
+      --ios-ink: #fff;
+      --nav-h: 64px;
+      --nav-ico: 20px;
+      --nav-fs: 12px;
+      --text-size: 1rem;
+      --motion-scale: 1;
+      --radius: 14px;
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #f7f7fb;
+        --panel: #fff;
+        --ink: #111;
+        --muted: #666;
+        --line: #eee;
+        --ios-gray-fill: #f2f2f7;
+        --ios-gray-border: #c6c6c8;
+        --ios-ink: #000;
+      }
+    }
+
+    html,
+    body {
+      min-height: 100%;
+      margin: 0
+    }
+
+    body {
+      font-family: ui-sans-serif, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      font-size: var(--text-size);
+      padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px));
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 16px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+      padding-left: calc(16px + env(safe-area-inset-left, 0px));
+      padding-right: calc(16px + env(safe-area-inset-right, 0px));
+    }
+
+    .brand {
+      font-weight: 800
+    }
+
+    .muted {
+      color: var(--muted)
+    }
+
+    #headerRight {
+      max-width: 60ch;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis
+    }
+
+    main {
+      max-width: 900px;
+      margin: 18px auto 40px;
+      padding: 0 16px
+    }
+
+    h1 {
+      margin: 6px 0 12px;
+      text-align: center
+    }
+
+    h1{
+      color: white;
+    }
+    .sub {
+      margin: 0 auto 6px;
+      text-align: center;
+      color: var(--muted);
+      max-width: 70ch
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 18px;
+      margin: 14px 0;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, .05)
+    }
+
+    .card>h2 {
+      font: 800 1.25rem/1.25 ui-sans-serif, -apple-system, "Segoe UI", Roboto, sans-serif;
+      margin: 0 0 6px
+    }
+
+    .item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 0
+    }
+
+    .item+.item {
+      border-top: 1px dashed var(--line)
+    }
+
+    .meta {
+      font-size: .9rem;
+      color: var(--muted)
+    }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: .9em;
+      background: rgba(148, 163, 184, .18);
+      padding: 2px 6px;
+      border-radius: 8px
+    }
+
+    /* Inputs */
+    label {
+      display: block;
+      font-weight: 700;
+      margin: 10px 0 6px
+    }
+
+    /* Buttons */
+    .btn,
+    .btn-ghost,
+    .btn-danger,
+    .btn-wide {
+      -webkit-appearance: none;
+      appearance: none;
+      border: 0;
+      margin: 0;
+      font: 600 17px/1 ui-sans-serif, -apple-system, Segoe UI, Roboto, sans-serif;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: .5rem;
+      height: 44px;
+      padding: 0 16px;
+      border-radius: 12px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: filter .12s, transform .06s, background .12s, box-shadow .12s;
+    }
+
+    .btn,
+    .btn-wide {
+      background: var(--ios-blue);
+      color: #fff;
+      box-shadow: 0 1px 0 rgba(0, 0, 0, .06), 0 8px 18px rgba(0, 122, 255, .18)
+    }
+
+    .btn:active,
+    .btn-wide:active {
+      background: var(--ios-blue-d);
+      transform: translateY(1px)
+    }
+
+    .btn-wide {
+      width: 100%
+    }
+
+    .btn-ghost {
+      background: var(--ios-gray-fill);
+      color: var(--ios-ink);
+      border: 1px solid var(--ios-gray-border)
+    }
+
+    .btn-ghost:active {
+      transform: translateY(1px)
+    }
+
+    .btn-danger {
+      background: var(--ios-red);
+      color: #fff;
+      box-shadow: 0 1px 0 rgba(0, 0, 0, .06), 0 8px 18px rgba(255, 59, 48, .18)
+    }
+
+    .btn-danger:active {
+      background: var(--ios-red-d);
+      transform: translateY(1px)
+    }
+
+    button:disabled {
+      opacity: .55;
+      cursor: not-allowed
+    }
+
+    /* Toggle switch */
+    .switch {
+      position: relative;
+      width: 52px;
+      height: 32px;
+      border-radius: 999px;
+      background: #c7c7cc;
+      transition: .2s;
+      border: 1px solid rgba(0, 0, 0, .08)
+    }
+
+    .switch::after {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 28px;
+      height: 28px;
+      background: #fff;
+      border-radius: 50%;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, .3);
+      transform: translateX(0);
+      transition: .2s
+    }
+
+    .switch[data-on="1"] {
+      background: #34c759
+    }
+
+    .switch[data-on="1"]::after {
+      transform: translateX(20px)
+    }
+
+    /* Danger zone */
+    .danger {
+      background: #fff7f7;
+      border-color: #fecaca
+    }
+
+    .danger h2 {
+      color: #b91c1c
+    }
+
+    .danger .muted {
+      color: #b45309
+    }
+
+    /* Modal */
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1200;
+      background: rgba(0, 0, 0, .55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px
+    }
+
+    .modal.show {
+      display: flex
+    }
+
+    .dialog {
+      width: min(520px, 92vw);
+      background: #111827;
+      color: #e5e7eb;
+      border: 1px solid rgba(148, 163, 184, .18);
+      border-radius: 16px;
+      box-shadow: 0 30px 80px rgba(2, 8, 23, .35);
+      padding: 18px
+    }
+
+    .dialog h3 {
+      margin: 0 0 .5rem
+    }
+
+    .dialog .row {
+      display: flex;
+      gap: .5rem;
+      justify-content: flex-end;
+      flex-wrap: wrap
+    }
+
+    .banner-error {
+      display: none;
+      padding: .5rem .75rem;
+      border-radius: 10px;
+      background: #3b0b0b;
+      color: #fecaca;
+      border: 1px solid rgba(239, 68, 68, .35);
+      font-size: .92rem
+    }
+
+    /* Bottom nav */
+    footer.gs-nav {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: var(--nav-h);
+      background: var(--panel);
+      border-top: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 0 env(safe-area-inset-left, 8px) 0 env(safe-area-inset-right, 8px);
+      z-index: 1000
+    }
+
+    .gs-nav__item {
+      flex: 1 1 0;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      text-decoration: none;
+      color: #9ec1ff
+    }
+
+    .gs-nav__item[aria-current="page"] {
+      font-weight: 700;
+      color: #c3ddff
+    }
+
+    .ico {
+      font-size: var(--nav-ico)
+    }
+
+    .gs-nav__item span {
+      font-size: var(--nav-fs)
+    }
+
+    .prefs-row {
+      display: flex;
+      flex-direction: column;
+      /* stacks nicely on mobile */
+      gap: 12px;
+      /* ← the magic spacing */
+      margin-top: 12px;
+      margin-bottom: 12px;
+    }
+
+    @media (min-width: 520px) {
+      .prefs-row {
+        flex-direction: row;
+        gap: 16px;
+      }
+    }
+
+    .prefs-row button {
+      width: 100%;
+    }
+
+    /* Accessibility buttons layout */
+    .item .prefs-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      /* keeps them right-aligned like the rest of your items */
+    }
+
+    @media (max-width: 520px) {
+      .item .prefs-row {
+        flex-direction: column;
+        /* stack on small screens */
+        align-items: stretch;
+      }
+
+      .item .prefs-row>.btn,
+      .item .prefs-row>.btn-ghost {
+        width: 100%;
+      }
+    }
+
+    .item .prefs-row>.btn,
+    .item .prefs-row>.btn-ghost {
+      min-width: 180px;
+    }
+
+/* =========================== system settings color overrides =========== */
+/* 1. Theme colors to match teal / pink app */
+:root {
+  --bg: #c7f5f2;          /* soft teal background */
+  --panel: #ffffff;       /* white cards */
+  --ink: #134e4a;         /* deep teal text */
+  --muted: #64748b;
+  --line: #d1e4ec;
+  --ios-blue: #ff6fa9;    /* pink primary button */
+  --ios-blue-d: #f0529c;
+  --ios-gray-fill: #f4fbff;
+  --ios-gray-border: #cbd5e1;
+  --ios-ink: #134e4a;
+}
+
+:root {
+  --bg: #c7f5f2;          /* soft teal background */
+  --panel: #ffffff;       /* white cards */
+  --ink: #134e4a;         /* deep teal text */
+  --muted: #64748b;
+  --line: #d1e4ec;
+  --ios-blue: #ff6fa9;    /* pink primary button */
+  --ios-blue-d: #f0529c;
+  --ios-gray-fill: #f4fbff;
+  --ios-gray-border: #cbd5e1;
+  --ios-ink: #134e4a;
+}
+
+
+/* 2. Page background + text color */
+body {
+  color: var(--ink);
+}
+
+body {
+  background: #0b1220;
+}
+/* 3. Header + main layout (also fixes bottom being cut off) */
+header {
+  background: transparent;
+  border-bottom: none;
+  padding-left: calc(16px + env(safe-area-inset-left, 0px));
+  padding-right: calc(16px + env(safe-area-inset-right, 0px));
+}
+
+main {
+  max-width: 430px;
+  margin: 0 auto;
+  /* extra bottom padding so Danger zone isn't under the nav */
+  padding: 8px 16px calc(var(--nav-h) + 24px + env(safe-area-inset-bottom, 0px));
+}
+
+/* 4. Cards */
+.card {
+  background: var(--panel);
+  border-color: var(--line);
+  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.15);
+}
+
+/* 5. Buttons recolor to pink/soft teal */
+.btn,
+.btn-wide {
+  background: var(--ios-blue);
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(244, 114, 182, 0.35);
+}
+
+.btn:active,
+.btn-wide:active {
+  background: var(--ios-blue-d);
+  transform: translateY(1px);
+}
+
+.btn-ghost {
+  background: #e2f3ff;
+  color: var(--ios-ink);
+  border-color: #cbd5e1;
+}
+
+/* 6. Danger zone card in light style */
+.card.danger {
+  background: #fff7f7;
+  border-color: #fecaca;
+}
+
+.card.danger h2 {
+  color: #b91c1c;
+}
+
+.card.danger .muted {
+  color: #b45309;
+}
+
+/* 7. Bottom nav to match app */
+footer.gs-nav {
+  background: #ffffff;
+  border-top: 1px solid #d1e4ec;
+}
+
+.gs-nav__item {
+  color: #64748b;
+}
+
+.gs-nav__item[aria-current="page"] {
+  font-weight: 700;
+  color: #ff6fa9;
+}
+
+/* 8. Modal dialog in light theme */
+.dialog {
+  background: #ffffff;
+  color: var(--ink);
+  border-color: rgba(148, 163, 184, 0.35);
+}
+
+.banner-error {
+  background: #fee2e2;
+  color: #b91c1c;
+  border-color: #fecaca;
+}
+
+/* Toggle switch – softened to match teal/pink theme */
+.switch {
+  position: relative;
+  flex: 0 0 52px;               /* keeps it from stretching in the flex row */
+  width: 52px;
+  height: 30px;
+  border-radius: 999px;
+  background: #e2f3ff;          /* soft “off” state */
+  border: 1px solid #cbd5e1;
+  box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.18);
+  transition:
+    background-color .2s ease,
+    border-color .2s ease,
+    box-shadow .2s ease;
+}
+
+.switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 26px;
+  height: 26px;
+  background: #ffffff;
+  border-radius: 999px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.25);
+  transform: translateX(0);
+  transition: transform .2s ease;
+}
+
+/* ON state – use your pink primary color */
+.switch[data-on="1"] {
+  background: var(--ios-blue);   /* = #ff6fa9 from your overrides */
+  border-color: #f0529c;
+  box-shadow: 0 0 0 1px rgba(248, 113, 181, 0.3);
+}
+
+.switch[data-on="1"]::after {
+  transform: translateX(20px);
+}
+
+/* ===============Security form layout – keep password fields contained in the card========= */
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  width: 100%;
+  box-sizing: border-box;  /* 👈 this is the magic line */
+  font-size: 16px;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+}
+
+a {
+   color: #9ec2ff
+        }
+
+.card {
+  background-color: #0f172a;
+  border: .01px solid rgb(89, 105, 149);
+  color: white;
+}
+  </style>
+</head>
+
+<body class="gs-has-nav">
+  <header>
+    <a class="brand" href="index.html">3-Sides</a>
+    <div id="headerRight" class="muted">—</div>
+  </header>
+
+  <main>
+    <h1>Settings</h1>
+    <p class="sub">Manage your account, security, privacy, and preferences. Deletion lives in the <strong>Danger
+        zone</strong> at the bottom.</p>
+
+    <!-- Account -->
+    <section class="card">
+      <h2>Account</h2>
+
+      <div class="item">
+        <div>
+          <div id="acctEmail" style="font-weight:800; color:#9ec1ff; word-break:break-all">—</div>
+          <div class="meta">Signed in as <span id="acctName">—</span></div>
+        </div>
+        <button id="btnLogout" class="btn-ghost" type="button">Log out</button>
+      </div>
+
+      <div class="item">
+        <div>
+          <div><strong>Display name</strong></div>
+          <div class="meta">Update the name shown across the app.</div>
+        </div>
+        <button id="btnNameEmail" class="btn" type="button">Edit</button>
+      </div>
+
+      <div class="item">
+        <div>
+          <div><strong>Active devices / sign-out all sessions</strong></div>
+          <div class="meta">Sign out of other devices if you’ve lost a phone or shared access.</div>
+        </div>
+        <button id="btnSignOutEverywhere" class="btn-ghost" type="button">Sign out</button>
+      </div>
+
+      <div class="item">
+        <div>
+          <div><strong>Recovery email</strong></div>
+          <div class="meta">We use your account email for recovery. (Optional secondary stored in Firestore.)</div>
+        </div>
+        <button id="btnRecovery" class="btn-ghost" type="button">Add / change</button>
+      </div>
+    </section>
+
+    <!-- Security -->
+    <section class="card">
+      <h2>Security</h2>
+      <p class="meta">Manage how you sign in and keep your account safe.</p>
+
+      <form id="pwForm" novalidate>
+        <input id="pwUser" type="email" name="username" autocomplete="username" tabindex="-1" aria-hidden="true"
+        style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;border:0;padding:0;margin:0" />
+
+        <label for="currentPw">Current password</label>
+        <input id="currentPw" type="password" autocomplete="current-password" />
+
+        <label for="newPw">New password</label>
+        <input id="newPw" type="password" placeholder="Min 6 characters" autocomplete="new-password" />
+
+        <label for="newPw2">Confirm new password</label>
+        <input id="newPw2" type="password" autocomplete="new-password" />
+
+        <div style="margin-top:10px"><button id="changePw" class="btn" type="submit" disabled>Change password</button>
+        </div>
+        <div id="pwStatus" class="meta" role="status" aria-live="polite" style="margin-top:6px"></div>
+      </form>
+    </section>
+
+    <!-- Privacy -->
+    <section class="card">
+      <h2>Privacy</h2>
+      <p class="meta">Control what’s saved, where it’s stored, and how to export or delete it.</p>
+
+      <div class="item">
+        <div>
+          <div><strong>Data location</strong></div>
+          <div class="meta" id="dataLocation">—</div>
+        </div>
+      </div>
+
+      <div class="item">
+        <div>
+          <div><strong>Anonymous usage & crash info
+            </strong></div>
+          <div class="meta">Helps identify what features are helpful and where people get stuck. Safe and private—no
+            personal data.</div>
+        </div>
+        <div id="toggleAnalytics" class="switch" role="switch" aria-checked="false" tabindex="0"></div>
+      </div>
+
+      <div class="item">
+        <div>
+          <div><strong>Export my data (JSON)</strong></div>
+          <div class="meta">Download a copy of your entries and settings (JSON).</div>
+        </div>
+        <button id="btnExport" class="btn" type="button">Export</button>
+      </div>
+
+      <div class="item">
+        <div>
+          <div><strong>Clear local cache on this device</strong></div>
+          <div class="meta">Remove offline copies from this device. Cloud data stays intact.</div>
+        </div>
+        <button id="btnClearCache" class="btn-ghost" type="button">Clear</button>
+      </div>
+
+
+      <div class="item">
+        <div>
+          <div><strong>Privacy Policy</strong></div>
+<div class="meta">Read how we handle your data and privacy.</div>
+        </div>
+
+
+        <a class="btn-ghost" href="privacy.html">Open</a>
+      </div>
+    </section>
+
+    <!-- Preferences -->
+    <section class="card">
+      <h2>Preferences</h2>
+
+      <div class="item">
+        <div>
+          <div><strong>Theme</strong></div>
+          <div class="meta">Open theme settings and pick your look.</div>
+        </div>
+        <a class="btn" href="theme.html">Open theme</a>
+      </div>
+
+      <div class="item">
+        <div>
+          <div><strong>Notifications</strong></div>
+          <div class="meta">Coming soon. (TODO page & perms)</div>
+        </div>
+        <a class="btn-ghost" href="notifications.html">Open</a>
+      </div>
+
+      <div class="item">
+        <div>
+          <div><strong>Accessibility</strong></div>
+          <div class="meta">Reduced motion, larger text.</div>
+        </div>
+        <div class="prefs-row">
+          <button id="btnReduceMotion" class="btn-ghost" type="button">Toggle reduced motion</button>
+          <button id="btnLargerText" class="btn-ghost" type="button">Toggle larger text</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- About & Legal -->
+    <section class="card">
+      <h2>About & Legal</h2>
+
+      <div class="item">
+        <div>
+          <div><strong>App version</strong></div>
+          <div class="meta"><span id="appVersion">—</span></div>
+        </div>
+        <span class="kbd">build</span>
+      </div>
+
+      <div class="item">
+        <div>
+          <div><strong>Terms of Use</strong></div>
+          <div class="meta">Read our terms.</div>
+        </div>
+        <a class="btn-ghost" href="terms.html">Open</a>
+      </div>
+
+      <div class="item">
+        <div>
+          <div><strong>Contact support</strong></div>
+          <div class="meta">glowcodestudio@gmail.com</div>
+        </div>
+        <a class="btn-ghost" href="mailto:glowcodestudio@gmail.com">Email</a>
+      </div>
+    </section>
+
+    <!-- Danger zone -->
+    <section id="danger-zone" class="card danger">
+      <h2>Danger zone</h2>
+      <p class="muted">Permanently delete your account and all app data linked to it. This cannot be undone.</p>
+      <div class="item" style="border-top:0">
+        <div>
+        <button id="btnDelete" class="btn-danger" type="button">Delete…</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Bottom nav -->
+  <footer class="gs-nav">
+    <a href="index.html" class="gs-nav__item"><span class="ico">🏠</span><span>Home</span></a>
+    <a href="toolkit-hub.html" class="gs-nav__item" data-auth="true"><span class="ico">🧰</span><span>Toolkit</span></a>
+    <a href="wellness.html" class="gs-nav__item" data-auth="true"><span class="ico">💖</span><span>Wellness</span></a>
+    <a href="pet.html" class="gs-nav__item" data-auth="true"><span class="ico">🐾</span><span>Pet</span></a>
+    <a href="important-numbers.html" class="gs-nav__item"><span class="ico">🆘</span><span>Help</span></a>
+    <a href="systemSettings.html" class="gs-nav__item" aria-current="page" data-auth="true"><span
+        class="ico">⚙️</span><span>Settings</span></a>
+  </footer>
+
+  <!-- Modals -->
+  <!-- Name / Email -->
+  <div id="nameEmailModal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="neTitle" aria-modal="true">
+    <div class="dialog">
+      <h3 id="neTitle">Update name / email</h3>
+      <label for="displayName">Display name</label>
+      <input id="displayName" type="text" placeholder="Your name" />
+      <label for="emailEdit">Email</label>
+      <input id="emailEdit" type="email" inputmode="email" placeholder="name@example.com" />
+      <div id="neErr" class="banner-error">Error</div>
+      <div class="row" style="margin-top:.75rem">
+        <button id="neCancel" class="btn-ghost" type="button">Cancel</button>
+        <button id="neSave" class="btn" type="button">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recovery email -->
+  <div id="recoveryModal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="reTitle" aria-modal="true">
+    <div class="dialog">
+      <h3 id="reTitle">Recovery email</h3>
+      <p class="meta">Optional secondary address used only if we can’t reach your main email.</p>
+      <label for="recoveryInput">Recovery email</label>
+      <input id="recoveryInput" type="email" inputmode="email" placeholder="secondary@example.com" />
+      <div id="reErr" class="banner-error">Error</div>
+      <div class="row" style="margin-top:.75rem">
+        <button id="reCancel" class="btn-ghost" type="button">Cancel</button>
+        <button id="reSave" class="btn" type="button">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete -->
+  <div id="delModal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="delTitle" aria-modal="true">
+    <div class="dialog">
+      <h3 id="delTitle">Delete account</h3>
+      <p class="meta">Type <strong>DELETE</strong> to confirm. This cannot be undone.</p>
+      <label for="deleteConfirmInput">Confirmation</label>
+      <input id="deleteConfirmInput" type="text" placeholder="DELETE" />
+      <div id="delErr" class="banner-error">Error goes here</div>
+      <div id="reauthBlock" style="display:none; border-top:1px dashed var(--line); padding-top:.5rem">
+        <p class="meta">For your security, please re-enter your password.</p>
+        <label for="reauthPassword">Password</label>
+        <input id="reauthPassword" type="password" autocomplete="current-password" />
+        <button id="reauthTry" class="btn-ghost" type="button">Re-authenticate</button>
+      </div>
+      <div class="row" style="margin-top:.75rem">
+        <button id="cancelDelete" class="btn-ghost" type="button">Cancel</button>
+        <button id="confirmDelete" class="btn-danger" type="button">Delete account</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { auth, db } from './firebase-init.js';
+    import {
+      onAuthStateChanged, signOut, updateEmail, updateProfile,
+      EmailAuthProvider, reauthenticateWithCredential, updatePassword, deleteUser
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      doc, getDoc, setDoc, updateDoc, serverTimestamp, collection, getDocs
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // ---------- constants ----------
+    const APP_VERSION = '2.0.0';
+    const ANALYTICS_KEY = 'gs_analytics_enabled';
+    const PREFS_KEY = 'gs_prefs'; // { reducedMotion: bool, largerText: bool }
+    const SESSION_BUMP_FIELD = 'sessionBumpedAt';
+
+    // ---------- dom ----------
+    const headerRight = document.getElementById('headerRight');
+    const acctEmail = document.getElementById('acctEmail');
+    const acctName = document.getElementById('acctName');
+    const btnLogout = document.getElementById('btnLogout');
+
+    const btnNameEmail = document.getElementById('btnNameEmail');
+    const nameEmailModal = modal('nameEmailModal');
+    const displayNameInput = document.getElementById('displayName');
+    const emailEditInput = document.getElementById('emailEdit');
+    const neErr = document.getElementById('neErr');
+
+    const btnSignOutEverywhere = document.getElementById('btnSignOutEverywhere');
+
+    const recoveryModal = modal('recoveryModal');
+    const recoveryInput = document.getElementById('recoveryInput');
+    const reErr = document.getElementById('reErr');
+
+    const pwForm = document.getElementById('pwForm');
+    const pwUser = document.getElementById('pwUser');
+    const currentPw = document.getElementById('currentPw');
+    const newPw = document.getElementById('newPw');
+    const newPw2 = document.getElementById('newPw2');
+    const changePw = document.getElementById('changePw');
+    const pwStatus = document.getElementById('pwStatus');
+
+    const dataLocation = document.getElementById('dataLocation');
+    const toggleAnalytics = document.getElementById('toggleAnalytics');
+    const btnExport = document.getElementById('btnExport');
+    const btnClearCache = document.getElementById('btnClearCache');
+
+    const btnReduceMotion = document.getElementById('btnReduceMotion');
+    const btnLargerText = document.getElementById('btnLargerText');
+
+    const appVersionEl = document.getElementById('appVersion');
+
+    const delModal = modal('delModal');
+    const delInput = document.getElementById('deleteConfirmInput');
+    const delErr = document.getElementById('delErr');
+    const reauthBlock = document.getElementById('reauthBlock');
+    const reauthPassword = document.getElementById('reauthPassword');
+    const btnDelete = document.getElementById('btnDelete');
+
+    // ---------- helpers ----------
+    function modal(id) {
+      const root = document.getElementById(id);
+      return {
+        root,
+        show(on = true) { root.classList.toggle('show', on); root.setAttribute('aria-hidden', on ? 'false' : 'true'); if (on) root.querySelector('input,button,select,textarea')?.focus(); },
+      };
+    }
+    function setHeaderSignedOut() { headerRight.innerHTML = '<a class="muted" href="login.html">Login</a>'; }
+    function setHeaderSignedIn(user) {
+      const name = user.displayName || '(no name)';
+      const email = user.email || 'Account';
+      headerRight.innerHTML = `<span class="muted">Signed in as </span><strong>${name}</strong>`;
+      acctEmail.textContent = email; acctName.textContent = name;
+    }
+    // Human-facing names for the sections that save data
+    const FEATURE_LIST = [
+      'Wellness Plan',
+      'Feel-Good Toolkit',
+      'Journal',
+      'Letter to Future Me',
+      'Support People',
+      'Pet'
+    ];
+
+    function dataLocationText() {
+      // If you later add a “local-only mode,” key off a saved flag instead of `db`
+      const isCloud = !!db;
+      if (!isCloud) return 'Local-only on this device';
+      return `Your data — ${FEATURE_LIST.join(', ')} — is stored securely in Firestore (per user).`;
+    }
+
+    function setSwitch(el, on) { el.dataset.on = on ? '1' : '0'; el.setAttribute('aria-checked', on ? 'true' : 'false'); }
+    function prefsGet() { try { return JSON.parse(localStorage.getItem(PREFS_KEY) || '{}'); } catch { return {}; } }
+    function prefsSet(p) { localStorage.setItem(PREFS_KEY, JSON.stringify(p || {})); applyPrefs(); }
+    function applyPrefs() {
+      const p = prefsGet();
+      document.documentElement.style.setProperty('--motion-scale', p.reducedMotion ? '0' : '1');
+      document.documentElement.style.setProperty('--text-size', p.largerText ? '1.1rem' : '1rem');
+    }
+    function pwMsg(type, msg) { pwStatus.textContent = msg || ''; pwStatus.style.color = type === 'ok' ? '#34d399' : type === 'error' ? '#ff6b6b' : 'var(--muted)'; }
+
+    // ---------- auth wiring ----------
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) { setHeaderSignedOut(); setTimeout(() => location.href = 'login.html?next=systemSettings.html', 300); return; }
+      setHeaderSignedIn(user);
+      pwUser.value = user.email || '';
+      dataLocation.textContent = dataLocationText();
+      appVersionEl.textContent = APP_VERSION;
+
+      // seed & load user doc (analytics/recovery)
+      try {
+        const uref = doc(db, 'users', user.uid);
+        const snap = await getDoc(uref);
+        if (!snap.exists()) await setDoc(uref, { createdAt: serverTimestamp(), analyticsEnabled: false });
+        const u = (await getDoc(uref)).data() || {};
+        const localAna = localStorage.getItem(ANALYTICS_KEY);
+        const enabled = localAna != null ? localAna === '1' : !!u.analyticsEnabled;
+        setSwitch(toggleAnalytics, enabled);
+      } catch { }
+
+    }, (err) => { console.error(err); setHeaderSignedOut(); location.href = 'login.html?next=systemSettings.html'; });
+
+    // ---------- account: logout ----------
+    btnLogout.addEventListener('click', async () => {
+      btnLogout.disabled = true;
+      try { await signOut(auth); location.href = 'index.html'; }
+      catch { btnLogout.disabled = false; alert('Could not log out. Try again.'); }
+    });
+
+    // ---------- account: name & email ----------
+    btnNameEmail.addEventListener('click', () => {
+      const u = auth.currentUser; if (!u) return;
+      document.getElementById('neErr').style.display = 'none';
+      displayNameInput.value = u.displayName || '';
+      emailEditInput.value = u.email || '';
+      nameEmailModal.show(true);
+    });
+    document.getElementById('neCancel').addEventListener('click', () => nameEmailModal.show(false));
+    document.getElementById('neSave').addEventListener('click', async () => {
+      const u = auth.currentUser; if (!u) return;
+      neErr.style.display = 'none';
+      try {
+        const name = (displayNameInput.value || '').trim();
+        const email = (emailEditInput.value || '').trim();
+        if (name && name !== u.displayName) await updateProfile(u, { displayName: name });
+        if (email && email !== u.email) await updateEmail(u, email);
+        setHeaderSignedIn(u);
+        nameEmailModal.show(false);
+      } catch (e) {
+        const msg = ({
+          'auth/email-already-in-use': 'That email is already in use.',
+          'auth/invalid-email': 'Please enter a valid email.',
+          'auth/requires-recent-login': 'Please sign in again and retry.'
+        })[e?.code] || 'Could not update. Try again.';
+        neErr.textContent = msg; neErr.style.display = 'block';
+      }
+    });
+
+    // ---------- account: sign out everywhere ----------
+    btnSignOutEverywhere.addEventListener('click', async () => {
+      const u = auth.currentUser; if (!u) return;
+      try {
+        await updateDoc(doc(db, 'users', u.uid), { [SESSION_BUMP_FIELD]: serverTimestamp() });
+        alert('Other sessions will be asked to sign in again.');
+      } catch { alert('Could not sign out other sessions.'); }
+    });
+    // NOTE: Add a tiny guard snippet on other pages to actually watch this field and signOut() when it changes.
+
+    // ---------- recovery email (Firestore) ----------
+    document.getElementById('btnRecovery').addEventListener('click', async () => {
+      const u = auth.currentUser; if (!u) return;
+      reErr.style.display = 'none';
+      try {
+        const snap = await getDoc(doc(db, 'users', u.uid));
+        recoveryInput.value = snap.exists() ? (snap.data().recoveryEmail || '') : '';
+      } catch { recoveryInput.value = ''; }
+      recoveryModal.show(true);
+    });
+    document.getElementById('reCancel').addEventListener('click', () => recoveryModal.show(false));
+    document.getElementById('reSave').addEventListener('click', async () => {
+      const u = auth.currentUser; if (!u) return;
+      reErr.style.display = 'none';
+      try {
+        await setDoc(doc(db, 'users', u.uid), { recoveryEmail: (recoveryInput.value || '').trim() || null }, { merge: true });
+        recoveryModal.show(false);
+      } catch { reErr.textContent = 'Could not save recovery email.'; reErr.style.display = 'block'; }
+    });
+
+    // ---------- security: change password ----------
+    function syncPwUI() {
+      const cur = currentPw.value, nxt = newPw.value, nxt2 = newPw2.value;
+      let msg = ''; if (nxt && nxt.length < 6) msg = 'Password must be at least 6 characters.';
+      else if (nxt2 && nxt !== nxt2) msg = 'New passwords do not match.';
+      pwMsg(msg ? 'error' : 'hint', msg);
+      changePw.disabled = !(cur && nxt.length >= 6 && nxt === nxt2);
+    }
+    [currentPw, newPw, newPw2].forEach(el => el.addEventListener('input', syncPwUI));
+    pwForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const u = auth.currentUser; if (!u) return;
+      const cur = currentPw.value, nxt = newPw.value, nxt2 = newPw2.value;
+      if (!cur) { pwMsg('error', 'Enter your current password.'); return; }
+      if (nxt.length < 6) { pwMsg('error', 'New password must be at least 6 characters.'); return; }
+      if (nxt !== nxt2) { pwMsg('error', 'New passwords do not match.'); return; }
+      changePw.disabled = true; pwMsg('hint', 'Updating…');
+      try {
+        const cred = EmailAuthProvider.credential(u.email || '', cur);
+        await reauthenticateWithCredential(u, cred);
+        await updatePassword(u, nxt);
+        pwMsg('ok', 'Password updated ✅'); currentPw.value = newPw.value = newPw2.value = '';
+      } catch (e) {
+        const code = e?.code || '';
+        pwMsg('error', code === 'auth/wrong-password' || code === 'auth/invalid-credential'
+          ? 'Current password is incorrect.'
+          : code === 'auth/requires-recent-login'
+            ? 'Please sign in again and retry.'
+            : 'Could not update password.');
+      } finally { changePw.disabled = false; syncPwUI(); }
+    });
+
+    // ---------- privacy: analytics ----------
+    const toggleClick = () => {
+      const on = toggleAnalytics.dataset.on !== '1';
+      setSwitch(toggleAnalytics, on);
+      localStorage.setItem(ANALYTICS_KEY, on ? '1' : '0');
+      const u = auth.currentUser;
+      if (u) setDoc(doc(db, 'users', u.uid), { analyticsEnabled: on }, { merge: true }).catch(() => { });
+    };
+    toggleAnalytics.addEventListener('click', toggleClick);
+    toggleAnalytics.addEventListener('keydown', (e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggleClick(); } });
+
+    async function dumpSub(uid, sub) {
+      try {
+        const arr = [];
+        const snap = await getDocs(collection(db, 'users', uid, sub));
+        snap.forEach(d => arr.push({ id: d.id, ...d.data() }));
+        return arr;
+      } catch {
+        return [];
+      }
+    }
+
+    // Try multiple subcollection names and merge results (tags which alias)
+    async function dumpAny(uid, aliases = []) {
+      const seen = new Set();
+      const merged = [];
+      for (const name of aliases) {
+        const part = await dumpSub(uid, name);
+        for (const doc of part) {
+          const sig = `${name}:${doc.id}`;
+          if (!seen.has(sig)) {
+            seen.add(sig);
+            merged.push({ __from: name, ...doc });
+          }
+        }
+      }
+      return merged;
+    }
+
+    function collectLocalForUser(uid) {
+      const out = {};
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (!k) continue;
+        if (/^(gs_|threeSides_|3s_)/i.test(k) || (uid && k.includes(uid))) {
+          try { out[k] = JSON.parse(localStorage.getItem(k)); }
+          catch { out[k] = localStorage.getItem(k); }
+        }
+      }
+      return out;
+    }
+
+    async function safeDownloadFile(filename, blob) {
+      const url = URL.createObjectURL(blob);
+      try {
+        const a = document.createElement('a');
+        a.href = url; a.download = filename; a.rel = 'noopener'; a.style.display = 'none';
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+        return true;
+      } catch (e) {
+        console.warn('Programmatic <a>.click() failed', e);
+      }
+      try {
+        const dlWin = window.open('', '_blank');
+        if (dlWin && typeof dlWin.location !== 'undefined') {
+          dlWin.location.href = url;
+          setTimeout(() => URL.revokeObjectURL(url), 2000);
+          return true;
+        }
+      } catch (e) {
+        console.warn('window.open fallback failed', e);
+      }
+      return false;
+    }
+
+    function showManualDownloadLink(filename, blob) {
+      const url = URL.createObjectURL(blob);
+      const bar = document.createElement('div');
+      bar.style.cssText = `
+        position: fixed; left: 12px; right: 12px; bottom: calc(76px + env(safe-area-inset-bottom,0px));
+        background: #0f172a; color: #e5e7eb; border: 1px solid rgba(148,163,184,.18);
+        border-radius: 14px; padding: 12px; z-index: 3000; box-shadow: 0 20px 60px rgba(2,8,23,.35);
+        display: flex; align-items: center; justify-content: space-between; gap: 12px;
+        `;
+      bar.innerHTML = `<div style="font-size:.95rem">Export ready. Tap to download <span class="kbd">${filename}</span>.</div>`;
+      const btn = document.createElement('a');
+      btn.className = 'btn'; btn.download = filename; btn.href = url; btn.textContent = 'Download now';
+      const close = document.createElement('button');
+      close.className = 'btn-ghost'; close.textContent = 'Close';
+      close.onclick = () => { URL.revokeObjectURL(url); bar.remove(); };
+      bar.append(btn, close);
+      document.body.appendChild(bar);
+    }
+    // ===== end helpers =====
+
+    // ---------- privacy: export JSON ----------
+    btnExport.addEventListener('click', () => {
+      // keep user-gesture alive
+      void runExportFlow();
+    });
+
+    async function runExportFlow() {
+      const u = auth.currentUser;
+      const originalLabel = btnExport.textContent;
+      btnExport.disabled = true;
+      btnExport.textContent = 'Preparing…';
+
+      // timeout guard
+      const withTimeout = (p, ms, label) =>
+        Promise.race([
+          p,
+          new Promise((_, rej) => setTimeout(() => rej(new Error(`${label || 'Task'} timed out after ${ms}ms`)), ms))
+        ]);
+
+      try {
+        const out = {
+          exportedAt: new Date().toISOString(),
+          appVersion: APP_VERSION,
+          schemaVersion: 1,
+          user: { uid: u?.uid || null, email: u?.email || null, name: u?.displayName || null },
+          mode: dataLocationText(),
+          data: {}
+        };
+
+        if (db && u) {
+          // user doc
+          try {
+            out.data.userDoc = (await withTimeout(getDoc(doc(db, 'users', u.uid)), 6000, 'Load userDoc')).data() || {};
+          } catch (e) {
+            console.warn('userDoc load skipped:', e?.message || e);
+            out.data.userDoc = {};
+          }
+
+          // subcollections (allow ".html" aliases)
+          const SUBS = [
+            { key: 'wellnessPlan', aliases: ['wellnessPlan', 'wellnessPlan.html'] },
+            { key: 'toolkit', aliases: ['toolkit', 'toolkit.html'] },
+            { key: 'journal', aliases: ['journal', 'journal.html'] },
+            { key: 'letter', aliases: ['letter', 'letter.html'] },
+            { key: 'support', aliases: ['support', 'support.html'] },
+            { key: 'pet', aliases: ['pet', 'pet.html'] }
+          ];
+
+          const results = await Promise.allSettled(
+            SUBS.map(({ key, aliases }) =>
+              withTimeout(dumpAny(u.uid, aliases), 8000, `Export ${key}`)
+                .then(rows => [key, rows])
+            )
+          );
+
+          for (const r of results) {
+            if (r.status === 'fulfilled') {
+              const [key, rows] = r.value;
+              out.data[key] = rows;
+            } else {
+              console.warn('Export subcollection failed:', r.reason?.message || r.reason);
+              // still leave key undefined; that’s okay
+            }
+          }
+        }
+
+        // localStorage snapshot
+        out.data.localStorage = collectLocalForUser(u?.uid);
+
+        // download
+        const blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' });
+        const filename = 'three-sides-export.json';
+
+        let ok = false;
+        try { ok = await withTimeout(safeDownloadFile(filename, blob), 3000, 'download'); }
+        catch (e) { console.warn('Primary download path failed:', e?.message || e); }
+        if (!ok) showManualDownloadLink(filename, blob);
+
+      } catch (e) {
+        console.error('Export crashed:', e);
+        alert('Sorry—export ran into a problem. Check the console for details and try again.');
+      } finally {
+        // always restore UI
+        btnExport.textContent = originalLabel;
+        btnExport.disabled = false;
+      }
+    }
+
+    // ---------- privacy: clear local cache ----------
+    btnClearCache.addEventListener('click', () => {
+      if (!confirm('Remove offline copies on this device? (Cloud data stays intact.)')) return;
+      const keys = []; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && /^(gs_|threeSides_|3s_)/i.test(k)) keys.push(k); }
+      keys.forEach(k => localStorage.removeItem(k));
+      alert('Local cache cleared on this device.');
+    });
+
+    // ---------- privacy: clear local cache ----------
+    btnClearCache.addEventListener('click', () => {
+      if (!confirm('Remove offline copies on this device? (Cloud data stays intact.)')) return;
+      const keys = []; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && /^(gs_|threeSides_|3s_)/i.test(k)) keys.push(k); }
+      keys.forEach(k => localStorage.removeItem(k)); alert('Local cache cleared on this device.');
+    });
+
+    // ---------- preferences: accessibility ----------
+    btnReduceMotion.addEventListener('click', () => { const p = prefsGet(); p.reducedMotion = !p.reducedMotion; prefsSet(p); });
+    btnLargerText.addEventListener('click', () => { const p = prefsGet(); p.largerText = !p.largerText; prefsSet(p); });
+    applyPrefs();
+
+    // ---------- danger zone ----------
+    btnDelete.addEventListener('click', () => {
+      delErr.style.display = 'none'; reauthBlock.style.display = 'none'; delInput.value = ''; delModal.show(true);
+    });
+    document.getElementById('cancelDelete').addEventListener('click', () => delModal.show(false));
+    document.getElementById('confirmDelete').addEventListener('click', () => doDelete(false));
+    document.getElementById('reauthTry').addEventListener('click', () => doDelete(true));
+
+    async function doDelete(afterReauth) {
+      const u = auth.currentUser; if (!u) { location.replace('login.html'); return; }
+      delErr.style.display = 'none';
+      if ((delInput.value || '').trim().toUpperCase() !== 'DELETE') { delErr.textContent = 'Please type DELETE to confirm.'; delErr.style.display = 'block'; return; }
+      try {
+        if (afterReauth) {
+          const pwd = reauthPassword.value || ''; if (!pwd) { delErr.textContent = 'Enter your password.'; delErr.style.display = 'block'; return; }
+          const cred = EmailAuthProvider.credential(u.email || '', pwd);
+          await reauthenticateWithCredential(u, cred);
+        }
+        try { await updateDoc(doc(db, 'users', u.uid), { deletedAt: serverTimestamp() }); } catch { }
+        await deleteUser(u);
+        localStorage.clear(); sessionStorage.clear();
+        location.replace('login.html');
+      } catch (e) {
+        if (e?.code === 'auth/requires-recent-login') { reauthBlock.style.display = ''; delErr.textContent = 'Please re-authenticate to continue.'; delErr.style.display = 'block'; }
+        else { delErr.textContent = 'Delete failed. Try again.'; delErr.style.display = 'block'; }
+      }
+    }
+
+    // ---------- mark nav active ----------
+    (function () {
+      const here = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
+      document.querySelectorAll('.gs-nav .gs-nav__item').forEach(a => { const href = (a.getAttribute('href') || '').toLowerCase(); if (href === here) a.setAttribute('aria-current', 'page'); });
+    })();
+  </script>
+
+  <!-- Notes:
+    - Add a tiny "session bump" listener to your other pages to force sign-out when SESSION_BUMP_FIELD changes.
+    - Export assumes subcollections 'journal' and 'pet'. Rename in dumpSub() if yours differ.
+  -->
+</body>
+
+</html>

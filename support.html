@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en" data-ready="0">
+
+<head>
+  <!-- 0) AUTH GUARD — FIRST in <head> on PROTECTED pages -->
+  <script>
+    (function () {
+      const PUBLIC_PAGES = ["index.html", "important-numbers.html", "privacy.html", "login.html", "register.html"];
+      const path = location.pathname.split("/").pop() || "index.html";
+      if (PUBLIC_PAGES.includes(path)) return; // no-op on public pages
+
+      // Hide immediately to avoid UI flash on protected pages
+      document.documentElement.style.visibility = "hidden";
+
+      const goLogin = () => {
+        location.href = "login.html?next=" + encodeURIComponent(location.href);
+      };
+
+      // Try Firebase; fall back to a temporary session flag if needed
+      (async () => {
+        try {
+          const { getAuth, onAuthStateChanged } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
+          const { auth } = await import("./firebase-init.js");
+          onAuthStateChanged(auth, (user) => {
+            if (!user) return goLogin();
+            document.documentElement.style.visibility = "";
+            document.documentElement.setAttribute("data-ready", "1");
+          });
+        } catch (e) {
+          const authed = sessionStorage.getItem("fs_logged_in") === "1"; // temporary fallback
+          if (!authed) return goLogin();
+          document.documentElement.style.visibility = "";
+          document.documentElement.setAttribute("data-ready", "1");
+        }
+      })();
+    })();
+  </script>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Three Sides — SUPPORT</title>
+
+  <!-- At the top of delete-account.html <body> or in <head> -->
+  <script type="module">
+    import './firebase-init.js'; // ensures app/auth/db are initialized
+  </script>
+   
+   <script type="module">
+    import { auth, db } from './firebase-init.js';
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const LOCAL_MARK = 'gs_session_ack_ts';
+    onAuthStateChanged(auth, (user) => {
+      if (!user) return;
+      const uref = doc(db, 'users', user.uid);
+      onSnapshot(uref, async (snap) => {
+        const bump = snap?.data()?.sessionBumpedAt?.toMillis?.() || 0;
+        const seen = parseInt(localStorage.getItem(LOCAL_MARK) || '0', 10);
+        if (bump > seen) {
+          localStorage.setItem(LOCAL_MARK, String(bump));
+          try { await signOut(auth); } finally { location.replace('login.html'); }
+        }
+      });
+    });
+  </script>
+
+  <!-- Require login for this page -->
+  <meta name="auth" content="required">
+
+  <!-- Favicons -->
+  <link rel="icon" type="image/svg+xml" sizes="any" href="/3-sides-planner.io/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/3-sides-planner.io/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/3-sides-planner.io/favicon-16.png">
+  <link rel="apple-touch-icon" href="/3-sides-planner.io/icon-192.png"> <!-- iOS Home screen -->
+
+  <!-- prefs bootstrap: put in <head> of every page -->
+  <script>
+    (function () {
+      const PREFS_KEY = 'gs_prefs';
+      let p = {};
+      try { p = JSON.parse(localStorage.getItem(PREFS_KEY) || '{}'); } catch { }
+      document.documentElement.style.setProperty('--motion-scale', p.reducedMotion ? '0' : '1');
+      document.documentElement.style.setProperty('--text-size', p.largerText ? '1.1rem' : '1rem');
+    })();
+  </script>
+    
+  <!-- 1) FOUC guard -->
+  <style>
+    html:not([data-ready="1"]) {
+      visibility: hidden
+    }
+  </style>
+
+  <!-- 2) Base paint so browser bars and background are correct immediately -->
+  <style>
+    html,
+    body {
+      min-height: 100%;
+      margin: 0;
+      background: var(--bg-color, #fff) !important;
+      color: var(--text-color, #111) !important;
+    }
+  </style>
+
+  <!-- PWA + theme (will be live-updated to match your theme) -->
+  <!-- Absolute (good for GitHub Pages) -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#6a5acd">
+
+  <!-- Fonts + CSS (non-blocking) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
+
+  <link rel="preload" href="style.css" as="style" onload="this.rel='stylesheet'">
+  <noscript>
+    <link rel="stylesheet" href="style.css">
+  </noscript>
+
+  <link rel="preload" href="mainTheme.css" as="style" onload="this.rel='stylesheet'">
+  <noscript>
+    <link rel="stylesheet" href="mainTheme.css">
+  </noscript>
+
+  <!-- Early Theme Boot: apply saved theme instantly + sync <meta name="theme-color"> -->
+  <script>
+    (function () {
+      try {
+        const root = document.documentElement;
+        const userKey = localStorage.getItem("currentUser") || "anon";
+        const savedTheme =
+          localStorage.getItem(userKey + ":themeClass") ||
+          localStorage.getItem("themeClass") ||
+          localStorage.getItem("themeClass:last") ||
+          "theme-original";
+
+        // keep non-theme classes; swap only theme-*
+        const keep = (root.className || "")
+          .split(/\s+/).filter(Boolean).filter(c => !c.startsWith("theme-"));
+        root.className = [...keep, savedTheme].join(" ");
+
+        let meta = document.querySelector('meta[name="theme-color"]');
+        if (!meta) { meta = document.createElement('meta'); meta.name = 'theme-color'; document.head.appendChild(meta); }
+        const cs = getComputedStyle(root);
+        meta.content = (cs.getPropertyValue('--accent-color') ||
+          cs.getPropertyValue('--accent') ||
+          '#6a5acd').trim() || '#6a5acd';
+      } catch { }
+    })();
+  </script>
+
+  <!-- SW + Auth gate (non-blocking) -->
+  <script src="sw-register.js" defer></script>
+  <script type="module" src="auth.js"></script>
+
+  <!-- ===================== main html style ==================== -->
+  <style>
+    /*  🔲 purple Button Styling for Anchor and Button */
+    /* ---------- button purple ----------- */
+    .button-purple {
+  display: inline-block;
+  padding: 8px 18px;          /* was 10px 20px */
+  background-color: #ffc6e0;
+  color: black;
+  font-size: 0.95rem;         /* was 1rem */
+  font-weight: bold;
+  border: 1px solid #d394b0;
+  border-radius: 8px;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(255, 255, 255, .2);
+  transition: background-color .3s, transform .2s;
+  text-align: center;
+}
+
+    /* --------top container for name/relationship/phone ------*/
+    #supportForm input[type="text"] {
+      padding: 7.7px;
+      margin-left: 10;
+      font-size: .9rem;
+      background-color: #ffffff; 
+      border: 1.15px solid #ccc;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 600px;
+      box-sizing: border-box;
+    }
+  
+    /*------------ centers save/print buttons------- */
+    .button-row {
+      display: flex;
+      justify-content: left;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin: 1.5rem 0;
+    }
+  
+    /* ------------------ footer -------------- */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: #fafafa;
+      border-top: 1px solid rgba(69, 111, 179, 0.903);
+      display: flex;
+      justify-content: space-around;
+      padding: 0.8rem 0;
+      z-index: 1000;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+    }
+  
+    .nav-icon {
+      text-decoration: none;
+      color: rgba(69, 111, 179, 0.903);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 1.2rem;
+    }
+  
+    .nav-icon span {
+      font-size: 0.75rem;
+      margin-top: 0.2rem;
+    }
+  
+    #savedSupport {
+      color: black !important;
+    }
+  
+    .saved-wrapper {
+      padding: 1rem !important;
+      max-width: 700px !important;
+      margin: auto !important;
+      box-sizing: border-box !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      /* 💥 centers child elements like your <ul> */
+    }
+  
+    ul#savedSupport li {
+      width: 90% !important;
+      max-width: 700px !important;
+      margin: 0.6rem auto !important;
+    }
+  
+    #savedSupport {
+      width: 92% !important;
+      max-width: 700px !important;
+      margin: 0 auto !important;
+    }
+  
+    @media (max-width: 600px) {
+      body {
+        padding: 0 1rem;
+        box-sizing: border-box;
+      }
+    }
+  
+    /* =========== text beneath header ====== */
+    .support-intro {
+      text-align: right;
+      margin: 0rem auto 1rem;
+      padding: 0 3.5rem;
+      max-width: 600px;
+      line-height: 1.6;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 1.1rem;
+    }
+  
+    @media (max-width: 400px) {
+      .support-intro {
+        padding: 0 1rem;
+        font-size: 1rem;
+      }
+    }
+  
+    /* --------------------- Mobile-safe media query -------------------- */
+    @media (max-width: 600px) {
+      .image-text-box {
+        width: 100%;
+        max-width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+        border-radius: 0;
+        padding: 1rem 0.75rem;
+        text-align: left;
+        /* optional: center if you prefer */
+      }
+  
+      .hero-image {
+        width: 100%;
+        height: auto;
+        display: block;
+        margin: 0 auto;
+      }
+  
+      .hero-caption,
+      .image-text-box p {
+        font-size: 1rem;
+        line-height: 1.4;
+      }
+    }
+  
+    .icon-button {
+      background-color: rgb(221, 151, 221);
+      color: black !important;
+      font-size: 1rem;
+      font-weight: 600;
+      border: .01px solid black;
+      border-radius: 6px;
+      padding: 10px 20px;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+      transition: background-color 0.3s, transform 0.2s;
+      text-align: left;
+      margin-top: .75rem;
+    }
+  
+    .icon-button {
+      min-width: 100px;
+      /* 👈 ensures both buttons have the same base width */
+      text-align: left;
+    }
+  
+    .icon-button {
+      width: 100px;
+    }
+  
+    .legal-footer {
+      text-align: center;
+      font-size: 0.9rem;
+      margin-top: 8px;
+      color: var(--text-color) !important;
+      /* NEW: match theme text color */
+    }
+  
+    .legal-footer a {
+      color: inherit;
+      /* NEW: use same color as parent */
+      text-decoration: underline;
+    }
+  
+    .three-d-title.white-title {
+      color: white !important;
+      padding: 2rem 2.5rem 0rem 1rem !important;
+      /* Add more right padding */
+    }
+  
+    .three-d-title.white-title {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 1.5rem;
+    }
+   
+    /* ===== Support page polish (phone-safe, even gutters) ===== */
+    :root {
+      --support-gutter: 14px;
+    }
+  
+    .icon-button {
+      -webkit-appearance: none;
+      appearance: none;
+      min-width: 120px;
+      padding: 10px 16px;
+      width: auto;
+      /* don’t stretch on iOS */
+      text-align: center;
+    }
+
+    /* Delete button stays tight to the right but not oversized */
+    .delete-button-inline {
+      margin-left: 0;
+      flex: 0 0 auto;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+  
+    /* Small-screen polish: keep the same gutters */
+    @media (max-width: 600px) {
+      #supportForm {
+        padding: 0 var(--support-gutter);
+      }
+  
+      .saved-wrapper {
+        padding: 0 var(--support-gutter);
+      }
+  
+      .dreamy-box .three-d-title.white-title {
+        padding: 0 var(--support-gutter);
+      }
+    }
+  
+    /* -=========================== align text inside containers at bottom 'my support' ---- */
+    /* shrink the blue card’s vertical padding and the title margins */
+    .dreamy-box {
+      padding-block: 8px !important;
+      /* less space above/below */
+      padding-inline: 0 !important;
+      /* let contents go wider */
+    }
+  
+    /* keep the X neat on the right */
+    .delete-button-inline {
+      margin-left: 0 !important;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+  
+    /* ==== Support list: wider & shorter cards (final overrides) ==== */
+    :root {
+      --support-edge: 8px;
+    }
+  
+    .delete-button-inline {
+      margin-left: 0 !important;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+  
+    /* ===== Support list → match Toolkit sizing/look ===== */
+    :root {
+      --support-gutter: 10px;
+    }
+  
+    /* ============== top header text inside teal-blue card: tighter */
+    .dreamy-box .three-d-title.white-title {
+      margin: 5px 0 8px !important;
+      padding: 0 var(--support-gutter) !important;
+      /* even left/right */
+    }
+  
+    /* Wrapper: tiny gutters like Toolkit so cards hug the blue edge */
+    .saved-wrapper {
+      max-width: 700px !important;
+      margin: 0 auto !important;
+      padding: 0 var(--support-gutter) !important;
+      box-sizing: border-box !important;
+    }
+  
+    /* UL should fill the wrapper */
+    #savedSupport {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+  
+    /*============= Card → match Toolkit: wide, compact, soft shadow, rounded */
+    #savedSupport li {
+      width: 100% !important;
+      margin: 10px 0 !important;
+      /* similar vertical rhythm */
+      padding: 12px 14px !important;
+      /* compact height */
+      border-radius: 7px !important;
+      /* same roundness vibe */
+      background: #ffe6fb !important;
+      /* light pink like Toolkit */
+      box-shadow: 0 3px 6px rgba(0, 0, 0, .12) !important;
+      border: 2px solid rgba(0, 0, 0, 0.05) !important;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-sizing: border-box;
+    }
+  
+    /* Delete “X” sized like Toolkit’s, aligned to the right */
+    .delete-button-inline {
+      margin-left: 1px !important;
+      -webkit-appearance: none;
+      appearance: none;
+      background: none;
+      border: 0;
+      font-size: 14px !important;
+      line-height: 1;
+      cursor: pointer;
+      color: #d33 !important;
+    }
+  
+    /* Keep Save button centered/same width on iOS */
+    #supportForm {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 0 var(--support-gutter);
+    }
+  
+    .icon-button {
+      -webkit-appearance: none;
+      appearance: none;
+      min-width: 120px;
+      width: auto;
+      padding: 4px 16px;
+      text-align: center;
+    }
+  
+  /*--------------- bottom support information containers ------ */
+    #savedSupport li {
+      margin: 6px 0 !important;
+      /* compact each row a bit */
+      padding: 0px 13px !important;
+      /* keep comfy inner padding */
+      border-radius: 10px;
+      background: #ffffff;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, .12);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-sizing: border-box;
+    }
+  
+    /* delete button spacing stays tight on the right */
+    .delete-button-inline {
+      margin-left: 0 !important;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+/* ================= navbar overrides ============= */
+/* === Glow Standard Bottom Nav (namespaced) === */
+:root{
+  --gs-nav-h: 64px;
+  --gs-nav-fs: 12px;   /* label */
+  --gs-nav-ico: 20px;  /* emoji */
+  --gs-nav-bg: #fafafa;
+  --gs-nav-border: rgba(69,111,179,.25);
+  --gs-nav-text: rgba(69,111,179,1);
+  --gs-nav-active: #0b6cc4;
+}
+
+/* Reserve space for the fixed bar (opt-in via body.gs-has-nav) */
+body.gs-has-nav{
+  padding-bottom: calc(var(--gs-nav-h) + env(safe-area-inset-bottom, 0px));
+}
+
+/* The fixed bar */
+footer.gs-nav{
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  height: var(--gs-nav-h);
+  background: var(--gs-nav-bg);
+  border-top: 1px solid var(--gs-nav-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 env(safe-area-inset-left,8px) 0 env(safe-area-inset-right,8px);
+  z-index: 1000;
+  overflow: hidden;
+  box-sizing: border-box;
+  /* normalize inheritance so pages can’t change it */
+  font-size: 0; line-height: 1; font-family: inherit;
+}
+
+/* Items are equal columns */
+.gs-nav__item{
+  flex: 1 1 0;
+  min-width: 0;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  text-decoration: none;
+  color: var(--gs-nav-text);
+  white-space: nowrap;
+  padding: 0; margin: 0;
+  box-sizing: border-box;
+}
+
+/* Explicit sizes (prevents page font from changing the bar) */
+.gs-nav__item .ico { font-size: var(--gs-nav-ico); display:block; line-height:1; }
+.gs-nav__item span { font-size: var(--gs-nav-fs); display:block; line-height:1; }
+
+/* Active + hover */
+.gs-nav__item[aria-current="page"]{ color: var(--gs-nav-active); font-weight: 700; }
+
+.three-d-title {
+  font-size: 1.7rem;
+  font-weight: bold;
+  text-align: center;
+  text-shadow: 2px 2px rgba(0, 0, 0, 0.2);
+  color: var(--text-color) !important;   /* 👈 force theme color */
+  margin: 2rem auto 1.5rem;              /* ⬅️ small top margin like toolkit */
+}
+
+/* make the Privacy link visible + themed and keep it above nav */
+.legal-footer {
+  text-align: center;
+  font-size: 0.9rem;
+  margin: 0.5rem 0 6.5rem !important; /* push it above the nav */
+  color: var(--text-color) !important;
+}
+.legal-footer a { color: inherit; text-decoration: underline; }
+
+/* ================ privacy link above fixed nav =================== */
+.legal-footer {
+  text-align:center;
+  font-size:.9rem;
+  margin: .5rem 0 6.5rem !important;
+  color: var(--text-color) !important;
+}
+.legal-footer a { color:inherit; text-decoration:underline; }
+
+/* -------------------------- dreamy box override --------------------- */
+.dreamy-box {
+      position: relative;
+      overflow: hidden;
+      border-radius: 1.5rem;
+      padding: 2rem;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+      margin: 2rem auto;
+      text-align: center;
+      border-top: 3px solid rgba(40, 130, 180, 0.2);
+      border-bottom: 3px solid rgba(40, 130, 180, 0.2);
+      width: 100%;
+      max-width: 600px;
+      box-sizing: border-box;
+      z-index: 0;
+      /* 💫 Sparkle background */
+    }
+
+    .dreamy-box>*:not(.sparkle-layer),
+    .dreamy-box .sparkle {
+      position: relative;
+      z-index: 2;
+    }
+
+    .dreamy-box h2 {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #2988a7;
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    .dreamy-box label {
+      display: block;
+      margin-bottom: 1.8rem;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 1rem;
+    }
+
+    .dreamy-box textarea {
+      width: 100%;
+      padding: 1rem;
+      border: 2px solid #90caf9;
+      border-radius: 1rem;
+      resize: vertical;
+      background: #f0fdfb;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 1rem;
+      box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    /* dreamy background on toolkit.html behind entries and text */
+    .dreamy-box {
+      background: #3bb5b3;
+      border-radius: .55rem;
+      padding: 0.5rem;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+      margin: 3rem 0;
+      text-align: center;
+      border-top: 3px solid rgba(40, 130, 180, 0.2);
+      border-bottom: 3px solid rgba(40, 130, 180, 0.2);
+    }
+
+    .dreamy-box h2 {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: white;
+      font-size: 1.6rem;
+      margin-bottom: 2.45rem;
+    }
+
+  /* --------------------- my support - bottom container - information ---------------- */
+  /* ==== Support list → match Toolkit look ==== */
+
+/* The blue card (dreamy-box) is already #3bb5b3; we just match the inner cards */
+#savedSupport {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+#savedSupport li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: white !important;  /* support information container background color */
+  color: rgb(40, 130, 180);
+  border-left: 8px solid rgb(40, 130, 180);
+  border-radius: 1rem;
+  margin-bottom: 0.75rem;
+  padding: 0.75rem 0.75rem;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+}
+
+/* text on the left */
+#savedSupport li span {
+  flex-grow: 1;
+  font-size: 1rem;
+  color: black;
+  text-align: left;
+}
+
+/* ❌ button on the right */
+.delete-button-inline {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font-size: 1.15rem;
+  line-height: .5;
+  padding: 0 0rem;        /* nice tap target */
+  color: #d33 !important;   /* same vibe as toolkit */
+}
+
+
+/* =================== accessability (from systemSettings.html) =================== */
+/*------------ accesability increase font size --------------- */
+/* Default fallbacks in case gs_prefs hasn't been set yet */
+:root {
+  --text-size: 1rem;
+  --motion-scale: 1;
+}
+
+/* Base text uses the variable from gs_prefs */
+body {
+  font-size: var(--text-size, 1rem);
+}
+
+/* Let most things inherit body size, instead of hardcoding rems */
+p,
+input[type="text"],
+textarea,
+.toolkit-item span,
+.button,
+.button-purple,
+.idea-item,
+#toolkitList .idea-text {
+  font-size: 1em; /* 1em = whatever body is (1rem or 1.1rem, etc.) */
+}
+
+/* Scale headings relative to --text-size so they grow/shrink too */
+h1.three-d-title,
+h1.three-d-title-two {
+  font-size: calc(var(--text-size, 1rem) * 1.7);
+}
+
+/* ------ text inside the top of the teal container ------ */
+h3,
+.dreamy-box h3 {
+  font-size: calc(var(--text-size, 1rem) * 1.25);
+}
+
+/* ----------------------- reduce motion ----------*/
+/* Use --motion-scale to tone down motion on this page */
+.icon-button,
+.button,
+.toolkit-entry button,
+.dropdown-icon-btn {
+  transition:
+    transform calc(150ms * var(--motion-scale, 1)),
+    background-color 0.3s ease,
+    box-shadow calc(150ms * var(--motion-scale, 1));
+}
+
+/* When motion-scale is 0, this becomes scale(1) (no “pop” on hover) */
+.icon-button:hover,
+.button:hover,
+.toolkit-entry button:hover,
+.dropdown-icon-btn:hover {
+  transform: scale(calc(1 + (0.03 * var(--motion-scale, 1))));
+}
+
+  </style>
+  
+  </head>
+<body>
+    <h1 class="three-d-title">My Support System</h1>
+<p class="support-intro">
+  These are the people I trust and can reach out to when I need help, comfort, or grounding.
+</p>
+
+    <form id="supportForm">
+      <input type="text" id="name" placeholder="Name" required />
+      <input type="text" id="relationship" placeholder="Relationship" required />
+      <input type="text" id="phone" placeholder="Phone #" required />
+
+      <div class="feel-good-container">
+        <button type="submit" class="icon-button">📎 Save</button>
+      </div>
+    </form>
+
+    <div class="dreamy-box">
+
+      <h1 class="three-d-title white-title">🎌 My Support</h1>
+
+    <div class="saved-wrapper">
+        <ul id="savedSupport"></ul>
+      </div></div>
+
+  <div class="legal-footer">View our <a href="privacy.html" rel="noopener">Privacy Policy</a>.</div>
+
+<!-- ========== IDENTICAL NAV HTML (copy this exact block to every page) ========== -->
+<!-- Standard Bottom Nav (use on every page) -->
+<footer class="gs-nav">
+  <a href="index.html" class="gs-nav__item"><span class="ico">🏠</span><span>Home</span></a>
+  <a href="toolkit-hub.html" class="gs-nav__item" data-auth="true"><span class="ico">🧰</span><span>Toolkit</span></a>
+  <a href="wellness.html" class="gs-nav__item" data-auth="true"><span class="ico">💖</span><span>Wellness</span></a>
+  <a href="pet.html" class="gs-nav__item" data-auth="true"><span class="ico">🐾</span><span>Pet</span></a>
+  <a href="important-numbers.html" class="gs-nav__item"><span class="ico">🆘</span><span>Help</span></a>
+  <a href="systemSettings.html" class="gs-nav__item" data-auth="true"><span
+      class="ico">☸</span><span>Settings</span></a>
+</footer>
+
+  <!-- ================= page local script ================ -->
+  <script type="module">
+    // ----- Firebase (shared initializer) -----
+    import { auth, db } from "./firebase-init.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      doc, onSnapshot, collection, addDoc, deleteDoc,
+      query, orderBy, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    /* =========================================================
+       Tiny toast UI (same look/behavior as Toolkit/Journal)
+    ========================================================= */
+    function ensureToastUI() {
+      if (!document.getElementById("toast-style")) {
+        const s = document.createElement("style");
+        s.id = "toast-style";
+        s.textContent = `
+            .toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%) translateY(16px);
+              min-width:240px;max-width:92vw;padding:12px 16px;border-radius:12px;background:rgba(0,0,0,.85);
+              color:#fff;font-weight:600;font-size:14px;line-height:1.35;box-shadow:0 6px 20px rgba(0,0,0,.25);
+              opacity:0;pointer-events:none;transition:opacity .25s ease,transform .25s ease;z-index:9999}
+            .toast.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
+            .toast .small{display:block;font-weight:500;opacity:.85;margin-top:4px}`;
+        document.head.appendChild(s);
+      }
+      if (!document.getElementById("appToast")) {
+        const d = document.createElement("div");
+        d.id = "appToast";
+        d.className = "toast";
+        d.role = "status";
+        d.setAttribute("aria-live", "polite");
+        document.body.appendChild(d);
+      }
+    }
+    function showToast(msg, sub = "") {
+      ensureToastUI();
+      const el = document.getElementById("appToast");
+      el.innerHTML = sub ? `${msg}<span class="small">${sub}</span>` : msg;
+      el.classList.add("show");
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(() => el.classList.remove("show"), 2400);
+    }
+
+    /* =========================================================
+       Helpers + Theme
+    ========================================================= */
+    const $ = (id) => document.getElementById(id);
+    const here = location.pathname.split("/").pop() || "support.html";
+
+    const THEME_CLASSES = [
+      "theme-bingo", "theme-brady", "theme-peach", "theme-moonlight", "theme-shortcake",
+      "theme-bubby-bear", "theme-bumblebee", "theme-dolphin", "theme-arcade",
+      "theme-green", "theme-original", "theme-pinklight", "theme-purple",
+      "theme-greenmed", "theme-pinkmed", "theme-darkblue", "theme-darkgreen",
+      "theme-darkrose", "theme-blue"
+    ];
+
+    function applyThemeClass(themeClass) {
+      const root = document.documentElement;
+      const body = document.body;
+      const next = themeClass || "theme-original";
+      THEME_CLASSES.forEach(c => { root.classList.remove(c); body.classList.remove(c); });
+      root.classList.add(next);
+      body.classList.add(next);
+      try { localStorage.setItem("themeClass", next); } catch { }
+    }
+
+    (function preloadTheme() {
+      const cached = localStorage.getItem("themeClass");
+      if (cached) applyThemeClass(cached);
+    })();
+
+    /* =========================================================
+       Offline "pending" queue (localStorage, per-user)
+       - We DO NOT write to Firestore while offline
+       - We queue locally and upload once when back online
+    ========================================================= */
+    const pendingKey = (uid) => `support:pending:${uid}`;
+
+    function readPending(uid) {
+      try { return JSON.parse(localStorage.getItem(pendingKey(uid)) || "[]"); }
+      catch { return []; }
+    }
+
+    function pushPending(uid, item) {
+      const list = readPending(uid);
+      list.push({ ...item, _id: `support-${Date.now()}-${Math.random().toString(36).slice(2)}` });
+      try { localStorage.setItem(pendingKey(uid), JSON.stringify(list)); } catch { }
+    }
+
+    function clearPending(uid) {
+      try { localStorage.removeItem(pendingKey(uid)); } catch { }
+    }
+
+    async function uploadPending(uid) {
+      if (!uid || !navigator.onLine) return;
+      const list = readPending(uid);
+      if (!list.length) return;
+
+      for (const item of list) {
+        try {
+          await addDoc(collection(db, "users", uid, "support"), {
+            name: item.name || "",
+            relationship: item.relationship || "",
+            phone: item.phone || "",
+            createdAt: serverTimestamp()
+          });
+        } catch (e) {
+          // If anything fails, keep the rest for next time
+          console.warn("[support] pending upload failed for one item:", e);
+          // Don’t clear pending; we’ll retry later
+          return;
+        }
+      }
+      clearPending(uid);
+      showToast("All set", "Your offline items have synced.");
+    }
+
+    /* =========================================================
+       Render list
+    ========================================================= */
+    function renderSupport(snap) {
+      const ul = $("savedSupport");
+      if (!ul) return;
+
+      ul.innerHTML = "";
+      if (snap.empty) return;
+
+      snap.forEach(docSnap => {
+        const x = docSnap.data() || {};
+        const id = docSnap.id;
+
+        const li = document.createElement("li");
+        li.className = "support-clean";
+
+        const row = document.createElement("div");
+        row.style.display = "flex";
+        row.style.justifyContent = "space-between";
+        row.style.alignItems = "center";
+        row.style.width = "95%";
+        row.style.margin = "0 auto";
+
+        const text = document.createElement("span");
+        const parts = [x.name || "", x.relationship ? `(${x.relationship})` : "", x.phone || ""].filter(Boolean);
+        text.textContent = parts.join(" ");
+
+        const btn = document.createElement("button");
+        btn.textContent = "❌";
+        btn.className = "delete-button-inline";
+        btn.setAttribute("aria-label", `Delete ${x.name || "support person"}`);
+        btn.addEventListener("click", async () => {
+          if (!navigator.onLine) {
+            showToast("You’re offline", "Reconnect to delete from the cloud.");
+            return;
+          }
+          try {
+            await deleteDoc(doc(db, "users", auth.currentUser.uid, "support", id));
+          } catch (e) {
+            alert("Delete failed: " + (e.message || e));
+          }
+        });
+
+        row.appendChild(text);
+        row.appendChild(btn);
+        li.appendChild(row);
+        ul.appendChild(li);
+      });
+    }
+
+    /* =========================================================
+       Save + print
+    ========================================================= */
+    async function handleSaveSupport(e) {
+      e?.preventDefault?.();
+      const name = $("name")?.value.trim() || "";
+      const relationship = $("relationship")?.value.trim() || "";
+      const phone = $("phone")?.value.trim() || "";
+      if (!name && !relationship && !phone) return;
+
+      const uid = auth.currentUser?.uid;
+      if (!uid) return;
+
+      // Clear inputs regardless (so UI feels responsive)
+      if ($("name")) $("name").value = "";
+      if ($("relationship")) $("relationship").value = "";
+      if ($("phone")) $("phone").value = "";
+
+      if (!navigator.onLine) {
+        // Do NOT write to Firestore. Queue locally and notify.
+        pushPending(uid, { name, relationship, phone });
+        showToast("Pending — will save when online");
+        return;
+      }
+
+      try {
+        await addDoc(collection(db, "users", uid, "support"), {
+          name, relationship, phone, createdAt: serverTimestamp()
+        });
+        showToast("Saved");
+      } catch (e) {
+        alert("Save failed: " + (e.message || e));
+      }
+    }
+
+    function printSupportList() { window.print(); }
+
+    /* =========================================================
+       Auth gate + live wiring
+    ========================================================= */
+    let stopTheme = null, stopSupport = null;
+
+    onAuthStateChanged(auth, async (user) => {
+      try { stopTheme?.(); stopSupport?.(); } catch { }
+
+      if (!user) {
+        location.replace(`login.html?next=${encodeURIComponent(here)}`);
+        return;
+      }
+
+      // Try to immediately upload any pending items if we’re online
+      await uploadPending(user.uid);
+
+      // Live theme from user doc
+      const userRef = doc(db, "users", user.uid);
+      stopTheme = onSnapshot(
+        userRef,
+        (snap) => {
+          const theme = snap.exists() ? (snap.data().themeClass || "theme-original") : "theme-original";
+          applyThemeClass(theme);
+          document.documentElement.classList.add("ready");
+        },
+        () => { applyThemeClass("theme-original"); document.documentElement.classList.add("ready"); }
+      );
+
+      // Live support list (newest first)
+      const q = query(collection(db, "users", user.uid, "support"), orderBy("createdAt", "desc"));
+      stopSupport = onSnapshot(q, renderSupport, (err) => console.error("[support] onSnapshot:", err));
+
+      // UI hooks
+      $("supportForm")?.addEventListener("submit", handleSaveSupport);
+      $("printSupportButton")?.addEventListener("click", printSupportList);
+
+    });
+
+    /* =========================================================
+       Connectivity hooks
+       - We keep navbar fully usable offline (no anchor blocking)
+       - On reconnect, upload any pending items once
+    ========================================================= */
+    window.addEventListener("online", async () => {
+      const uid = auth.currentUser?.uid;
+      if (!uid) return;
+      showToast("Back online", "Syncing any saved items…");
+      await uploadPending(uid);
+    });
+  </script>  
+
+<script>
+  /* ========== GLOBAL NAV SCRIPT (tiny, repeat on every page) ========== */
+  (function () {
+    // 1) Mark current tab active
+    const here = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
+    document.querySelectorAll('.bottom-nav .nav-icon').forEach(a => {
+      const href = (a.getAttribute('href') || '').toLowerCase();
+      if (href === here) a.setAttribute('aria-current', 'page');
+    });
+
+    // 2) Gate authed links (replace with your real auth check if needed)
+    const isAuthed = !!localStorage.getItem('currentUser');
+    document.querySelectorAll('.bottom-nav [data-auth="true"]').forEach(a => {
+      if (isAuthed) return;
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        const dest = a.getAttribute('href') || 'index.html';
+        location.href = `login.html?next=${encodeURIComponent(dest)}`;
+      });
+    });
+  })();
+</script>
+</body>
+</html>  

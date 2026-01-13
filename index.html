@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="en" data-boot="0" data-ready="0">
+
+<head>
+  <!-- Firebase boot (kept) -->
+  <script type="module">
+    import './firebase-init.js'; // ensures app/auth/db are initialized
+  </script>
+
+<!-- prefs bootstrap: put in <head> of every page -->
+  <script>
+    (function () {
+      const PREFS_KEY = 'gs_prefs';
+      let p = {};
+      try {
+        p = JSON.parse(localStorage.getItem(PREFS_KEY) || '{}');
+      } catch { }
+
+      // motion + text size, shared across the whole app
+      document.documentElement.style.setProperty(
+        '--motion-scale',
+        p.reducedMotion ? '0' : '1'
+      );
+      document.documentElement.style.setProperty(
+        '--text-size',
+        p.largerText ? '1.25rem' : '1rem'   // bump this higher if you want it more obvious
+      );
+    })();
+  </script>  
+  
+  <!-- 1) First-boot guard: opacity (smoother) + disable all animations during boot -->
+  <style>
+    /* Hide only during the very first boot, never again */
+    html[data-boot="0"] {
+      opacity: 0;
+    }
+
+    /* Kill all transitions/animations during boot to avoid iOS flicker */
+    html[data-boot="0"] *,
+    html[data-boot="0"] *::before,
+    html[data-boot="0"] *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+  </style>
+
+  <!-- 2) Base paint so Safari/Chrome UI bars don’t flash wrong colors -->
+  <style>
+    html,
+    body {
+      min-height: 100%;
+      margin: 0;
+      background: var(--bg-color, #fff) !important;
+      color: var(--text-color, #111) !important;
+    }
+  </style>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Welcome to Three Sides - HOME</title>
+  <meta name="description" content="Gentle, themeable planner for tracking mood, routines, and wellness.">
+
+  <!-- PWA -->
+  <link rel="manifest" href="./manifest.webmanifest">
+  <meta name="theme-color" content="#6a5acd">
+
+  <!-- iOS/Android PWA friendliness -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="apple-mobile-web-app-title" content="3-Sides">
+
+  <!-- Icons (use ./icons/) -->
+  <link rel="icon" type="image/svg+xml" sizes="any" href="./icons/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="./icons/favicon-16.png">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png"> <!-- 180x180 -->
+
+  <!-- Fonts + CSS -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand&family=Open+Sans&family=Patrick+Hand&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="./mainTheme.css" />
+
+  <!-- Noscript fallback -->
+  <noscript>
+    <style>
+      html {
+        opacity: 1 !important
+      }
+    </style>
+  </noscript>
+
+  <!-- ================= sign out of others =========================== -->
+  <script type="module">
+    import { auth, db } from './firebase-init.js';
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const LOCAL_MARK = 'gs_session_ack_ts';
+    onAuthStateChanged(auth, (user) => {
+      if (!user) return;
+      const uref = doc(db, 'users', user.uid);
+      onSnapshot(uref, async (snap) => {
+        const bump = snap?.data()?.sessionBumpedAt?.toMillis?.() || 0;
+        const seen = parseInt(localStorage.getItem(LOCAL_MARK) || '0', 10);
+        if (bump > seen) {
+          localStorage.setItem(LOCAL_MARK, String(bump));
+          try { await signOut(auth); } finally { location.replace('login.html'); }
+        }
+      });
+    });
+  </script>
+  
+  <!-- ====================== Early Theme Boot (kept; minor hardening) ===================== -->
+  <script>
+    (function () {
+      try {
+        const root = document.documentElement;
+        const userKey = localStorage.getItem("currentUser") || "anon";
+        const savedTheme =
+          localStorage.getItem(userKey + ":themeClass") ||
+          localStorage.getItem("themeClass") ||
+          localStorage.getItem("themeClass:last") ||
+          "theme-original";
+
+        // keep non-theme classes
+        const keep = (root.className || "")
+          .split(/\s+/).filter(Boolean)
+          .filter(c => !c.startsWith("theme-"));
+
+        root.className = [...keep, savedTheme].join(" ");
+
+        // Sync browser UI bars (Safari/Android)
+        const meta = document.querySelector('meta[name="theme-color"]') || (function () {
+          const m = document.createElement('meta'); m.name = 'theme-color'; document.head.appendChild(m); return m;
+        })();
+        const cs = getComputedStyle(root);
+        meta.content = (cs.getPropertyValue('--accent-color') || cs.getPropertyValue('--accent') || '#6a5acd').trim() || '#6a5acd';
+      } catch { }
+    })();
+  </script>
+
+  <!-- ===== Page-local styles (your page CSS) ===== -->
+  <style>
+   .three-d-title {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 32px;              /* slightly smaller = more room for content */
+  font-weight: bold;
+  text-align: center;
+  text-shadow: 2px 2px rgba(0, 0, 0, .2);
+  color: var(--text-color) !important;
+  margin: 0rem 0 0rem 0;  /* tighter top + bottom */
+}
+
+/* Top strip: auth + header spacing */
+#authControls {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0.35rem 1rem 0;  /* small top padding */
+}
+
+.page-header {
+  margin-top: 0.25rem;        /* keeps logo close to the top */
+}
+
+    /* Layout */
+    .container {
+      padding: 1rem;
+      margin: 0 auto;
+      width: 95vw;
+      max-width: 600px;
+      box-sizing: border-box;
+    }
+
+    body {
+      overflow-x: hidden;
+      background-color: var(--bg-color) !important;
+      color: var(--text-color) !important;
+    }
+
+    .button,
+    .popup {
+      background-color: var(--accent-color) !important;
+      color: var(--text-color) !important;
+    }
+
+    #authControls p {
+      margin: 0;
+      padding: 0
+    }
+
+    .auth-button {
+      border: 1px solid #000;
+      display: inline-block;
+      background: rgb(221, 151, 221);
+      color: #000;
+      padding: .5rem 1.2rem;
+      border-radius: 1.5rem;
+      font-weight: 700;
+      font-size: 1rem;
+      text-decoration: none;
+      margin: 0 .5rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, .1);
+      transition: background-color .3s ease;
+    }
+
+    .auth-button:hover {
+      background:rgb(221, 151, 221)
+    }
+
+    #authControls button {
+      background: rgb(221, 151, 221);
+      color: #000;
+      padding: .5rem 1.2rem;
+      border: 1px solid #000;
+      border-radius: 1.2rem;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color .3s ease;
+    }
+
+    #authControls button:hover {
+      background:rgb(221, 151, 221)
+
+    }
+
+    .dropdown-section details p {
+      color: black !important
+    }
+
+    @media (max-width:600px) {
+      body {
+        padding: 0 1rem;
+        box-sizing: border-box;
+      }
+    }
+
+/* ========================== behind image gradient ======================== */
+    /* ✨ Sparkling gradient speech bubble at the top of journal */
+.image-text-box {
+  position: relative;
+  font-family: 'Comic Neue', sans-serif;
+
+  /* soft teal-to-pink gradient using your colors */
+  background: linear-gradient(
+    135deg,
+    #3bb5b3 0%,
+    #5fd7cf 30%,
+    #ffc6e0 70%,
+    #fbe0f0 100%
+  );
+
+  padding: 1.25rem 1.4rem;
+  margin: 2rem auto 1.5rem;
+  max-width: 260px;
+  border-radius: 1.4rem;
+
+  /* glowing, dreamy edges */
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.7),
+    0 6px 18px rgba(0, 0, 0, 0.15),
+    0 0 22px rgba(255, 198, 224, 0.7);
+
+  text-align: center;
+  color: rgba(0, 0, 0, 0.694) !important; /* deep ink text */
+  border: 1.5px solid #3bb5b3;
+  font-size: 1.25rem;
+  line-height: 1.4;
+}
+
+/* soft inner highlight */
+.hero-image::before {
+  content: "";
+  position: absolute;
+  inset: 4px 6px;
+  border-radius: 1.2rem;
+  background: radial-gradient(
+    circle at 20% 0%,
+    rgba(255, 255, 255, 0.45),
+    transparent 60%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* tiny sparkle sheen sweeping across the bubble */
+.hero-image::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0.0) 0%,
+    rgba(255, 255, 255, 0.42) 35%,
+    rgba(255, 255, 255, 0.0) 70%
+  );
+  mix-blend-mode: screen;
+  opacity: 0.7;
+  animation: bubble-sheen 4.5s infinite ease-in-out;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@keyframes bubble-sheen {
+  0%, 100% { transform: translateX(-20%); }
+  50%      { transform: translateX(20%); }
+}
+   
+    /* <details> content can repaint on iOS — stabilize it */
+    details,
+    details>* {
+      will-change: opacity, transform;
+      backface-visibility: hidden;
+      transform: translateZ(0);
+      contain: layout paint style;
+    }
+
+    @media (max-width:600px) {
+      .image-text-box {
+        width: 100%;
+        max-width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+        border-radius: 0;
+        padding: 1rem .75rem;
+        text-align: left;
+      }
+
+      .hero-image {
+        width: 100%;
+        height: auto;
+        max-width: 600px;
+        display: block;
+        margin: 0 auto;
+        border-radius: 10px;
+      }
+
+      .hero-caption,
+      .image-text-box p {
+        font-size: 1rem;
+        line-height: 1;
+        color: rgb(9, 15, 86);
+      }
+    }
+
+    strong {
+      color: var(--text-color);
+      font-size: 1.1rem;
+      font-weight: bolder;
+    }
+
+    /* Full-height layout + bottom space for footer */
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      box-sizing: border-box;
+      width: 100%;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    /* ==================== sparkles ==================== */
+    #sparkleWrapper {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+      /* keep sparkles OFF during boot to avoid repaints */
+      display: none;
+    }
+
+    /* sparkles only after boot */
+    html[data-boot="1"] #sparkleWrapper {
+      display: block;
+    }
+
+    .sparkle {
+      position: absolute;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 255, 255, .9) 0%, transparent 70%);
+      opacity: 0;
+      animation: spark 3.6s infinite ease-in-out;
+      box-shadow: 0 0 6px rgba(255, 255, 255, .5)
+    }
+
+    @keyframes spark {
+
+      0%,
+      100% {
+        opacity: .08;
+        transform: scale(.6)
+      }
+
+      50% {
+        opacity: 1;
+        transform: scale(1.25)
+      }
+    }
+
+    @media (prefers-reduced-motion:reduce) {
+      .sparkle {
+        animation: none;
+        opacity: .18
+      }
+    }
+
+/* ========== GLOBAL BOTTOM NAV (identical on all pages) ========== */
+:root{
+  --nav-h: 64px;                 /* fixed bar height */
+  --nav-fs: 12px;                /* label font size */
+  --nav-icon-fs: 20px;           /* emoji/icon size */
+  --nav-bg: #fafafa;             /* bar background */
+  --nav-border: rgba(69,111,179,.25);
+  --nav-text: rgba(69,111,179,1);
+  --nav-text-active: #0b6cc4;
+}
+
+/* Reserve space for the fixed bar */
+.page-wrapper{
+  padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px));
+}
+
+/* Bar container */
+.bottom-nav{
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: var(--nav-h);
+  background: var(--nav-bg);
+  border-top: 1px solid var(--nav-border);
+  display: flex;
+  align-items: center;           /* vertical centering */
+  justify-content: space-around; /* even spacing */
+  padding: 0 env(safe-area-inset-left, 8px) 0 env(safe-area-inset-right, 8px);
+  z-index: 1000;
+  overflow: hidden;              /* prevent any wrap spill */
+}
+
+/* Each item = equal column */
+.bottom-nav .nav-icon{
+  flex: 1 1 0;
+  min-width: 0;
+  text-align: center;
+  text-decoration: none;
+  color: var(--nav-text);
+  line-height: 1;
+  padding: 0; margin: 0;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  white-space: nowrap;
+}
+
+/* Fixed sizes so height never changes */
+.bottom-nav .nav-icon .ico{ font-size: var(--nav-icon-fs); display:block; }
+.bottom-nav .nav-icon span{ font-size: var(--nav-fs); display:block; }
+
+/* Active + hover */
+.bottom-nav .nav-icon[aria-current="page"]{
+  color: var(--nav-text-active);
+  font-weight: 700;
+}
+.bottom-nav .nav-icon:hover{ color:#72aadf; }
+
+/* Optional helpers for the “Back + Privacy” cluster just above the bar */
+.page-actions{
+  display:flex; flex-direction:column; align-items:center; gap:.5rem;
+  margin:.25rem 0 .5rem;
+}
+.legal-footer{ text-align:center; font-size:.9rem; margin:0; color:var(--text-color); }
+.legal-footer a{ color:inherit; text-decoration:underline; }
+
+/* ================= navbar overrides ============= */
+/* === Glow Standard Bottom Nav (namespaced) === */
+:root{
+  --gs-nav-h: 64px;
+  --gs-nav-fs: 12px;   /* label */
+  --gs-nav-ico: 20px;  /* emoji */
+  --gs-nav-bg: #fafafa;
+  --gs-nav-border: rgba(69,111,179,.25);
+  --gs-nav-text: rgba(69,111,179,1);
+  --gs-nav-active: #0b6cc4;
+}
+
+/* Reserve space for the fixed bar (opt-in via body.gs-has-nav) */
+body.gs-has-nav{
+  padding-bottom: calc(var(--gs-nav-h) + env(safe-area-inset-bottom, 0px));
+}
+
+/* The fixed bar */
+footer.gs-nav{
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  height: var(--gs-nav-h);
+  background: var(--gs-nav-bg);
+  border-top: 1px solid var(--gs-nav-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 env(safe-area-inset-left,8px) 0 env(safe-area-inset-right,8px);
+  z-index: 1000;
+  overflow: hidden;
+  box-sizing: border-box;
+  /* normalize inheritance so pages can’t change it */
+  font-size: 0; line-height: 1; font-family: inherit;
+}
+
+/* Items are equal columns */
+.gs-nav__item{
+  flex: 1 1 0;
+  min-width: 0;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  text-decoration: none;
+  color: var(--gs-nav-text);
+  white-space: nowrap;
+  padding: 0; margin: 0;
+  box-sizing: border-box;
+}
+
+/* Explicit sizes (prevents page font from changing the bar) */
+.gs-nav__item .ico { font-size: var(--gs-nav-ico); display:block; line-height:1; }
+.gs-nav__item span { font-size: var(--gs-nav-fs); display:block; line-height:1; }
+
+/* Active + hover */
+.gs-nav__item[aria-current="page"]{ color: var(--gs-nav-active); font-weight: 700; }
+.gs-nav__item:hover{ color:#72aadf; }
+
+.cloud-section {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0rem 2.2rem;
+  box-sizing: border-box;
+}
+/* --- Reserve space for the fixed Glow bottom nav (works for both class names) --- */
+:root{
+  --gs-nav-h: 64px;
+}
+
+html, body {
+  min-height: 100svh;           /* better on mobile address-bar */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Accept either class name (your body currently has has-bottom-nav) */
+body.gs-has-nav,
+body.has-bottom-nav {
+  padding-bottom: calc(var(--gs-nav-h) + env(safe-area-inset-bottom, 0px));
+}
+
+/* Your gs-nav footer already exists — keep your styles.
+   These two ensure it always stays on top and never clips content. */
+footer.gs-nav {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  height: var(--gs-nav-h);
+  z-index: 1000;
+}
+
+/* Optional: give the main content a wrapper so the last element never sits flush */
+main.page {
+  display: block;
+  padding-bottom: 1rem; /* small cushion above the fixed bar */
+  box-sizing: border-box;
+}
+
+/* --- Logout button: Pink rgb(221,151,221) --- */
+#logoutBtn{
+  background: rgb(221, 151, 221) !important;
+  color: #000 !important;
+  border: 1px solid #000;
+  padding: .5rem 1.2rem;
+  border-radius: 1.5rem;
+  font-weight: 700;
+  font-size: 1rem;
+  box-shadow: 0 4px 10px rgba(0,0,0,.1);
+  cursor: pointer;
+  transition: background-color .2s ease, transform .1s ease;
+}
+#logoutBtn:hover,
+#logoutBtn:focus-visible{
+  background: rgb(221, 151, 221) !important; /* same hue for hover */
+  filter: brightness(.97);
+}
+#logoutBtn:active{ transform: translateY(1px); }
+
+
+/* --- Auth buttons: lock to Pink rgb(221,151,221) --- */
+.auth-buttons .auth-button,         /* "Log in" <a> */
+.auth-buttons #logoutBtn {          /* "Logout" <button> */
+  color: #000 !important;
+  border: .7px solid #000 !important;
+  padding: .5rem 1.2rem !important;
+  border-radius: .5rem !important;
+  font-weight: 700 !important;
+  font-size: 1rem !important;
+  line-height: 1 !important;
+  text-decoration: none !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,.1) !important;
+  display: inline-block !important;
+  cursor: pointer !important;
+  transition: filter .2s ease, transform .1s ease !important;
+}
+
+.auth-buttons .auth-button:hover,
+.auth-buttons .auth-button:focus-visible,
+.auth-buttons #logoutBtn:hover,
+.auth-buttons #logoutBtn:focus-visible {
+  filter: brightness(.97);
+}
+
+.auth-buttons #logoutBtn:active,
+.auth-buttons .auth-button:active {
+  transform: translateY(1px);
+}
+
+/* make the Privacy link visible + themed and keep it above nav */
+.legal-footer {
+  text-align: center;
+  font-size: 0.9rem;
+  margin: 0.5rem 0 6.5rem !important; /* push it above the nav */
+  color: var(--text-color) !important;
+}
+.legal-footer a { color: inherit; text-decoration: underline; }
+
+/* ================ privacy link above fixed nav =================== */
+.legal-footer {
+  text-align:center;
+  font-size:.9rem;
+  margin: .5rem 0 6.5rem !important;
+  color: var(--text-color) !important;
+}
+.legal-footer a { color:inherit; text-decoration:underline; }
+
+.dropdown-section details p {
+  color: var(--text-color);
+}
+
+/* Make the bipolar FAQ pills almost full-width */
+.dropdown-section {
+  width: 100%;
+  max-width: 600px;        /* matches your main column */
+  margin: 0 auto;
+  padding: 0 .75rem;      /* tiny side padding so they don't hit the edge */
+  box-sizing: border-box;
+}
+
+
+.dropdown-section details {
+  margin: .55rem 0;
+}
+
+body {
+  font-size: var(--text-size);
+}
+
+html {
+  font-size: var(--text-size);
+}
+
+/* optional, but keeps body at 1rem relative to html */
+body {
+  font-size: 1rem;
+}
+
+/* ===== Auth bar at top (hello + logout) ===== */
+.auth-buttons {
+  display: flex;
+  justify-content: center;
+  margin: 0;
+}
+
+.auth-buttons .auth-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.55rem;
+  width: 100%;
+  max-width: 600px;         /* lines up with main content */
+  padding: 0.75rem 1rem 0;  /* space from very top of page */
+  box-sizing: border-box;
+}
+
+/* greeting grows, button hugs the right side */
+.auth-buttons .hello {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+/* tighten on small screens */
+@media (max-width: 600px) {
+  .auth-buttons .auth-bar {
+    padding: 0.75rem 0.75rem 0;
+  }
+}
+.page-header {
+  margin-top: 0rem;
+}
+
+.legal-footer {
+  margin-top: 8px;
+}
+
+.legal-footer {
+  margin-top: 24px !important;
+}
+
+.legal-footer {
+  margin-top: 12px;
+  margin-bottom: calc(var(--gs-nav-h) + 24px); /* room above nav */
+}
+
+.intro-text {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-color);      /* ← uses theme text color */
+  padding: 0 1.1rem;
+  line-height: 1.5;
+}
+
+.header-bars {
+  color: #3bb5b3 !important;
+}
+
+</style>
+
+  <!-- Service worker registration -->
+  <script src="./sw-register.js"></script>
+
+  <!-- BFCache reveal: if page is restored, use show() if available -->
+  <script>
+    window.addEventListener("pageshow", function (e) {
+      if (e.persisted) {
+        if (typeof window.__showOnce === "function") {
+          window.__showOnce();
+        } else {
+          const d = document.documentElement;
+          d.setAttribute("data-ready", "1");
+          d.setAttribute("data-boot", "1");
+          d.style.opacity = "1";
+        }
+      }
+    });    
+  </script>
+</head>
+
+<body class="gs-has-nav has-bottom-nav">
+  <div id="sparkleWrapper" class="full-page-sparkle-wrapper"></div>
+  <div id="authControls" class="auth-buttons"></div>
+
+    <!-- 🌸 Redesigned Top Section -->
+    <div class="page-header">
+        <h1 class="three-d-title">
+          <span class="header-bars">▀▄▀▄▀▄▀▄▀▄</span>          <br>
+          <span style="color:#f584b7;">ⓉĤяＥᵉ Ⓢι∂έs</span><br>
+          <span class="header-bars">▀▄▀▄▀▄▀▄▀▄</span>
+                </h1>
+
+        <div class="image-text-box">
+            <img src="relax.png" alt="Relaxing mental health image" class="hero-image">
+            <br>
+            <p class="hero-caption">
+                When we or someone we love is living with bipolar disorder, it’s important to pause and ask: <em>What is
+                    bipolar?</em>
+            </p>
+</div>
+
+<p class="intro-text">
+  <strong>3-Sides</strong> represents the emotional shifts of bipolar life: the highs, the lows, and the
+  moments of balance. This planner helps you make sense of it all, one day at a time.
+</p>
+
+
+        <div class="cloud-section intro-paragraph"></div>
+
+        <div class="dropdown-section">
+            <p style="font-family: 'Open Sans', sans-serif; text-align: center; font-size: 1.2rem; font-weight: 700; line-height: 1.3;">
+                🎭 Understanding Bipolar: <br>Your questions, answered.
+            </p>
+
+            <details>
+                <summary>🌿 Stability</summary>
+                <p>Stability is the sweet spot — when your mood is balanced, your thoughts are clear, and you feel
+                    grounded.
+                    You’re able to enjoy your life, stick to routines, manage stress, and connect with people in a
+                    steady way.
+                    Stability isn’t about being perfect — it’s about feeling more like yourself. It’s the calm in the
+                    middle of
+                    the storm, the feeling that you can breathe fully again without fear of the next swing. During
+                    stable periods,
+                    you may find it easier to build healthy habits, follow through on plans, and reflect on past
+                    episodes with
+                    more clarity. This is a powerful time for self-awareness and growth. It’s also when your support
+                    tools — like
+                    this app — can be fine-tuned to prepare for future highs or lows. The goal of this app is to help
+                    you stay in
+                    this place as much as possible, and return here gently and safely when you’re not. Stability
+                    deserves
+                    celebration — not because it means everything is perfect, but because it means you’re at peace,
+                    moving forward
+                    one steady step at a time.</p>
+            </details>
+
+            <details>
+                <summary>🌞 Mania</summary>
+                <p>Mania can feel like a superpower. You might feel unstoppable — bursting with energy, creativity,
+                    confidence,
+                    and big ideas that seem to flow faster than you can keep up with. At first, it might feel exciting,
+                    even
+                    euphoric. You may find yourself starting new projects, talking a mile a minute, making bold plans,
+                    or feeling
+                    like everything is finally falling into place. But mania isn’t just about feeling good — it can also
+                    come with
+                    serious risks. You might sleep very little and still feel wired, take impulsive actions like
+                    overspending,
+                    driving too fast, hypersexuality, or starting risky relationships. You might feel unusually
+                    irritable or
+                    defensive when others question you, or like you're on a mission and no one can slow you down. The
+                    thing about
+                    mania is that it often sneaks in quietly, feeling helpful or powerful at first, which is why it’s so
+                    important
+                    to learn your early signs and triggers. Recognizing those signs — even the subtle ones — can help
+                    you act
+                    before things spiral. This planner can be a tool for spotting patterns, staying grounded, and
+                    reaching out for
+                    support when needed. You deserve stability, and having a plan in place is a powerful act of
+                    self-love and
+                    protection.</p>
+            </details>
+
+            <details>
+                <summary>🌤️ Hypomania</summary>
+                <p>Hypomania is like mania’s quieter cousin. It can feel like a burst of sunshine after a long storm —
+                    your mind
+                    feels sharp, your energy is up, and you might feel more social, creative, or productive than usual.
+                    Unlike
+                    full mania, hypomania doesn’t typically cause major disruptions in your life — you may still be
+                    going to work
+                    or keeping up with your responsibilities. In fact, it can feel really good. But it’s also easy to
+                    miss or
+                    dismiss, especially because it can feel like “just having a good day.” The challenge is that
+                    hypomania can
+                    escalate into full-blown mania or crash into depression if not recognized early. Tracking your
+                    sleep, energy,
+                    and behavior during these times can help you catch it before it tips too far. Knowing your early
+                    signs gives
+                    you the power to pause, reflect, and protect your stability before things spiral.</p>
+            </details>
+
+            <details>
+                <summary>🌧️ Depression</summary>
+                <p>Bipolar depression is more than just feeling sad — it's like a fog that settles over everything. It’s
+                    a deep,
+                    persistent heaviness that can make even the simplest tasks feel overwhelming. You might feel numb,
+                    hopeless,
+                    or weighed down by sadness. It can show up as a lack of energy, loss of interest in things you used
+                    to enjoy,
+                    or feeling disconnected from the people around you. Even things like eating, showering, or getting
+                    out of bed
+                    might feel too difficult. Depression can also come with negative thoughts that lie to you — telling
+                    you you're
+                    a burden, that you're not enough, or that things will never get better. These thoughts are part of
+                    the
+                    illness, not the truth. Guilt and shame often tag along, especially if you’ve been in a productive
+                    or "high"
+                    state before and now feel like you’ve crashed. It’s important to remember: depression is not your
+                    fault. It
+                    doesn’t mean you’re weak or lazy — it means your brain is going through something heavy. Recognizing
+                    your
+                    early warning signs, having a safety plan, and checking in with your support system can make a huge
+                    difference. Even if you can’t see it right now, you are not alone, and this low will not last
+                    forever. This
+                    planner is here to help you document your patterns, reflect gently, and remind yourself that healing
+                    is
+                    possible, one step at a time.</p>
+            </details>
+
+            <details>
+                <summary>😵‍💫 Mixed Episodes</summary>
+                <p>Mixed states are when symptoms of mania and depression show up at the same time. You might feel
+                    extremely
+                    agitated or restless, but also hopeless and low. You could be full of energy but filled with despair
+                    — crying
+                    while your mind is racing. These episodes are often the most dangerous because you may feel
+                    impulsive and
+                    hopeless at once, which can lead to risky choices or thoughts of self-harm. They’re hard to
+                    recognize and even
+                    harder to explain. This app can help you track overlapping feelings, so you’re more equipped to spot
+                    when
+                    you’re not “just anxious” or “just sad” — you’re in a mixed state, and you deserve support.</p>
+            </details>
+
+            <details>
+                <summary>🌪️ Rapid Cycling</summary>
+                <p>Rapid cycling is when mood episodes — like mania, hypomania, or depression — happen more often than
+                    usual.
+                    Instead of lasting for weeks or months, these shifts can happen in just days or even hours. You
+                    might feel
+                    like you're constantly flipping between emotional states, never getting a break to catch your
+                    breath. This can
+                    feel exhausting, confusing, and hard to explain to others. If you've ever felt like your mood
+                    changes “too
+                    fast” to be taken seriously, know that you are not imagining it. Rapid cycling is real, and it's
+                    more common
+                    in some people with bipolar than others. It doesn’t make your experience less valid — it just means
+                    your
+                    emotional shifts happen more quickly. Tracking your moods, patterns, and triggers in this app can
+                    help you
+                    notice those shifts sooner and feel more prepared. You're not broken — your brain is just moving
+                    through
+                    cycles at a different rhythm.</p>
+            </details>
+        </div>
+ <br>
+ 
+<div class="legal-footer">
+  View our
+  <a href="privacy.html" rel="noopener">Privacy Policy</a>
+  and
+  <a href="terms.html" rel="noopener">Terms of Use</a>.
+</div>
+
+        <!-- ========== IDENTICAL NAV HTML (copy this exact block to every page) ========== -->
+        <!-- Standard Bottom Nav (use on every page) -->
+        <footer class="gs-nav">
+          <a href="index.html" class="gs-nav__item"><span class="ico">🏠</span><span>Home</span></a>
+          <a href="toolkit-hub.html" class="gs-nav__item" data-auth="true"><span class="ico">🧰</span><span>Toolkit</span></a>
+          <a href="wellness.html" class="gs-nav__item" data-auth="true"><span class="ico">💖</span><span>Wellness</span></a>
+          <a href="pet.html" class="gs-nav__item" data-auth="true"><span class="ico">🐾</span><span>Pet</span></a>
+          <a href="important-numbers.html" class="gs-nav__item"><span class="ico">🆘</span><span>Help</span></a>
+          <a href="systemSettings.html" class="gs-nav__item" data-auth="true"><span
+              class="ico">☸</span><span>Settings</span></a>
+        </footer>
+        
+        <!-- ====================== SCRIPT (drop-in) ====================== -->
+        <script type="module">
+          import { auth, db } from "./firebase-init.js";
+          import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+          import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+          import { signOutUser } from "./auth.js";
+
+          const html = document.documentElement;
+
+          // --- One-shot reveal control (prevents iOS flicker) ---
+          let revealed = false;
+          function show() {
+            if (revealed) return;
+            revealed = true;
+
+            // flip both flags and reveal via opacity
+            html.setAttribute("data-ready", "1");
+            html.setAttribute("data-boot", "1");
+            html.style.opacity = "1";
+
+            // resume sparkles only after boot (CSS handles display)
+            // cancel safety-net timer if set
+            if (window.__fallbackTimer) { clearTimeout(window.__fallbackTimer); window.__fallbackTimer = null; }
+          }
+          // Expose to BFCache/safety-net in <head>
+          window.__showOnce = show;
+
+          function syncMetaTheme() {
+            try {
+              const cs = getComputedStyle(document.documentElement);
+              const accent =
+                (cs.getPropertyValue("--accent-color") ||
+                  cs.getPropertyValue("--accent") ||
+                  "#6a5acd").trim() || "#6a5acd";
+              const meta = document.querySelector('meta[name="theme-color"]');
+              if (meta) meta.content = accent;
+            } catch { }
+          }
+
+          function applyThemeClass(themeClass) {
+            const root = document.documentElement;
+            const next = themeClass || "theme-original";
+
+            // keep non-theme classes; swap only theme-*
+            const keep = (root.className || "")
+              .split(/\s+/).filter(Boolean)
+              .filter(c => !c.startsWith("theme-"));
+
+            const curr = (root.className.match(/\btheme-[^\s]+/g) || [])[0];
+            if (curr === next) { syncMetaTheme(); return; }
+
+            root.className = [...keep, next].join(" ");
+
+            // persist for next boot (scoped by currentUser when present)
+            try {
+              const userKey = localStorage.getItem("currentUser") || "anon";
+              localStorage.setItem(userKey + ":themeClass", next);
+              localStorage.setItem("themeClass:last", next);
+            } catch { }
+
+            syncMetaTheme();
+          }
+
+          function renderLoggedOutUI() {
+            const host = document.getElementById("authControls");
+            if (host) host.innerHTML = `<a class="auth-button" href="./login.html">Log in</a>`;
+          }
+
+          function renderLoggedInUI(user) {
+  const host = document.getElementById("authControls");
+  if (!host) return;
+  const name = user.displayName || (user.email?.split("@")[0]) || "User";
+
+  host.innerHTML = `
+    <div class="auth-bar">
+      <span class="hello">👋 Hello, <strong>${name}</strong></span>
+      <button id="logoutBtn" type="button">Logout</button>
+    </div>
+  `;
+
+  document.getElementById("logoutBtn")?.addEventListener("click", () => signOutUser());
+}
+
+
+          // Gate links like <a href="theme.html" data-auth="true">
+          function guardLinks(isAuthed) {
+            document.querySelectorAll('[data-auth="true"]').forEach(a => {
+              if (isAuthed) {
+                a.onclick = null;
+              } else {
+                a.onclick = (e) => {
+                  e.preventDefault();
+                  const dest = a.getAttribute("href") || "./index.html";
+                  location.href = `./login.html?next=${encodeURIComponent(dest)}`;
+                };
+              }
+            });
+          }
+
+          let unsub = null;
+
+          onAuthStateChanged(auth, (user) => {
+            if (unsub) { unsub(); unsub = null; }
+
+            if (!user) {
+              // Logged out → reset theme to base + clear user marker
+              try {
+                localStorage.removeItem("currentUser");
+                localStorage.setItem("themeClass:last", "theme-original");
+              } catch { }
+              applyThemeClass("theme-original");
+
+              renderLoggedOutUI();
+              guardLinks(false);
+              show(); // reveal once
+              return;
+            }
+
+            // NEW: remember active user so per-user theme keys line up on index.html
+            try { localStorage.setItem("currentUser", user.uid); } catch { }
+
+            // Logged in → live theme from Firestore
+            renderLoggedInUI(user);
+            guardLinks(true);
+
+            let first = true;
+            unsub = onSnapshot(
+              doc(db, "users", user.uid),
+              (snap) => {
+                const t = snap.exists() ? (snap.data()?.themeClass || "") : "";
+                if (t) applyThemeClass(t); else syncMetaTheme();
+                if (first) { show(); first = false; } // reveal after first paint
+              },
+              (err) => {
+                console.error("[index] theme snapshot error:", err);
+                // Even if Firestore fails, don't block the page
+                syncMetaTheme();
+                show();
+              }
+            );
+          });
+
+          // iOS BFCache restores → reveal (no re-hide)
+          window.addEventListener("pageshow", (e) => {
+            if (e.persisted) show();
+          });
+
+          // 🚫 DO NOT re-hide on pagehide — this causes the strobe on iOS
+          // window.addEventListener("pagehide", () => { html.removeAttribute("data-ready"); });
+        </script>
+       
+      <script>
+        /* Glow bottom nav: mark active tab + gate authed links */
+        (function () {
+          // mark current tab active (works with .gs-nav__item)
+          const here = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
+          document.querySelectorAll('.gs-nav__item').forEach(a => {
+            const href = (a.getAttribute('href') || '').toLowerCase();
+            if (href === here) a.setAttribute('aria-current', 'page');
+          });
+
+          // gate links that require auth (uses your localStorage marker)
+          const isAuthed = !!localStorage.getItem('currentUser');
+          if (!isAuthed) {
+            document.querySelectorAll('.gs-nav__item[data-auth="true"]').forEach(a => {
+              a.addEventListener('click', (e) => {
+                e.preventDefault();
+                const dest = a.getAttribute('href') || 'index.html';
+                location.href = `login.html?next=${encodeURIComponent(dest)}`;
+              });
+            });
+          }
+        })();
+      </script>
+
+      </body>
+</html>
