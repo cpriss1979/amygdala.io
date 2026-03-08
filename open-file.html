@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>Three Sides — OPEN FILE</title>
+    <title>Amygdala — OPEN FILE</title>
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     
     <script type="module">
@@ -27,10 +27,10 @@
     </script>
     
     <!-- Favicons -->
-    <link rel="icon" type="image/svg+xml" sizes="any" href="/3-sides-planner.io/favicon.svg">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/3-sides-planner.io/favicon-16.png">
-    <link rel="apple-touch-icon" href="/3-sides-planner.io/icon-192.png"> <!-- iOS Home screen -->
+    <link rel="icon" type="image/svg+xml" sizes="any" href="/amygdala.io/favicon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="/amygdala.io/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/amygdala.io/favicon-16.png">
+    <link rel="apple-touch-icon" href="/amygdala.io/icon-192.png"> <!-- iOS Home screen -->
 
     <!-- prefs bootstrap: put in <head> of every page -->
     <script>
@@ -143,6 +143,10 @@ footer.gs-nav{
 .gs-nav__item[aria-current="page"]{ color: var(--gs-nav-active); font-weight: 700; }
 .gs-nav__item:hover{ color:#72aadf; }
 
+html, body{
+  background: var(--page-bg) !important;
+}
+
     </style>
 </head>
 
@@ -156,8 +160,8 @@ footer.gs-nav{
     </div>
 
     <script>
-        // Helper to redirect correctly on dev (/) and GH Pages (/three-sides-planner.io/)
-        const base = location.pathname.startsWith('/3-sides-planner.io/') ? '/3-sides-planner.io/' : '/';
+        // Helper to redirect correctly on dev (/) and GH Pages (/amygdala.io/)
+        const base = location.pathname.startsWith('/amygdala.io/') ? '/amygdala.io/' : '/';
         const go = (path) => location.replace(base + path);
 
         async function handleFiles(params) {

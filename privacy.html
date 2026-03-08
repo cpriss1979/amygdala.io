@@ -1,589 +1,300 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="theme-original">
 
-<head>
-  <!-- prefs bootstrap: put in <head> of every page -->
-  <script>
-    (function () {
-      const PREFS_KEY = 'gs_prefs';
-      let p = {};
-      try { p = JSON.parse(localStorage.getItem(PREFS_KEY) || '{}'); } catch { }
-      document.documentElement.style.setProperty('--motion-scale', p.reducedMotion ? '0' : '1');
-      document.documentElement.style.setProperty('--text-size', p.largerText ? '1.1rem' : '1rem');
-    })();
-  </script>
-  
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Privacy Policy - Three Sides</title>
-    <meta name="description" content="Privacy Policy for 3-Sides by Crystal Roberts (GlowCode Studio).">
-    
-    <!-- At the top of delete-account.html <body> or in <head> -->
-    <script type="module">
-        import './firebase-init.js'; // ensures app/auth/db are initialized
-    </script>
-        
-        <script type="module">
-            import { auth, db } from './firebase-init.js';
-            import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-            import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+<head> <!-- prefs bootstrap: put in <head> of every page -->
+  <script> (function () { const PREFS_KEY = 'gs_prefs'; let p = {}; try { p = JSON.parse(localStorage.getItem(PREFS_KEY) || '{}'); } catch { } document.documentElement.style.setProperty('--motion-scale', p.reducedMotion ? '0' : '1'); document.documentElement.style.setProperty('--text-size', p.largerText ? '1.1rem' : '1rem'); })(); </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Amygdala — Privacy Policy</title>
+  <meta name="description" content="Amygdala Privacy Policy (GlowCode Studio)." />
+  <!-- PWA (optional, keep consistent) -->
+  <link rel="manifest" href="./manifest.webmanifest">
+  <meta name="theme-color" content="#6a5acd">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="apple-mobile-web-app-title" content="Amygdala">
+  <!-- Fonts + shared CSS (IMPORTANT: these make it look like the app) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Quicksand&family=Open+Sans:wght@400;600;700&family=Patrick+Hand&display=swap"
+    rel="stylesheet"> <!-- Early Theme Boot (so this page matches the user's selected theme when logged in) -->
+  <script> (function () { try { const root = document.documentElement; const userKey = localStorage.getItem("currentUser") || "anon"; const savedTheme = localStorage.getItem(userKey + ":themeClass") || localStorage.getItem("themeClass:last") || "theme-original"; const keep = (root.className || "").split(/\s+/).filter(Boolean).filter(c => !c.startsWith("theme-")); root.className = [...keep, savedTheme].join(" "); const meta = document.querySelector('meta[name="theme-color"]') || (function () { const m = document.createElement('meta'); m.name = 'theme-color'; document.head.appendChild(m); return m; })(); const cs = getComputedStyle(root); meta.content = (cs.getPropertyValue('--accent-color') || cs.getPropertyValue('--accent') || '#6a5acd').trim() || '#6a5acd'; } catch { } })(); </script>
+  <style>
+     /* --- hard reset to prevent right-side clipping --- */
+html, body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
 
-            const LOCAL_MARK = 'gs_session_ack_ts';
-            onAuthStateChanged(auth, (user) => {
-                if (!user) return;
-                const uref = doc(db, 'users', user.uid);
-                onSnapshot(uref, async (snap) => {
-                    const bump = snap?.data()?.sessionBumpedAt?.toMillis?.() || 0;
-                    const seen = parseInt(localStorage.getItem(LOCAL_MARK) || '0', 10);
-                    if (bump > seen) {
-                        localStorage.setItem(LOCAL_MARK, String(bump));
-                        try { await signOut(auth); } finally { location.replace('login.html'); }
-                    }
-                });
-            });
-         </script>
-        
-        <!-- prefs bootstrap: put in <head> of every page -->
-        <script>
-            (function () {
-                const PREFS_KEY = 'gs_prefs';
-                let p = {};
-                try { p = JSON.parse(localStorage.getItem(PREFS_KEY) || '{}'); } catch { }
-                document.documentElement.style.setProperty('--motion-scale', p.reducedMotion ? '0' : '1');
-                document.documentElement.style.setProperty('--text-size', p.largerText ? '1.1rem' : '1rem');
-            })();
-        </script>
-            
-    <style>
-        body {
-            font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 24px;
-            color: #111;
-            background: #fff;
-        }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
-        main {
-            max-width: 860px;
-            margin: 0 auto;
-        }
+img, svg, video, canvas {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
 
-        h1,
-        h2 {
-            line-height: 1.25;
-        }
+    /* Keep policy page styling LIGHT — let your app CSS do the heavy lifting */
+    html {
+      font-size: var(--text-size, 1rem);
+    }
 
-        h1 {
-            font-size: 1.9rem;
-            margin-top: 0;
-        }
+    body {
+      font-family: 'Open Sans', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      margin: 0;
+      color: var(--text-color, #111);
+      background: var(--page-bg, linear-gradient(135deg, #cde8ff 0%, #7fdbe0 45%, rgba(255, 198, 224, .35) 100%));
+      overflow-x: hidden;
+    }
 
-        h2 {
-            font-size: 1.25rem;
-            margin-top: 1.6rem;
-        }
+    /* Top bar */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      padding: calc(10px + env(safe-area-inset-top, 0px)) 14px 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, .35);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(0, 0, 0, .08);
+    }
 
-        a {
-            color: #0b5bd3;
-            text-decoration: none;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-
-        .meta {
-            color: #444;
-        }
-
-        ul {
-            padding-left: 1.2rem;
-        }
-
-        .small {
-            color: #555;
-            font-size: .95rem;
-        }
-
-/* ============ added back button ========= */
-.backToApp {
-      display: inline-block;
-      margin: 2rem auto 0;
-      padding: 10px 20px;
-      background-color: #000 !important;
-      color: #fff !important;
-      font-size: 1rem;
-      font-weight: 600;
-      border: 1px solid white;
-      border-radius: 8px;
+    .btn-home {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 0, 0, .12);
+      background: rgba(255, 255, 255, .75);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, .06);
+      color: #000;
       text-decoration: none;
+      font-weight: 800;
       cursor: pointer;
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
-      transition: background-color .3s, transform .2s;
-      text-align: center;
+      transition: transform calc(120ms * var(--motion-scale, 1)), filter .2s ease;
     }
 
-    .backToApp:hover {
-      background-color: #222 !important;
-      transform: scale(1.03);
+    .btn-home:hover {
+      filter: brightness(.98);
     }
 
-    .backToApp:active {
-      transform: scale(0.98);
+    .btn-home:active {
+      transform: translateY(1px);
     }
 
-    @media (max-width: 600px) {
-      body {
-        padding: 0 1rem max(1.5rem, env(safe-area-inset-bottom));
-      }
+    .topbar .pill {
+      margin-left: auto;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 0, 0, .12);
+      background: rgba(255, 255, 255, .55);
+      font-weight: 900;
+      color: rgba(0, 0, 0, .75);
     }
 
-/* ================= navbar overrides ============= */
-/* === Glow Standard Bottom Nav (namespaced) === */
-:root{
-  --gs-nav-h: 64px;
-  --gs-nav-fs: 12px;   /* label */
-  --gs-nav-ico: 20px;  /* emoji */
-  --gs-nav-bg: #fafafa;
-  --gs-nav-border: rgba(69,111,179,.25);
-  --gs-nav-text: rgba(69,111,179,1);
-  --gs-nav-active: #0b6cc4;
-}
-
-/* Reserve space for the fixed bar (opt-in via body.gs-has-nav) */
-body.gs-has-nav{
-  padding-bottom: calc(var(--gs-nav-h) + env(safe-area-inset-bottom, 0px));
-}
-
-/* The fixed bar */
-footer.gs-nav{
-  position: fixed;
-  left: 0; right: 0; bottom: 0;
-  height: var(--gs-nav-h);
-  background: var(--gs-nav-bg);
-  border-top: 1px solid var(--gs-nav-border);
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  padding: 0 env(safe-area-inset-left,8px) 0 env(safe-area-inset-right,8px);
-  z-index: 1000;
-  overflow: hidden;
-  box-sizing: border-box;
-  /* normalize inheritance so pages can’t change it */
-  font-size: 0; line-height: 1; font-family: inherit;
-}
-
-/* Items are equal columns */
-.gs-nav__item{
-  flex: 1 1 0;
-  min-width: 0;
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  text-decoration: none;
-  color: var(--gs-nav-text);
-  white-space: nowrap;
-  padding: 0; margin: 0;
-  box-sizing: border-box;
-}
-
-/* Explicit sizes (prevents page font from changing the bar) */
-.gs-nav__item .ico { font-size: var(--gs-nav-ico); display:block; line-height:1; }
-.gs-nav__item span { font-size: var(--gs-nav-fs); display:block; line-height:1; }
-
-/* Active + hover */
-.gs-nav__item[aria-current="page"]{ color: var(--gs-nav-active); font-weight: 700; }
-.gs-nav__item:hover{ color:#72aadf; }
-
-/* ================= navbar overrides ============= */
-/* === Glow Standard Bottom Nav (namespaced) === */
-:root{
-  --gs-nav-h: 64px;
-  --gs-nav-fs: 12px;   /* label */
-  --gs-nav-ico: 20px;  /* emoji */
-  --gs-nav-bg: #fafafa;
-  --gs-nav-border: rgba(69,111,179,.25);
-  --gs-nav-text: rgba(69,111,179,1);
-  --gs-nav-active: #0b6cc4;
-}
-
-/* Reserve space for the fixed bar (opt-in via body.gs-has-nav) */
-body.gs-has-nav{
-  padding-bottom: calc(var(--gs-nav-h) + env(safe-area-inset-bottom, 0px));
-}
-
-/* The fixed bar */
-footer.gs-nav{
-  position: fixed;
-  left: 0; right: 0; bottom: 0;
-  height: var(--gs-nav-h);
-  background: var(--gs-nav-bg);
-  border-top: 1px solid var(--gs-nav-border);
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  padding: 0 env(safe-area-inset-left,8px) 0 env(safe-area-inset-right,8px);
-  z-index: 1000;
-  overflow: hidden;
-  box-sizing: border-box;
-  /* normalize inheritance so pages can’t change it */
-  font-size: 0; line-height: 1; font-family: inherit;
-}
-
-/* Items are equal columns */
-.gs-nav__item{
-  flex: 1 1 0;
-  min-width: 0;
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  text-decoration: none;
-  color: var(--gs-nav-text);
-  white-space: nowrap;
-  padding: 0; margin: 0;
-  box-sizing: border-box;
-}
-
-/* Explicit sizes (prevents page font from changing the bar) */
-.gs-nav__item .ico { font-size: var(--gs-nav-ico); display:block; line-height:1; }
-.gs-nav__item span { font-size: var(--gs-nav-fs); display:block; line-height:1; }
-
-/* Active + hover */
-.gs-nav__item[aria-current="page"]{ color: var(--gs-nav-active); font-weight: 700; }
-.gs-nav__item:hover{ color:#72aadf; }
-
-/* =========================== system settings color overrides =========== */
-
-/* 1. Theme colors to match teal / pink app */
-:root {
-  --bg: #c7f5f2;          /* soft teal background */
-  --panel: #ffffff;       /* white cards */
-  --ink: #134e4a;         /* deep teal text */
-  --muted: #64748b;
-  --line: #d1e4ec;
-  --ios-blue: #ff6fa9;    /* pink primary button */
-  --ios-blue-d: #f0529c;
-  --ios-gray-fill: #f4fbff;
-  --ios-gray-border: #cbd5e1;
-  --ios-ink: #134e4a;
-}
-
-/* 2. Page background + text color */
-body {
-      background: #0b1220;
-      color: white;
-}
-
-/* 3. Header + main layout (also fixes bottom being cut off) */
-header {
-  background: transparent;
-  border-bottom: none;
-  padding-left: calc(16px + env(safe-area-inset-left, 0px));
-  padding-right: calc(16px + env(safe-area-inset-right, 0px));
-}
-
-main {
-  max-width: 430px;
+    /* Page container */
+    main{
+  width: 100%;
+  max-width: 720px;
   margin: 0 auto;
-  /* extra bottom padding so Danger zone isn't under the nav */
-  padding: 8px 16px calc(var(--nav-h) + 24px + env(safe-area-inset-bottom, 0px));
+
+  /* safe-area aware padding (prevents “offscreen” on iPhone) */
+  padding-left: max(12px, env(safe-area-inset-left, 0px));
+  padding-right: max(12px, env(safe-area-inset-right, 0px));
+  padding-top: 14px;
+  padding-bottom: 34px;
 }
 
-/* 4. Cards */
-.card {
-  background: var(--panel);
-  border-color: var(--line);
-  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.15);
+    .card {
+      background: rgba(255, 255, 255, .76);
+      border: 1px solid rgba(0, 80, 90, .12);
+      box-shadow: 0 10px 26px rgba(0, 70, 80, .10), 0 1px 0 rgba(255, 255, 255, .70) inset;
+      border-radius: 18px;
+      padding: 16px;
+      backdrop-filter: blur(10px) saturate(1.15);
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 1.65rem;
+      letter-spacing: .2px;
+      color: rgba(0, 0, 0, .78);
+      font-weight: 900;
+    }
+
+    .meta {
+      margin: 0 0 14px;
+      font-weight: 800;
+      opacity: .75;
+      color: rgba(0, 0, 0, .7);
+    }
+
+    h2 {
+      margin: 18px 0 8px;
+      font-size: 1.05rem;
+      font-weight: 900;
+      color: rgba(0, 0, 0, .78);
+    }
+
+    p,
+    li {
+      color: rgba(0, 0, 0, .72);
+      font-weight: 600;
+      line-height: 1.6;
+    }
+
+    a {
+      color: rgba(11, 108, 196, 1);
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .quick {
+      margin: 14px 0 6px;
+      border-radius: 14px;
+      border: 1px solid rgba(245, 132, 183, .35);
+      background: rgba(245, 132, 183, .14);
+      padding: 12px 12px;
+      font-weight: 800;
+      color: rgba(0, 0, 0, .72);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .tile {
+      border-radius: 16px;
+      border: 1px solid rgba(0, 0, 0, .10);
+      background: rgba(199, 245, 242, .78);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, .06);
+      padding: 12px;
+      color: rgba(0, 0, 0, .78);
+      font-weight: 800;
+    }
+
+    .tile strong {
+      display: block;
+      font-weight: 900;
+      margin-bottom: 4px;
+    }
+
+    .small {
+      margin-top: 14px;
+      font-size: .95rem;
+      opacity: .85;
+    }
+
+    /* Mobile padding */
+    @media (max-width: 520px) {
+   
+      main {
+        padding: 12px 12px 30px;
+      }
+      h1 {
+        font-size: 1.5rem;
+      } 
+    }
+
+    .topbar{
+  padding-left: max(12px, env(safe-area-inset-left, 0px));
+  padding-right: max(12px, env(safe-area-inset-right, 0px));
 }
 
-/* 5. Buttons recolor to pink/soft teal */
-.btn,
-.btn-wide {
-  background: var(--ios-blue);
-  color: #ffffff;
-  box-shadow: 0 8px 18px rgba(244, 114, 182, 0.35);
-}
-
-.btn:active,
-.btn-wide:active {
-  background: var(--ios-blue-d);
-  transform: translateY(1px);
-}
-
-.btn-ghost {
-  background: #e2f3ff;
-  color: var(--ios-ink);
-  border-color: #cbd5e1;
-}
-
-/* 6. Danger zone card in light style */
-.card.danger {
-  background: #fff7f7;
-  border-color: #fecaca;
-}
-
-.card.danger h2 {
-  color: #b91c1c;
-}
-
-.card.danger .muted {
-  color: #b45309;
-}
-
-/* 7. Bottom nav to match app */
-footer.gs-nav {
-  background: #ffffff;
-  border-top: 1px solid #d1e4ec;
-}
-
-.gs-nav__item {
-  color: #64748b;
-}
-
-.gs-nav__item[aria-current="page"] {
-  font-weight: 700;
-  color: #ff6fa9;
-}
-
-/* 8. Modal dialog in light theme */
-.dialog {
-  background: #ffffff;
-  color: var(--ink);
-  border-color: rgba(148, 163, 184, 0.35);
-}
-
-.banner-error {
-  background: #fee2e2;
-  color: #b91c1c;
-  border-color: #fecaca;
-}
-
-main {
-    max-width: 860px;
-    margin: 0 auto;
-    padding-bottom: 24px; /* small extra space above the nav */
-}
-
-
-/* =================== accessability (from systemSettings.html) =================== */
-/*------------ accesability increase font size --------------- */
-/* Default fallbacks in case gs_prefs hasn't been set yet */
-:root {
-  --text-size: 1rem;
-  --motion-scale: 1;
-}
-
-/* Base text uses the variable from gs_prefs */
-body {
-  font-size: var(--text-size, 1rem);
-}
-
-/* Let most things inherit body size, instead of hardcoding rems */
-p,
-input[type="text"],
-textarea,
-.toolkit-item span,
-.button,
-.button-purple,
-.idea-item,
-#toolkitList .idea-text {
-  font-size: 1em; /* 1em = whatever body is (1rem or 1.1rem, etc.) */
-}
-
-/* Scale headings relative to --text-size so they grow/shrink too */
-h1.three-d-title,
-h1.three-d-title-two {
-  font-size: calc(var(--text-size, 1rem) * 1.7);
-}
-
-/* ------ text inside the top of the teal container ------ */
-h3,
-.dreamy-box h3 {
-  font-size: calc(var(--text-size, 1rem) * 1.25);
-}
-
-/* ----------------------- reduce motion ----------*/
-/* Use --motion-scale to tone down motion on this page */
-.icon-button,
-.button,
-.toolkit-entry button,
-.dropdown-icon-btn {
-  transition:
-    transform calc(150ms * var(--motion-scale, 1)),
-    background-color 0.3s ease,
-    box-shadow calc(150ms * var(--motion-scale, 1));
-}
-
-/* When motion-scale is 0, this becomes scale(1) (no “pop” on hover) */
-.icon-button:hover,
-.button:hover,
-.toolkit-entry button:hover,
-.dropdown-icon-btn:hover {
-  transform: scale(calc(1 + (0.03 * var(--motion-scale, 1))));
-}
-
-    </style>
+  </style>
 </head>
 
-<body class="gs-has-nav">
+<body>
+  <header class="topbar"> <a class="btn-home" href="./index.html" aria-label="Back to Home">🏠 <span>Home</span></a>
+    <div class="pill">Privacy Policy</div>
+  </header>
   <main>
-        <br>
-        <h1>Three Sides Privacy Policy</h1>
-        <p class="meta"><strong>Effective Date:</strong> November 15, 2025</p>
+    <section class="card">
+      <h1>Amygdala Privacy Policy</h1>
+      <p class="meta"><strong>Effective Date:</strong> Feb 28, 2026</p>
+      <p> <strong>Amygdala</strong> is a gentle anxiety + depression support app created by <strong>Crystal
+          Roberts</strong> (GlowCode Studio). This policy explains what information we collect, how we use it, and what
+        choices you have. </p>
+      <div class="quick"> Quick version: we only use your data to make the app work (save your tools/journal/letter). We
+        don’t sell your data. </div>
+      <h2>Scope</h2>
+      <p> This policy applies to the Amygdala mobile/web app and the website hosted at <a
+          href="https://cpriss1979.github.io/amygdala.io/" target="_blank"
+          rel="noopener">cpriss1979.github.io/amygdala.io</a>. </p>
+      <h2>What We Collect</h2>
+      <p> Amygdala does <strong>not</strong> ask for your real name, physical address, or precise location. Here’s what
+        we may store: </p>
 
-        <p>
-            My name is <strong>Crystal Roberts</strong> (GlowCode Studio). I created <em>Three Sides</em> to help
-            people living with bipolar better understand and track their wellness in one place. While bipolar is often
-            described as “<strong>highs</strong> and <strong>lows</strong>,” I believe there is a third, essential side: <strong>STABILITY</strong>. We
-            all experience a range of emotions; we’re not always a “roller coaster.” This app supports balance,
-            reflection, and awareness across highs, lows, and stable moments.
-        </p>
-
-        <h2>Scope</h2>
-        <p>
-            This policy explains how Three Sides handles information within the mobile/web app and on our website
-            hosted at
-            <a href="https://cpriss1979.github.io/3Sides.io/" target="_blank"
-                rel="noopener">https://cpriss1979.github.io/3Sides.io/</a>.
-        </p>
-
-        <h2>Information We Collect</h2>
-        <p>
-           Three Sides does not collect your name, physical address, or precise location. To use certain features,
-            you may create an account:
-        </p>
-        <ul>
-            <li><strong>Login data (via Firebase Authentication):</strong> email and password (or Google sign-in) are
-                required to access protected features such as <em>Toolkit</em> (feel-good tools, journal entries),
-                <em>Wellness</em> (wellness plan, letter to future self, support people), <em>Pet</em>, and
-                <em>Themes</em>.</li>
-            <li><strong>No login required:</strong> the Home page (<code>index.html</code>) and <em>Important
-                    Numbers</em> (<code>important-numbers.html</code>) are accessible without sign-in. Emergency/support
-                numbers shown are for your convenience and are not tracked by us.</li>
-            <li><strong>User content:</strong> mood/side selections (highs, lows, stability), feel-good tools,
-                journal entries, wellness plan, letter to future me, support people, pet, badges, and theme selections. These may be stored locally on your
-                device and, if you sign in, in your personal cloud data.</li>
-        </ul>
-
-        <h2>How We Use Data</h2>
-        <p>
-            Information you add is used only to provide core functionality: tracking highs/lows/stability, journaling,
-            customizing themes, and supporting your wellness routines. We do <strong>not</strong> sell or share your
-            data with third parties for advertising or marketing.
-        </p>
-
-        <h2>Data Storage & Security</h2>
-        <ul>
-            <li><strong>Local storage (on your device):</strong> for quick access and offline use (e.g.,
-                localStorage/IndexedDB). You control this data on your device.</li>
-            <li><strong>Cloud storage (Firebase Cloud Firestore):</strong> if you sign in, your account-linked content
-                may be stored in Firestore under your unique user ID. Access is restricted to your account credentials.
-            </li>
-        </ul>
-        <p>
-            While we take reasonable steps to protect your information, no method of storage or transmission is 100%
-            secure.
-        </p>
-
-        <h2>Third-Party Services</h2>
-        <ul>
-            <li><strong>Firebase Authentication:</strong> used for account sign-in and identity. See <a
-                    href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener">Firebase Privacy
-                    &amp; Security</a>.</li>
-            <li><strong>Firebase Cloud Firestore:</strong> used to store your account-specific data (e.g., journals,
-                toolkit items, wellness plan, pet progress, themes) when you are signed in. See the same Firebase policy
-                link above.</li>
-            <li><strong>GitHub Pages:</strong> hosts our website and this policy at <a
-                    href="https://github.com/cpriss1979/3Sides.io" target="_blank"
-                    rel="noopener">cpriss1979.github.io/3Sides.io</a>.</li>
-        </ul>
-
-        <h2>Your Choices & Controls</h2>
-        <ul>
-            <li><strong>Local data:</strong> you can clear local data from the app’s settings (e.g., a “Reset Local
-                Data” option) or via your browser/app storage settings.</li>
-            <li><strong>Account deletion (in-app):</strong> you can permanently delete your account and associated cloud
-                data from the app’s <em>Delete Account</em> option. This removes your Firebase Authentication account
-                and your Firestore documents tied to your user ID.</li>
-            <li><strong>Manual requests:</strong> you may email us to request account/data deletion if you’re unable to
-                access the in-app option.</li>
-        </ul>
-
-        <h2>Children’s Privacy</h2>
-        <p>
-            Three Sides is intended for users aged <strong>18 and over</strong>. We do not knowingly collect
-            information from children. If you believe a minor has provided data, please contact us so we can delete it.
-        </p>
-
-        <h2>Data Retention</h2>
-        <p>
-            Local data remains on your device until you clear it. Cloud data in Firestore remains associated with your
-            account until you use the in-app deletion feature or request deletion via email.
-        </p>
-
-        <h2>International Users</h2>
-        <p>
-            Firebase may process and store data on servers located in the United States or other countries. By using the
-            app, you consent to any such transfer, processing, and storage.
-        </p>
-
-        <h2>Changes to This Policy</h2>
-        <p>
-            We may update this policy from time to time to reflect app improvements, changes in third-party services, or
-            legal requirements. We will update the effective date above when changes are made.
-        </p>
-
-        <h2>Contact</h2>
-        <p>
-            For questions or data requests, contact: <a
-                href="mailto:glowcodestudio@gmail.com">glowcodestudio@gmail.com</a>
-        </p>
-
-        <p class="small">
-          Publisher: GlowCode Studio (Crystal Roberts)<br>
-          You can also review our <a href="terms.html">Terms of Use</a>. 
-         </p>
-    </main>
-    
-        <!-- ========== IDENTICAL NAV HTML (copy this exact block to every page) ========== -->
-        <!-- Standard Bottom Nav (use on every page) -->
-        <footer class="gs-nav">
-            <a href="index.html" class="gs-nav__item"><span class="ico">🏠</span><span>Home</span></a>
-            <a href="toolkit-hub.html" class="gs-nav__item" data-auth="true"><span class="ico">🧰</span><span>Toolkit</span></a>
-            <a href="wellness.html" class="gs-nav__item" data-auth="true"><span class="ico">💖</span><span>Wellness</span></a>
-            <a href="pet.html" class="gs-nav__item" data-auth="true"><span class="ico">🐾</span><span>Pet</span></a>
-            <a href="important-numbers.html" class="gs-nav__item"><span class="ico">🆘</span><span>Help</span></a>
-            <a href="systemSettings.html" class="gs-nav__item" data-auth="true"><span
-                    class="ico">☸</span><span>Settings</span></a>
-            </footer>
-            
-        <script>
-            /* ========== GLOBAL NAV SCRIPT (tiny, repeat on every page) ========== */
-            (function () {
-                // 1) Mark current tab active
-                const here = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
-                document.querySelectorAll('.bottom-nav .nav-icon').forEach(a => {
-                    const href = (a.getAttribute('href') || '').toLowerCase();
-                    if (href === here) a.setAttribute('aria-current', 'page');
-                });
-
-                // 2) Gate authed links (replace with your real auth check if needed)
-                const isAuthed = !!localStorage.getItem('currentUser');
-                document.querySelectorAll('.bottom-nav [data-auth="true"]').forEach(a => {
-                    if (isAuthed) return;
-                    a.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        const dest = a.getAttribute('href') || 'index.html';
-                        location.href = `login.html?next=${encodeURIComponent(dest)}`;
-                    });
-                });
-            })();
-        </script>
-    </body>
+        <h2>Account info (Firebase Authentication)</h2> If you create an account, we store
+          your email and a Firebase user ID so you can sign in. (Your password is handled by Firebase — it is not stored
+          by us as plain text.) </div>
+        <h2>App content you choose to save</h2> Items you add in <strong>Tools</strong>,
+          entries in <strong>Journal</strong>, and content in <strong>Letter to Self</strong>. </div>
+        <h2>Optional preferences</strong></h2> Accessibility settings like text size and reduced
+          motion (stored locally on your device). </div>
+      </div>
+      <h2>Which Pages Require Login</h2>
+      <p>Only these features require signing in:</p>
+      <ul>
+        <li><strong>Tools</strong></li>
+        <li><strong>Journal</strong></li>
+        <li><strong>Letter to Self</strong></li>
+      </ul>
+      <p> The rest of the app can be browsed without signing in. </p>
+      <h2>How We Use Your Data</h2>
+      <ul>
+        <li>To save and load your Tools, Journal entries, and Letter to Self content.</li>
+        <li>To keep your account signed in and protect access to your saved data.</li>
+        <li>To remember your accessibility preferences on your device.</li>
+      </ul>
+      <p><strong>We do not sell your data</strong> and we do not use it for advertising.</p>
+      <h2>Where Data Is Stored</h2>
+      <ul>
+        <li><strong>On your device:</strong> preferences like text size/reduced motion may be stored locally.</li>
+        <li><strong>In the cloud (Firestore):</strong> if you sign in, your saved Tools/Journal/Letter content may be
+          stored under your Firebase user ID.</li>
+      </ul>
+      <h2>Third-Party Services</h2>
+      <ul>
+        <li><strong>Firebase Authentication</strong> for sign-in.</li>
+        <li><strong>Firebase Cloud Firestore</strong> for storing your saved content (when signed in).</li>
+        <li><strong>GitHub Pages</strong> for hosting the website.</li>
+      </ul>
+      <h2>Your Choices</h2>
+      <ul>
+        <li>You can stop using the app at any time.</li>
+        <li>You can clear local site/app storage from your browser/device settings.</li>
+        <li>If you use the in-app account deletion option (if available), your cloud data linked to your user ID can be
+          removed.</li>
+      </ul>
+      <h2>Children’s Privacy</h2>
+      <p> Amygdala is intended for users aged <strong>18 and over</strong>. We do not knowingly collect information from
+        children. </p>
+      <h2>Changes to This Policy</h2>
+      <p> We may update this policy as the app evolves. If we do, we’ll update the effective date at the top. </p>
+      <h2>Contact</h2>
+      <p> Questions? Email: <a href="mailto:glowcodestudio@gmail.com">glowcodestudio@gmail.com</a> </p>
+      <p class="small"> Publisher: GlowCode Studio (Crystal Roberts).<br> You can also review our <a
+          href="./terms.html">Terms of Use</a>. </p>
+    </section>
+  </main>
+  <script> // Keep theme-color synced to your current theme variables (nice polish) (function () { try { const root = document.documentElement; const cs = getComputedStyle(root); const accent = (cs.getPropertyValue('--accent-color') || cs.getPropertyValue('--accent') || '#6a5acd').trim() || '#6a5acd'; const meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.content = accent; } catch { } })(); </script>
+</body>
 
 </html>

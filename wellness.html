@@ -64,7 +64,7 @@
   </script>
 
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Three Sides — WELLNESS HUB</title>
+  <title>Amygdala — WELLNESS HUB</title>
 
   <!-- Require login for this page (auth.js will handle redirect) -->
   <meta name="auth" content="required">
@@ -105,10 +105,10 @@
   <meta name="color-scheme" content="dark light">
 
   <!-- Favicons -->
-  <link rel="icon" type="image/svg+xml" sizes="any" href="/3-sides-planner.io/favicon.svg">
-  <link rel="icon" type="image/png" sizes="32x32" href="/3-sides-planner.io/favicon-32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/3-sides-planner.io/favicon-16.png">
-  <link rel="apple-touch-icon" href="/3-sides-planner.io/icon-192.png">
+  <link rel="icon" type="image/svg+xml" sizes="any" href="/amygdala.io/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/amygdala.io/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/amygdala.io/favicon-16.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
 
   <!-- Fonts & CSS (non-blocking) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -371,6 +371,11 @@
     body {
       font-size: 1rem;
     }
+
+    html, body{
+  background: var(--page-bg) !important;
+}
+
   </style>
 </head>
 
@@ -403,18 +408,6 @@
       <a href="terms.html" rel="noopener">Terms of Use</a>.
     </div>
 
-    <!-- Bottom nav -->
-    <footer class="gs-nav">
-      <a href="index.html" class="gs-nav__item"><span class="ico">🏠</span><span>Home</span></a>
-      <a href="toolkit-hub.html" class="gs-nav__item" data-auth="true"><span
-          class="ico">🧰</span><span>Toolkit</span></a>
-      <a href="wellness.html" class="gs-nav__item" data-auth="true"><span class="ico">💖</span><span>Wellness</span></a>
-      <a href="pet.html" class="gs-nav__item" data-auth="true"><span class="ico">🐾</span><span>Pet</span></a>
-      <a href="important-numbers.html" class="gs-nav__item"><span class="ico">🆘</span><span>Help</span></a>
-      <a href="systemSettings.html" class="gs-nav__item" data-auth="true">
-        <span class="ico">☸</span><span>Settings</span>
-      </a>
-    </footer>
   </main>
 
   <!-- Firebase + theme + sparkles (same as toolkit-hub, but redirect to wellness) -->

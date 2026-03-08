@@ -1,1135 +1,2236 @@
-<!DOCTYPE html>
-<html lang="en" data-boot="0" data-ready="0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Amygdala — Home</title>
+<meta name="description"
+  content="Amygdala helps you calm racing thoughts, distract your mind gently, and feel steadier—one moment at a time.">
 
-<head>
-  <!-- Firebase boot (kept) -->
-  <script type="module">
-    import './firebase-init.js'; // ensures app/auth/db are initialized
-  </script>
+<!-- PWA -->
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#6a5acd">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="format-detection" content="telephone=no">
+<meta name="apple-mobile-web-app-title" content="Amygdala">
 
-<!-- prefs bootstrap: put in <head> of every page -->
-  <script>
-    (function () {
-      const PREFS_KEY = 'gs_prefs';
-      let p = {};
-      try {
-        p = JSON.parse(localStorage.getItem(PREFS_KEY) || '{}');
-      } catch { }
+<!-- Icons -->
+<link rel="icon" type="image/svg+xml" sizes="any" href="./icons/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="./icons/favicon-16.png">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
 
-      // motion + text size, shared across the whole app
-      document.documentElement.style.setProperty(
-        '--motion-scale',
-        p.reducedMotion ? '0' : '1'
-      );
-      document.documentElement.style.setProperty(
-        '--text-size',
-        p.largerText ? '1.25rem' : '1rem'   // bump this higher if you want it more obvious
-      );
-    })();
-  </script>  
-  
-  <!-- 1) First-boot guard: opacity (smoother) + disable all animations during boot -->
+<!-- Fonts + CSS -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+  href="https://fonts.googleapis.com/css2?family=Quicksand&family=Open+Sans:wght@400;600;700&family=Patrick+Hand&display=swap"
+  rel="stylesheet">
+<link rel="stylesheet" href="./style.css" />
+<link rel="stylesheet" href="./mainTheme.css" />
+
+<noscript>
   <style>
-    /* Hide only during the very first boot, never again */
-    html[data-boot="0"] {
-      opacity: 0;
+    html {
+      opacity: 1 !important
+    }
+  </style>
+</noscript>
+
+<!-- ================= sign out of others (kept) ================= -->
+<script type="module">
+  import { auth, db } from './firebase-init.js';
+  import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const LOCAL_MARK = 'gs_session_ack_ts';
+  onAuthStateChanged(auth, (user) => {
+    if (!user) return;
+    const uref = doc(db, 'users', user.uid);
+    onSnapshot(uref, async (snap) => {
+      const bump = snap?.data()?.sessionBumpedAt?.toMillis?.() || 0;
+      const seen = parseInt(localStorage.getItem(LOCAL_MARK) || '0', 10);
+      if (bump > seen) {
+        localStorage.setItem(LOCAL_MARK, String(bump));
+        try { await signOut(auth); } finally { location.replace('login.html'); }
+      }
+    });
+  });
+</script>
+
+<!-- ====================== Early Theme Boot (kept; hardened) ===================== -->
+<script>
+  (function () {
+    try {
+      const root = document.documentElement;
+      const userKey = localStorage.getItem("currentUser") || "anon";
+      const savedTheme =
+        localStorage.getItem(userKey + ":themeClass") ||
+        localStorage.getItem("themeClass:last") ||
+        "theme-original";
+
+      const keep = (root.className || "")
+        .split(/\s+/).filter(Boolean)
+        .filter(c => !c.startsWith("theme-"));
+
+      root.className = [...keep, savedTheme].join(" ");
+
+      const meta = document.querySelector('meta[name="theme-color"]') || (function () {
+        const m = document.createElement('meta'); m.name = 'theme-color'; document.head.appendChild(m); return m;
+      })();
+      const cs = getComputedStyle(root);
+      meta.content = (cs.getPropertyValue('--accent-color') || cs.getPropertyValue('--accent') || '#6a5acd').trim() || '#6a5acd';
+    } catch { }
+  })();
+</script>
+
+<!-- Service worker -->
+<script src="./sw-register.js"></script>
+
+<!-- ====================== PAGE STYLES (clean + calm) ====================== -->
+<style>
+  html {
+    font-size: var(--text-size);
+  }
+
+  body {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 1rem;
+    overflow-x: hidden;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  :root {
+    --gs-nav-h: 64px;
+    --card-radius: 18px;
+    --card-border: rgba(0, 0, 0, .12);
+    --soft-shadow: 0 10px 25px rgba(0, 0, 0, .08);
+  }
+
+  /* Reserve space for fixed nav */
+  body.gs-has-nav,
+  body.has-bottom-nav {
+    padding-bottom: calc(var(--gs-nav-h) + env(safe-area-inset-bottom, 0px) + 12px);
+  }
+
+  /* Sparkles (optional) */
+  #sparkleWrapper {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+    display: none;
+  }
+
+  html[data-boot="1"] #sparkleWrapper {
+    display: block;
+  }
+
+  /* Layout column */
+  main.page {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 620px;
+    margin: 0 auto;
+    padding: 0 1rem 1rem;
+  }
+
+  /* Top auth bar */
+  #authControls {
+    display: flex;
+    justify-content: center;
+    padding: .75rem 1rem 0;
+    position: relative;
+    z-index: 2;
+  }
+
+  #authControls .auth-bar {
+    width: 100%;
+    max-width: 620px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: .6rem;
+  }
+
+  #authControls .hello {
+    margin-right: auto;
+    font-size: .98rem;
+    font-weight: 600;
+    color: var(--text-color);
+  }
+
+  /* Auth buttons (your pink) */
+  .auth-button,
+  #logoutBtn {
+    background: rgb(221, 151, 221) !important;
+    color: #000 !important;
+    border: 1px solid #000 !important;
+    padding: .5rem 1.1rem !important;
+    border-radius: 999px !important;
+    font-weight: 700 !important;
+    font-size: .95rem !important;
+    line-height: 1 !important;
+    text-decoration: none !important;
+    display: inline-block !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, .1) !important;
+    cursor: pointer !important;
+    transition: filter .2s ease, transform .1s ease !important;
+  }
+
+  .auth-button:hover,
+  #logoutBtn:hover {
+    filter: brightness(.97);
+  }
+
+  .auth-button:active,
+  #logoutBtn:active {
+    transform: translateY(1px);
+  }
+
+  /* Header */
+  .brand {
+    text-align: center;
+    padding: 0rem 9px .5rem;
+  }
+
+  .brand h1 {
+    margin: 0.15rem 0 0.85rem;
+    /* was 0rem 0 1.75rem */
+    font-size: 34px;
+    letter-spacing: .5px;
+    line-height: 1.05;
+    font-weight: 800;
+    text-shadow: 2px 2px rgba(0, 0, 0, .18);
+    color: var(--text-color);
+  }
+
+  .brand .subtitle {
+    margin: 0 auto;
+    max-width: 560px;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.5;
+    color: var(--text-color);
+    opacity: .95;
+  }
+
+  /* Hero card */
+  .hero {
+    margin: .55rem 0 1.75rem;
+    border-radius: var(--card-radius);
+    border: 1px solid var(--card-border);
+    box-shadow: var(--soft-shadow);
+    overflow: hidden;
+    background: linear-gradient(135deg, #3bb5b3 0%, #5fd7cf 30%, #ffc6e0 70%, #fbe0f0 100%);
+  }
+
+  .hero img {
+    width: 100%;
+    height: 210px;
+    display: block;
+    object-fit: cover;
+    object-position: center;
+    filter: saturate(1.05);
+  }
+
+  .hero .hero-pad {
+    padding: .65rem 1rem .95rem;
+    background: rgba(255, 255, 255, .45);
+    backdrop-filter: blur(6px);
+  }
+
+  .hero .hero-pad p {
+    margin: 0;
+    font-weight: 600;
+    color: rgba(0, 0, 0, .72);
+    line-height: 1.45;
+  }
+
+  /* Section title */
+  .section-title {
+    margin: 1rem 0 .55rem;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--text-color);
+  }
+
+  /* Mood buttons grid */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .65rem;
+  }
+
+  .card-btn {
+    border-radius: var(--card-radius);
+    border: 1px solid var(--card-border);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, .06);
+    background: rgba(255, 255, 255, .7);
+    backdrop-filter: blur(6px);
+    padding: .9rem .9rem;
+    text-align: left;
+    cursor: pointer;
+    transition: transform .12s ease, filter .2s ease;
+    color: var(--text-color);
+  }
+
+  .card-btn:hover {
+    filter: brightness(.98);
+  }
+
+  .card-btn:active {
+    transform: translateY(1px);
+  }
+
+  .card-btn .big {
+    font-size: 1.05rem;
+    font-weight: 800;
+    display: block;
+    margin-bottom: .2rem;
+  }
+
+  .card-btn .small {
+    font-size: .92rem;
+    font-weight: 600;
+    opacity: .9;
+    line-height: 1.35;
+  }
+
+  /* Learn accordions */
+  details.learn {
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, .72);
+    padding: .75rem .85rem;
+    margin: .55rem 0;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, .05);
+  }
+
+  details.learn summary {
+    cursor: pointer;
+    font-weight: 900;
+    color: var(--text-color);
+    list-style: none;
+  }
+
+  details.learn summary::-webkit-details-marker {
+    display: none;
+  }
+
+  details.learn p {
+    margin: .65rem 0 0;
+    line-height: 1.55;
+    color: var(--text-color);
+    font-weight: 600;
+  }
+
+  /* Legal */
+  .legal-footer {
+    text-align: center;
+    font-size: .92rem;
+    margin: 1rem 0 calc(var(--gs-nav-h) + 18px);
+    color: var(--text-color);
+  }
+
+  .legal-footer a {
+    color: inherit;
+    text-decoration: underline;
+  }
+
+  /* Bottom nav (kept consistent) */
+  footer.gs-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: var(--gs-nav-h);
+    background: #fafafa;
+    border-top: 1px solid rgba(69, 111, 179, .25);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 env(safe-area-inset-left, 8px) 0 env(safe-area-inset-right, 8px);
+    z-index: 1000;
+    overflow: hidden;
+    font-size: 0;
+  }
+
+  .gs-nav__item {
+    flex: 1 1 0;
+    min-width: 0;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    text-decoration: none;
+    color: rgba(69, 111, 179, 1);
+    white-space: nowrap;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+  }
+
+  .gs-nav__item .ico {
+    font-size: 20px;
+    line-height: 1;
+  }
+
+  .gs-nav__item span {
+    font-size: 12px;
+    line-height: 1;
+  }
+
+  .gs-nav__item[aria-current="page"] {
+    color: #0b6cc4;
+    font-weight: 700;
+  }
+
+  /* Mobile tweaks */
+  @media (max-width: 520px) {
+    .brand h1 {
+      font-size: 43px;
     }
 
-    /* Kill all transitions/animations during boot to avoid iOS flicker */
-    html[data-boot="0"] *,
-    html[data-boot="0"] *::before,
-    html[data-boot="0"] *::after {
-      animation: none !important;
+    .hero img {
+      height: 190px;
+    }
+  }
+
+  /* Reduced motion respect */
+  @media (prefers-reduced-motion: reduce) {
+
+    .card-btn,
+    .auth-button,
+    #logoutBtn {
       transition: none !important;
     }
-  </style>
-
-  <!-- 2) Base paint so Safari/Chrome UI bars don’t flash wrong colors -->
-  <style>
-    html,
-    body {
-      min-height: 100%;
-      margin: 0;
-      background: var(--bg-color, #fff) !important;
-      color: var(--text-color, #111) !important;
-    }
-  </style>
-
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Welcome to Three Sides - HOME</title>
-  <meta name="description" content="Gentle, themeable planner for tracking mood, routines, and wellness.">
-
-  <!-- PWA -->
-  <link rel="manifest" href="./manifest.webmanifest">
-  <meta name="theme-color" content="#6a5acd">
-
-  <!-- iOS/Android PWA friendliness -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="format-detection" content="telephone=no">
-  <meta name="apple-mobile-web-app-title" content="3-Sides">
-
-  <!-- Icons (use ./icons/) -->
-  <link rel="icon" type="image/svg+xml" sizes="any" href="./icons/favicon.svg">
-  <link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="./icons/favicon-16.png">
-  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png"> <!-- 180x180 -->
-
-  <!-- Fonts + CSS -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Quicksand&family=Open+Sans&family=Patrick+Hand&display=swap"
-    rel="stylesheet">
-  <link rel="stylesheet" href="./style.css" />
-  <link rel="stylesheet" href="./mainTheme.css" />
-
-  <!-- Noscript fallback -->
-  <noscript>
-    <style>
-      html {
-        opacity: 1 !important
-      }
-    </style>
-  </noscript>
-
-  <!-- ================= sign out of others =========================== -->
-  <script type="module">
-    import { auth, db } from './firebase-init.js';
-    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-    const LOCAL_MARK = 'gs_session_ack_ts';
-    onAuthStateChanged(auth, (user) => {
-      if (!user) return;
-      const uref = doc(db, 'users', user.uid);
-      onSnapshot(uref, async (snap) => {
-        const bump = snap?.data()?.sessionBumpedAt?.toMillis?.() || 0;
-        const seen = parseInt(localStorage.getItem(LOCAL_MARK) || '0', 10);
-        if (bump > seen) {
-          localStorage.setItem(LOCAL_MARK, String(bump));
-          try { await signOut(auth); } finally { location.replace('login.html'); }
-        }
-      });
-    });
-  </script>
-  
-  <!-- ====================== Early Theme Boot (kept; minor hardening) ===================== -->
-  <script>
-    (function () {
-      try {
-        const root = document.documentElement;
-        const userKey = localStorage.getItem("currentUser") || "anon";
-        const savedTheme =
-          localStorage.getItem(userKey + ":themeClass") ||
-          localStorage.getItem("themeClass") ||
-          localStorage.getItem("themeClass:last") ||
-          "theme-original";
-
-        // keep non-theme classes
-        const keep = (root.className || "")
-          .split(/\s+/).filter(Boolean)
-          .filter(c => !c.startsWith("theme-"));
-
-        root.className = [...keep, savedTheme].join(" ");
-
-        // Sync browser UI bars (Safari/Android)
-        const meta = document.querySelector('meta[name="theme-color"]') || (function () {
-          const m = document.createElement('meta'); m.name = 'theme-color'; document.head.appendChild(m); return m;
-        })();
-        const cs = getComputedStyle(root);
-        meta.content = (cs.getPropertyValue('--accent-color') || cs.getPropertyValue('--accent') || '#6a5acd').trim() || '#6a5acd';
-      } catch { }
-    })();
-  </script>
-
-  <!-- ===== Page-local styles (your page CSS) ===== -->
-  <style>
-   .three-d-title {
-  font-family: 'Open Sans', sans-serif;
-  font-size: 32px;              /* slightly smaller = more room for content */
-  font-weight: bold;
-  text-align: center;
-  text-shadow: 2px 2px rgba(0, 0, 0, .2);
-  color: var(--text-color) !important;
-  margin: 0rem 0 0rem 0;  /* tighter top + bottom */
-}
-
-/* Top strip: auth + header spacing */
-#authControls {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  padding: 0.35rem 1rem 0;  /* small top padding */
-}
-
-.page-header {
-  margin-top: 0.25rem;        /* keeps logo close to the top */
-}
-
-    /* Layout */
-    .container {
-      padding: 1rem;
-      margin: 0 auto;
-      width: 95vw;
-      max-width: 600px;
-      box-sizing: border-box;
-    }
-
-    body {
-      overflow-x: hidden;
-      background-color: var(--bg-color) !important;
-      color: var(--text-color) !important;
-    }
-
-    .button,
-    .popup {
-      background-color: var(--accent-color) !important;
-      color: var(--text-color) !important;
-    }
-
-    #authControls p {
-      margin: 0;
-      padding: 0
-    }
-
-    .auth-button {
-      border: 1px solid #000;
-      display: inline-block;
-      background: rgb(221, 151, 221);
-      color: #000;
-      padding: .5rem 1.2rem;
-      border-radius: 1.5rem;
-      font-weight: 700;
-      font-size: 1rem;
-      text-decoration: none;
-      margin: 0 .5rem;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, .1);
-      transition: background-color .3s ease;
-    }
-
-    .auth-button:hover {
-      background:rgb(221, 151, 221)
-    }
-
-    #authControls button {
-      background: rgb(221, 151, 221);
-      color: #000;
-      padding: .5rem 1.2rem;
-      border: 1px solid #000;
-      border-radius: 1.2rem;
-      font-weight: 700;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background-color .3s ease;
-    }
-
-    #authControls button:hover {
-      background:rgb(221, 151, 221)
-
-    }
-
-    .dropdown-section details p {
-      color: black !important
-    }
-
-    @media (max-width:600px) {
-      body {
-        padding: 0 1rem;
-        box-sizing: border-box;
-      }
-    }
-
-/* ========================== behind image gradient ======================== */
-    /* ✨ Sparkling gradient speech bubble at the top of journal */
-.image-text-box {
-  position: relative;
-  font-family: 'Comic Neue', sans-serif;
-
-  /* soft teal-to-pink gradient using your colors */
-  background: linear-gradient(
-    135deg,
-    #3bb5b3 0%,
-    #5fd7cf 30%,
-    #ffc6e0 70%,
-    #fbe0f0 100%
-  );
-
-  padding: 1.25rem 1.4rem;
-  margin: 2rem auto 1.5rem;
-  max-width: 260px;
-  border-radius: 1.4rem;
-
-  /* glowing, dreamy edges */
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.7),
-    0 6px 18px rgba(0, 0, 0, 0.15),
-    0 0 22px rgba(255, 198, 224, 0.7);
-
-  text-align: center;
-  color: rgba(0, 0, 0, 0.694) !important; /* deep ink text */
-  border: 1.5px solid #3bb5b3;
-  font-size: 1.25rem;
-  line-height: 1.4;
-}
-
-/* soft inner highlight */
-.hero-image::before {
-  content: "";
-  position: absolute;
-  inset: 4px 6px;
-  border-radius: 1.2rem;
-  background: radial-gradient(
-    circle at 20% 0%,
-    rgba(255, 255, 255, 0.45),
-    transparent 60%
-  );
-  pointer-events: none;
-  z-index: 1;
-}
-
-/* tiny sparkle sheen sweeping across the bubble */
-.hero-image::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(
-    120deg,
-    rgba(255, 255, 255, 0.0) 0%,
-    rgba(255, 255, 255, 0.42) 35%,
-    rgba(255, 255, 255, 0.0) 70%
-  );
-  mix-blend-mode: screen;
-  opacity: 0.7;
-  animation: bubble-sheen 4.5s infinite ease-in-out;
-  pointer-events: none;
-  z-index: 1;
-}
-
-@keyframes bubble-sheen {
-  0%, 100% { transform: translateX(-20%); }
-  50%      { transform: translateX(20%); }
-}
-   
-    /* <details> content can repaint on iOS — stabilize it */
-    details,
-    details>* {
-      will-change: opacity, transform;
-      backface-visibility: hidden;
-      transform: translateZ(0);
-      contain: layout paint style;
-    }
-
-    @media (max-width:600px) {
-      .image-text-box {
-        width: 100%;
-        max-width: 100%;
-        margin-left: 0;
-        margin-right: 0;
-        border-radius: 0;
-        padding: 1rem .75rem;
-        text-align: left;
-      }
-
-      .hero-image {
-        width: 100%;
-        height: auto;
-        max-width: 600px;
-        display: block;
-        margin: 0 auto;
-        border-radius: 10px;
-      }
-
-      .hero-caption,
-      .image-text-box p {
-        font-size: 1rem;
-        line-height: 1;
-        color: rgb(9, 15, 86);
-      }
-    }
-
-    strong {
-      color: var(--text-color);
-      font-size: 1.1rem;
-      font-weight: bolder;
-    }
-
-    /* Full-height layout + bottom space for footer */
-    html,
-    body {
-      margin: 0;
-      padding: 0;
-      min-height: 100vh;
-      box-sizing: border-box;
-      width: 100%;
-    }
-
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-    }
-
-    /* ==================== sparkles ==================== */
-    #sparkleWrapper {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 0;
-      overflow: hidden;
-      /* keep sparkles OFF during boot to avoid repaints */
-      display: none;
-    }
-
-    /* sparkles only after boot */
-    html[data-boot="1"] #sparkleWrapper {
-      display: block;
-    }
-
-    .sparkle {
-      position: absolute;
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(255, 255, 255, .9) 0%, transparent 70%);
-      opacity: 0;
-      animation: spark 3.6s infinite ease-in-out;
-      box-shadow: 0 0 6px rgba(255, 255, 255, .5)
-    }
-
-    @keyframes spark {
-
-      0%,
-      100% {
-        opacity: .08;
-        transform: scale(.6)
-      }
-
-      50% {
-        opacity: 1;
-        transform: scale(1.25)
-      }
-    }
-
-    @media (prefers-reduced-motion:reduce) {
-      .sparkle {
-        animation: none;
-        opacity: .18
-      }
-    }
-
-/* ========== GLOBAL BOTTOM NAV (identical on all pages) ========== */
-:root{
-  --nav-h: 64px;                 /* fixed bar height */
-  --nav-fs: 12px;                /* label font size */
-  --nav-icon-fs: 20px;           /* emoji/icon size */
-  --nav-bg: #fafafa;             /* bar background */
-  --nav-border: rgba(69,111,179,.25);
-  --nav-text: rgba(69,111,179,1);
-  --nav-text-active: #0b6cc4;
-}
-
-/* Reserve space for the fixed bar */
-.page-wrapper{
-  padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px));
-}
-
-/* Bar container */
-.bottom-nav{
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  height: var(--nav-h);
-  background: var(--nav-bg);
-  border-top: 1px solid var(--nav-border);
-  display: flex;
-  align-items: center;           /* vertical centering */
-  justify-content: space-around; /* even spacing */
-  padding: 0 env(safe-area-inset-left, 8px) 0 env(safe-area-inset-right, 8px);
-  z-index: 1000;
-  overflow: hidden;              /* prevent any wrap spill */
-}
-
-/* Each item = equal column */
-.bottom-nav .nav-icon{
-  flex: 1 1 0;
-  min-width: 0;
-  text-align: center;
-  text-decoration: none;
-  color: var(--nav-text);
-  line-height: 1;
-  padding: 0; margin: 0;
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  white-space: nowrap;
-}
-
-/* Fixed sizes so height never changes */
-.bottom-nav .nav-icon .ico{ font-size: var(--nav-icon-fs); display:block; }
-.bottom-nav .nav-icon span{ font-size: var(--nav-fs); display:block; }
-
-/* Active + hover */
-.bottom-nav .nav-icon[aria-current="page"]{
-  color: var(--nav-text-active);
-  font-weight: 700;
-}
-.bottom-nav .nav-icon:hover{ color:#72aadf; }
-
-/* Optional helpers for the “Back + Privacy” cluster just above the bar */
-.page-actions{
-  display:flex; flex-direction:column; align-items:center; gap:.5rem;
-  margin:.25rem 0 .5rem;
-}
-.legal-footer{ text-align:center; font-size:.9rem; margin:0; color:var(--text-color); }
-.legal-footer a{ color:inherit; text-decoration:underline; }
-
-/* ================= navbar overrides ============= */
-/* === Glow Standard Bottom Nav (namespaced) === */
-:root{
-  --gs-nav-h: 64px;
-  --gs-nav-fs: 12px;   /* label */
-  --gs-nav-ico: 20px;  /* emoji */
-  --gs-nav-bg: #fafafa;
-  --gs-nav-border: rgba(69,111,179,.25);
-  --gs-nav-text: rgba(69,111,179,1);
-  --gs-nav-active: #0b6cc4;
-}
-
-/* Reserve space for the fixed bar (opt-in via body.gs-has-nav) */
-body.gs-has-nav{
-  padding-bottom: calc(var(--gs-nav-h) + env(safe-area-inset-bottom, 0px));
-}
-
-/* The fixed bar */
-footer.gs-nav{
-  position: fixed;
-  left: 0; right: 0; bottom: 0;
-  height: var(--gs-nav-h);
-  background: var(--gs-nav-bg);
-  border-top: 1px solid var(--gs-nav-border);
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  padding: 0 env(safe-area-inset-left,8px) 0 env(safe-area-inset-right,8px);
-  z-index: 1000;
-  overflow: hidden;
-  box-sizing: border-box;
-  /* normalize inheritance so pages can’t change it */
-  font-size: 0; line-height: 1; font-family: inherit;
-}
-
-/* Items are equal columns */
-.gs-nav__item{
-  flex: 1 1 0;
-  min-width: 0;
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  text-decoration: none;
-  color: var(--gs-nav-text);
-  white-space: nowrap;
-  padding: 0; margin: 0;
-  box-sizing: border-box;
-}
-
-/* Explicit sizes (prevents page font from changing the bar) */
-.gs-nav__item .ico { font-size: var(--gs-nav-ico); display:block; line-height:1; }
-.gs-nav__item span { font-size: var(--gs-nav-fs); display:block; line-height:1; }
-
-/* Active + hover */
-.gs-nav__item[aria-current="page"]{ color: var(--gs-nav-active); font-weight: 700; }
-.gs-nav__item:hover{ color:#72aadf; }
-
-.cloud-section {
-  width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 0rem 2.2rem;
-  box-sizing: border-box;
-}
-/* --- Reserve space for the fixed Glow bottom nav (works for both class names) --- */
-:root{
-  --gs-nav-h: 64px;
-}
-
-html, body {
-  min-height: 100svh;           /* better on mobile address-bar */
-  -webkit-overflow-scrolling: touch;
-}
-
-/* Accept either class name (your body currently has has-bottom-nav) */
-body.gs-has-nav,
-body.has-bottom-nav {
-  padding-bottom: calc(var(--gs-nav-h) + env(safe-area-inset-bottom, 0px));
-}
-
-/* Your gs-nav footer already exists — keep your styles.
-   These two ensure it always stays on top and never clips content. */
-footer.gs-nav {
-  position: fixed;
-  left: 0; right: 0; bottom: 0;
-  height: var(--gs-nav-h);
-  z-index: 1000;
-}
-
-/* Optional: give the main content a wrapper so the last element never sits flush */
-main.page {
-  display: block;
-  padding-bottom: 1rem; /* small cushion above the fixed bar */
-  box-sizing: border-box;
-}
-
-/* --- Logout button: Pink rgb(221,151,221) --- */
-#logoutBtn{
-  background: rgb(221, 151, 221) !important;
-  color: #000 !important;
-  border: 1px solid #000;
-  padding: .5rem 1.2rem;
-  border-radius: 1.5rem;
-  font-weight: 700;
-  font-size: 1rem;
-  box-shadow: 0 4px 10px rgba(0,0,0,.1);
-  cursor: pointer;
-  transition: background-color .2s ease, transform .1s ease;
-}
-#logoutBtn:hover,
-#logoutBtn:focus-visible{
-  background: rgb(221, 151, 221) !important; /* same hue for hover */
-  filter: brightness(.97);
-}
-#logoutBtn:active{ transform: translateY(1px); }
-
-
-/* --- Auth buttons: lock to Pink rgb(221,151,221) --- */
-.auth-buttons .auth-button,         /* "Log in" <a> */
-.auth-buttons #logoutBtn {          /* "Logout" <button> */
-  color: #000 !important;
-  border: .7px solid #000 !important;
-  padding: .5rem 1.2rem !important;
-  border-radius: .5rem !important;
-  font-weight: 700 !important;
-  font-size: 1rem !important;
-  line-height: 1 !important;
-  text-decoration: none !important;
-  box-shadow: 0 4px 10px rgba(0,0,0,.1) !important;
-  display: inline-block !important;
-  cursor: pointer !important;
-  transition: filter .2s ease, transform .1s ease !important;
-}
-
-.auth-buttons .auth-button:hover,
-.auth-buttons .auth-button:focus-visible,
-.auth-buttons #logoutBtn:hover,
-.auth-buttons #logoutBtn:focus-visible {
-  filter: brightness(.97);
-}
-
-.auth-buttons #logoutBtn:active,
-.auth-buttons .auth-button:active {
-  transform: translateY(1px);
-}
-
-/* make the Privacy link visible + themed and keep it above nav */
-.legal-footer {
-  text-align: center;
-  font-size: 0.9rem;
-  margin: 0.5rem 0 6.5rem !important; /* push it above the nav */
-  color: var(--text-color) !important;
-}
-.legal-footer a { color: inherit; text-decoration: underline; }
-
-/* ================ privacy link above fixed nav =================== */
-.legal-footer {
-  text-align:center;
-  font-size:.9rem;
-  margin: .5rem 0 6.5rem !important;
-  color: var(--text-color) !important;
-}
-.legal-footer a { color:inherit; text-decoration:underline; }
-
-.dropdown-section details p {
-  color: var(--text-color);
-}
-
-/* Make the bipolar FAQ pills almost full-width */
-.dropdown-section {
-  width: 100%;
-  max-width: 600px;        /* matches your main column */
-  margin: 0 auto;
-  padding: 0 .75rem;      /* tiny side padding so they don't hit the edge */
-  box-sizing: border-box;
-}
-
-
-.dropdown-section details {
-  margin: .55rem 0;
-}
-
-body {
-  font-size: var(--text-size);
-}
-
-html {
-  font-size: var(--text-size);
-}
-
-/* optional, but keeps body at 1rem relative to html */
-body {
-  font-size: 1rem;
-}
-
-/* ===== Auth bar at top (hello + logout) ===== */
-.auth-buttons {
-  display: flex;
-  justify-content: center;
-  margin: 0;
-}
-
-.auth-buttons .auth-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.55rem;
-  width: 100%;
-  max-width: 600px;         /* lines up with main content */
-  padding: 0.75rem 1rem 0;  /* space from very top of page */
-  box-sizing: border-box;
-}
-
-/* greeting grows, button hugs the right side */
-.auth-buttons .hello {
-  font-family: 'Open Sans', sans-serif;
-  font-size: 0.98rem;
-  font-weight: 600;
-  color: var(--text-color);
-}
-
-/* tighten on small screens */
-@media (max-width: 600px) {
-  .auth-buttons .auth-bar {
-    padding: 0.75rem 0.75rem 0;
   }
-}
-.page-header {
-  margin-top: 0rem;
+
+  /* ==================== Account icon + menu ============= */
+  #authControls {
+    padding: 0rem 1rem 0;
+  }
+
+  #authControls .auth-bar {
+    width: 100%;
+    max-width: 620px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 9.6rem;
+    position: relative;
+  }
+
+  .icon-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 999px;
+    border: 1px solid var(--card-border);
+    background: rgba(255, 255, 255, .75);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, .06);
+    cursor: pointer;
+    font-size: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: right;
+    line-height: 1;
+  }
+
+  .menu {
+    position: absolute;
+    right: 0;
+    top: 52px;
+    width: min(340px, 92vw);
+    border-radius: 18px;
+    border: 1px solid var(--card-border);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, .15);
+    background: rgba(255, 255, 255, .92);
+    backdrop-filter: blur(10px);
+    overflow: hidden;
+    display: none;
+    z-index: 50;
+  }
+
+  .menu.open {
+    display: block;
+  }
+
+  .menu-head {
+    padding: .85rem .95rem;
+    border-bottom: 1px solid rgba(0, 0, 0, .08);
+    background: rgba(255, 255, 255, .65);
+  }
+
+  .menu-title {
+    font-weight: 900;
+    font-size: 1.02rem;
+    color: var(--text-color);
+  }
+
+  .menu-sub {
+    margin-top: .2rem;
+    font-weight: 700;
+    font-size: .9rem;
+    opacity: .8;
+  }
+
+  .menu-item {
+    width: 100%;
+    display: flex;
+    gap: .75rem;
+    align-items: flex-start;
+    padding: .75rem .95rem;
+    text-decoration: none;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    color: var(--text-color);
+    text-align: left;
+  }
+
+  .menu-item:hover {
+    background: rgba(0, 0, 0, .04);
+  }
+
+  .mi-ico {
+    font-size: 1.2rem;
+    line-height: 1.2;
+  }
+
+  .mi-text strong {
+    display: block;
+    font-size: .98rem;
+    font-weight: 900;
+  }
+
+  .mi-sub {
+    display: block;
+    font-size: .88rem;
+    font-weight: 650;
+    opacity: .8;
+    margin-top: .12rem;
+  }
+
+  .menu-item.danger strong {
+    color: #b91c1c;
+  }
+
+  .section-title.space-top {
+    margin-top: .45rem;
+    margin-bottom: 0rem;
+  }
+
+  .card-btn {
+    padding: .72rem .8rem;
+  }
+
+  .card-btn .big {
+    margin-bottom: .12rem;
+  }
+
+  .card-btn .small {
+    line-height: 1.25;
+  }
+
+  .tools {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: .6rem;
+  }
+
+  .tool {
+    border-radius: 16px;
+    border: 1px solid var(--card-border);
+    background: rgba(255, 255, 255, .75);
+    padding: .7rem .6rem;
+    text-align: center;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, .06);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: .25rem;
+    min-height: 64px;
+  }
+
+  .t-ico {
+    font-size: 1.55rem;
+    line-height: 1;
+  }
+
+  .t-lbl {
+    font-size: .85rem;
+    line-height: 1.05;
+    opacity: .9;
+  }
+
+  /* =========================
+  overrides (index)
+ ========================= */
+
+  /* 1) One shared “container” color (greenish) */
+  :root {
+    --tile-bg: rgba(199, 245, 242, .78);
+    /* soft greenish */
+    --tile-border: rgba(0, 0, 0, .10);
+    --tile-shadow: 0 10px 20px rgba(0, 0, 0, .06);
+    --tile-text: #000;
+  }
+
+  /* 2) Move top controls up + right */
+  #authControls {
+    padding: .25rem .8rem 0;
+    /* tighter to top */
+  }
+
+  #authControls .auth-bar {
+    align-items: center;
+  }
+
+  /* 3) Person icon button */
+  .icon-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    border: 1px solid var(--tile-border);
+    background: var(--tile-bg);
+    box-shadow: var(--tile-shadow);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #000;
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  .icon-btn:active {
+    transform: translateY(1px);
+  }
+
+  /* 4) Dropdown menu (stacked clean) */
+  .menu {
+    position: absolute;
+    right: 0;
+    top: 44px;
+    /* sits right under icon */
+    width: min(320px, 92vw);
+    border-radius: 18px;
+    border: 1px solid var(--tile-border);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, .15);
+    background: rgba(255, 255, 255, .92);
+    backdrop-filter: blur(10px);
+    overflow: hidden;
+    display: none;
+    z-index: 50;
+  }
+
+  .menu.open {
+    display: block;
+  }
+
+  .menu a,
+  .menu button {
+    width: 100%;
+    text-align: left;
+    padding: 2px 14px;
+    border: 0;
+    background: transparent;
+    color: #000;
+    font-weight: 800;
+    cursor: pointer;
+    display: block;
+  }
+
+  .menu a+a,
+  .menu a+button,
+  .menu button+a,
+  .menu button+button {
+    border-top: 1px solid rgba(0, 0, 0, .08);
+  }
+
+  .menu small {
+    display: block;
+    font-weight: 700;
+    opacity: .7;
+    margin-top: 2px;
+  }
+
+  /* 5) Bring title closer to the top */
+  .brand {
+    padding: .15rem 0 .35rem;
+    /* smaller */
+    margin-top: 0;
+  }
+
+  /* 6) Make ALL “container” surfaces same greenish + black text */
+  .hero .hero-pad,
+  .card-btn,
+  .tool,
+  details.learn {
+    background: var(--tile-bg) !important;
+    border: 1px solid var(--tile-border) !important;
+    box-shadow: var(--tile-shadow) !important;
+    color: var(--tile-text) !important;
+  }
+
+  /* force inner text black too */
+  .hero .hero-pad p,
+  .card-btn .big,
+  .card-btn .small,
+  details.learn summary,
+  details.learn p {
+    color: #000 !important;
+  }
+
+  /* 7) Mood cards: much closer together */
+  .section-title {
+    margin: 1.15rem 0 .45rem;
+    /* keep clean but not huge */
+  }
+
+  .grid {
+    gap: .35rem !important;
+  }
+
+  .card-btn {
+    padding: .65rem .75rem;
+    /* tighter inside */
+  }
+
+  /* 8) Quick tools: 2 per row, tight */
+  .tools {
+    grid-template-columns: 1fr 1fr !important;
+    gap: .45rem !important;
+    margin-bottom: .25rem;
+  }
+
+  .tool {
+    min-height: 62px;
+    padding: .55rem .6rem !important;
+  }
+
+  /* Optional: keep your page airy but not too tall */
+  main.page {
+    padding-top: 0rem;
+  }
+
+  .tools {
+    margin-top: .35rem;
+  }
+
+  .tool {
+    min-height: 58px !important;
+  }
+
+  /* =========================
+ HUGGING GRIDS (rows tighter)
+ ========================= */
+
+  /* FEELINGS (2x2) — reduce space between top and bottom row */
+  .grid {
+    column-gap: .65rem !important;
+    /* left/right spacing */
+    row-gap: .18rem !important;
+    /* TOP/BOTTOM spacing (this is your red arrows) */
+    margin-bottom: .35rem !important;
+  }
+
+  /* Make the feeling cards slightly less tall */
+  .card-btn {
+    padding: .58rem .70rem !important;
+    /* smaller vertical padding */
+  }
+
+  /* QUICK TOOLS (2 rows) — reduce space between the two rows */
+  .tools {
+    column-gap: .45rem !important;
+    row-gap: 0rem !important;
+    /* TOP/BOTTOM spacing (this is your red arrows) */
+    margin-top: .25rem !important;
+    margin-bottom: .45rem !important;
+  }
+
+  /* Make tool buttons less tall so rows hug */
+  .tool {
+    min-height: 52px !important;
+    padding: .35rem .5rem !important;
+  }
+
+  /* OPTIONAL: tighten headings slightly so “Quick tools” hugs the feelings section */
+  .section-title {
+    margin: .50rem 0 .20rem !important;
+  }
+
+  /* remove any sneaky default spacing */
+  h2,
+  p,
+  div,
+  section {
+    margin-block-start: 0;
+  }
+
+  .card-btn,
+  .tool {
+    margin: 0 !important;
+  }
+
+  /* FEELINGS: make the 2 rows hug */
+  div.grid[aria-label="feelings"] {
+    gap: 8px 12px !important;
+    /* row gap, column gap */
+    margin: 6px 0 10px !important;
+    /* small space under heading + after grid */
+  }
+
+  /* make each feeling card a little shorter */
+  div.grid[aria-label="feelings"] .card-btn {
+    padding: 10px 12px !important;
+  }
+
+  div.grid[aria-label="feelings"] .big {
+    margin-bottom: 4px !important;
+  }
+
+  div.grid[aria-label="feelings"] .small {
+    line-height: 1.2 !important;
+  }
+
+  /* QUICK TOOLS: make the 2 rows hug */
+  div.tools[aria-label="quick tools"] {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px 12px !important;
+    /* row gap, column gap */
+    margin: 6px 0 12px !important;
+  }
+
+  /* make each tool button shorter so the rows can get closer */
+  div.tools[aria-label="quick tools"] .tool {
+    min-height: 46px !important;
+    padding: 6px 10px !important;
+  }
+
+  /* tighten section titles so they hug what’s underneath */
+  .section-title {
+    margin: 12px 0 6px !important;
+  }
+
+  /* Make sure theme-original actually defines the 3 main vars */
+  .theme-original {
+    --bg-color: #eaf3ff;
+    --text-color: #20448b;
+    --accent-color: #f584b7;
+  }
+
+  /* =========================================================
+ HUGGING (the part you’re fighting)
+ ========================================================= */
+
+  /* Tighten headings to hug their grids */
+  .section-title {
+    margin: 12px 0 6px !important;
+  }
+
+  /* FEELINGS grid: tighten vertical spacing between rows */
+  .grid[aria-label="feelings"] {
+    column-gap: 12px !important;
+    row-gap: 8px !important;
+    /* THIS is the hug */
+    margin: 6px 0 10px !important;
+  }
+
+  /* Make feeling cards a bit shorter */
+  .grid[aria-label="feelings"] .card-btn {
+    padding: 10px 12px !important;
+  }
+
+  .grid[aria-label="feelings"] .big {
+    margin-bottom: 4px !important;
+  }
+
+  .grid[aria-label="feelings"] .small {
+    line-height: 1.2 !important;
+  }
+
+  /* QUICK TOOLS grid: 2x2 and tight */
+  .tools[aria-label="quick tools"] {
+    grid-template-columns: 1fr 1fr !important;
+    column-gap: 12px !important;
+    row-gap: 8px !important;
+    /* THIS is the hug */
+    margin: 6px 0 12px !important;
+  }
+
+  /* Make tool buttons shorter */
+  .tools[aria-label="quick tools"] .tool {
+    min-height: 46px !important;
+    padding: 8px 10px !important;
+  }
+
+  /* Slightly soften hero background to match dreamy vibe */
+  .hero {
+    background:
+      radial-gradient(900px 350px at 20% 0%, rgba(255, 210, 245, .55), transparent 60%),
+      radial-gradient(700px 300px at 90% 25%, rgba(170, 220, 255, .55), transparent 55%),
+      linear-gradient(135deg, rgba(65, 190, 190, .55) 0%, rgba(130, 215, 255, .45) 40%, rgba(255, 198, 224, .55) 100%) !important;
+  }
+
+  /* =========================================================
+ COZY + DREAMY (TEAL EDITION) — index only
+ ========================================================= */
+
+  /* Teal dreamy page background (sea glass) */
+  html,
+  body {
+    background:
+      linear-gradient(135deg, rgba(205, 177, 227, 0.676) 0%, rgb(42, 164, 195) 45%, rgba(255, 198, 224, .24) 100%) !important;
+  }
+
+  /* ======================== end gradient backgground ======== /*
+
+/* Cozy glass surfaces — now teal-leaning (no purple tint) */
+  :root {
+    --tile-bg: rgba(255, 255, 255, .76);
+    /* milk glass */
+    --tile-border: rgba(0, 80, 90, .12);
+    /* teal border */
+    --tile-shadow:
+      0 10px 26px rgba(0, 70, 80, .10),
+      0 1px 0 rgba(255, 255, 255, .70) inset;
+    /* inner glow */
+    --tile-text: rgba(10, 25, 30, .88);
+    /* deep calm ink */
+  }
+
+  /* Apply the surface style */
+  .hero .hero-pad,
+  .card-btn,
+  .tool,
+  details.learn {
+    background: var(--tile-bg) !important;
+    border: 1px solid var(--tile-border) !important;
+    box-shadow: var(--tile-shadow) !important;
+    color: var(--tile-text) !important;
+    backdrop-filter: blur(10px) saturate(1.15);
+  }
+
+  /* Text stays calm + readable */
+  .hero .hero-pad p,
+  .card-btn .big,
+  .card-btn .small,
+  details.learn summary,
+  details.learn p {
+    color: var(--tile-text) !important;
+  }
+
+  /* Plush rounding */
+  .card-btn,
+  details.learn {
+    border-radius: 18px !important;
+  }
+
+  .tool {
+    border-radius: 16px !important;
+  }
+
+  /* Optional: make the hero (image) gradient match your teal / purple vibe */
+  .hero {
+    background:
+      radial-gradient(900px 350px at 22% 0%, rgba(112, 13, 199, 0.738), transparent 60%),
+      radial-gradient(700px 300px at 90% 25%, rgba(238, 220, 241, 0.3), transparent 55%),
+      linear-gradient(135deg, rgba(205, 177, 227, 0.676) 0%, rgb(42, 164, 195) 45%, rgba(255, 198, 224, .24) 100%) !important
+  }
+
+  /* --     radial-gradient(900px 350px at 22% 0%, rgba(255, 255, 255, 0.886), transparent 60%), */
+  .hero .hero-pad {
+    margin-top: -25px;
+  }
+
+  .app-title {
+    margin: 0.15rem 0 0.85rem;
+    font-size: 34px;
+    letter-spacing: .5px;
+    line-height: 1.05;
+    font-weight: 800;
+    text-shadow: 2px 2px rgba(0, 0, 0, .18);
+    color: var(--title-color, #000);
+    /* default BLACK */
+  }
+
+  :root {
+    --title-color: #e0c9c9;
+  }
+
+  .theme-main {
+    --bg-color: #eaf3ff;
+    --text-color: #060606b2;
+    /* title color */
+    --accent-color: #6095aa;
+    --title-color: #000;
+    /* start black */
+  }
+
+  .subtitle {
+    color: color-mix(in srgb, var(--text-color) 85%, #000 15%) !important;
+  }
+
+  .subtitle {
+    /* ------ top text container below title ---- */
+    background: rgba(159, 217, 230, 0.344);
+    display: inline-block;
+    padding: .45rem .65rem;
+    border-radius: 14px;
+    border: .01px solid black;
+  }
+
+  .gs-nav__item {
+    color: var(--text-color) !important;
+    opacity: .85;
+  }
+
+  .gs-nav__item[aria-current="page"] {
+    opacity: 1;
+    font-weight: 800;
+  }
+
+
+  /* =========================
+ HUG subtitle -> feelings buttons
+ ========================= */
+
+  /* kill default p margin and control spacing ourselves */
+  .brand p,
+  p.subtitle {
+    margin: 0 !important;
+  }
+
+  /* give subtitle a tiny bottom gap only */
+  p.subtitle {
+    margin-bottom: 4px !important;
+  }
+
+  /* pull the feelings grid up and remove any top spacing */
+  .grid[aria-label="feelings"] {
+    margin-top: 0 !important;
+  }
+
+  /* if you still see a gap, tighten the grid's own top padding */
+  .grid[aria-label="feelings"] .card-btn {
+    margin-top: 0 !important;
+  }
+
+  /* =========================
+ ONE container for subtitle + feelings buttons
+ ========================= */
+  .feelings-wrap {
+    background: rgba(201, 99, 232, 0.344);
+    /* your blue */
+    border: .01px solid #3a6290;
+    border-radius: 14px;
+    padding: .65rem 1.15rem 1.45rem;
+    /* bottom padding so buttons don’t touch edge */
+    display: block;
+    margin: 0 0 .55rem;
+  }
+
+  /* subtitle becomes “inside text” not a separate card */
+  .feelings-wrap .subtitle {
+    background: transparent !important;
+    border: 0 !important;
+    padding: 0 !important;
+    margin: 0 0 8px !important;
+    /* gap between text + buttons */
+    display: block !important;
+    color: rgba(0, 0, 0, 0.746) !important;
+  }
+
+  /* keep the grid tight inside the container for how are you feeliing buttons */
+  .feelings-wrap .grid[aria-label="feelings"] {
+    margin: 0 !important;
+    row-gap: 6px !important;
+    column-gap: 11px !important;
+    padding-bottom: 0%;
+    ;
+    padding-top: 2%;
+  }
+
+  .subtitle-strong {
+    font-weight: 900;
+    letter-spacing: .2px;
+    display: inline-block;
+    margin-top: 4px;
+  }
+
+  .subtitle-strong {
+    font-weight: 900;
+    display: inline-block;
+    margin-top: 6px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, .35);
+  }
+
+  .subtitle-strong {
+    display: block;
+    /* makes it its own line */
+    text-align: center;
+    /* centers the text */
+    font-weight: 900;
+    margin-top: 6px;
+  }
+
+  .subtitle-strong {
+    display: block;
+    text-align: center;
+    font-weight: 900;
+    margin-top: 6px;
+    letter-spacing: .3px;
+  }
+
+  /* kill extra gaps so it hugs */
+  .feelings-wrap .subtitle {
+    margin: 0 0 10px !important;
+  }
+
+  .feelings-wrap .grid {
+    margin: 0 !important;
+  }
+
+
+  .subtitle-strong {
+    display: block;
+    /* makes it its own line */
+    text-align: center;
+    /* centers the text */
+    font-weight: 900;
+    margin-top: 8px;
+    padding: 9.1px 10px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, .35);
+  }
+
+  main.page {
+    padding: 0 14px 1rem;
+    /* or 16px */
+  }
+
+  main.page {
+    padding: 0 14px 1rem;
+    /* or 16px */
+  }
+
+  .feelings-wrap {
+    background: var(--tile-bg) !important;
+    border: 1px solid var(--tile-border) !important;
+    box-shadow: var(--tile-shadow) !important;
+    border-radius: 18px;
+    padding: 12px;
+    margin: 10px 0 10px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* optional soft accent wash */
+  .feelings-wrap::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(600px 220px at 30% 0%, rgba(160, 220, 255, .35), transparent 55%),
+      radial-gradient(600px 220px at 90% 100%, rgba(255, 190, 230, .25), transparent 55%);
+    pointer-events: none;
+  }
+
+  .feelings-wrap>* {
+    position: relative;
+  }
+
+  .section-p {
+    padding-left: 2%;
+  }
+
+  html,
+  body {
+    background: var(--page-bg) !important;
+  }
+
+  /* Make Logout (button) match the full width of the <a> menu items */
+  #authControls .menu .menu-item {
+    width: 100% !important;
+    display: flex !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Some browsers keep button “fit-content” vibes — force it */
+  #authControls .menu button.menu-item {
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  /* If anything is causing the button to shrink, this kills it */
+  #authControls .menu {
+    padding: 0 !important;
+  }
+
+  /* Ensure the inner text takes the full row so it doesn't look inset */
+  #authControls .menu .mi-text {
+    flex: 1 1 auto !important;
+  }
+
+  .menu a,
+  .menu button {
+    padding: 2px 14px;
+    display: block;
+  }
+
+  #authControls .menu a,
+  #authControls .menu button {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* =========================
+ MENU: make Logout look intentional
+ ========================= */
+
+  /* Make menu items feel like tidy rows */
+  #authControls .menu .menu-item {
+    padding: .75rem .95rem !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  /* Consistent hover */
+  #authControls .menu .menu-item:hover {
+    background: rgba(0, 0, 0, .04) !important;
+  }
+
+  /* Make the danger row look designed (subtle tint) */
+  #authControls .menu .menu-item.danger {
+    background: rgba(185, 28, 28, .06) !important;
+    /* soft red wash */
+  }
+
+  /* Danger text: clearly “action” */
+  #authControls .menu .menu-item.danger .mi-text strong,
+  #authControls .menu .menu-item.danger .mi-ico {
+    color: #b91c1c !important;
+  }
+
+  /* Danger subtext: muted red-gray */
+  #authControls .menu .menu-item.danger .mi-sub {
+    color: rgba(185, 28, 28, .75) !important;
+  }
+
+  /* Optional: add a top divider above logout so it feels separated */
+  #authControls #logoutBtn {
+    border-top: 1px solid rgba(0, 0, 0, .10) !important;
+    margin-top: 4px !important;
+  }
+
+
+  /* =========================
+ FIX: dropdown text color
+ ========================= */
+
+  /* Main menu text */
+  #authControls .menu {
+    color: #1f2937 !important;
+    /* soft dark */
+  }
+
+  /* Links + buttons inside menu */
+  #authControls .menu a,
+  #authControls .menu button,
+  #authControls .menu-item,
+  #authControls .mi-text,
+  #authControls .mi-text strong,
+  #authControls .mi-sub {
+    color: #1f2937 !important;
+  }
+
+  /* Optional: slightly muted subtitle */
+  #authControls .menu-sub {
+    color: rgba(31, 41, 55, .65) !important;
+  }
+
+
+  /* =========================
+ FORCE account icon to FAR RIGHT of the screen
+ (drop this at the BOTTOM of your style block)
+ ========================= */
+
+  /* remove the centered 620px "container" behavior */
+  #authControls .auth-bar {
+    max-width: none !important;
+    /* this is the big one */
+    width: 100% !important;
+    /* span the whole screen */
+    justify-content: flex-end !important;
+    gap: .5rem !important;
+    /* kill that 9.6rem gap */
+  }
+
+  /* if you are logged in, this keeps "Hi name" on the left */
+  #authControls .hello {
+    margin-right: auto !important;
+  }
+
+  /* keep icon pinned right */
+  #authControls .icon-btn {
+    margin-left: auto !important;
+  }
+
+  /* menu stays attached to the icon on the right */
+  #authControls .menu {
+    right: 0 !important;
+  }
+
+  /* =========================
+ FIXED account controls (top-right)
+ ========================= */
+
+  #authControls {
+    position: fixed;
+    top: env(safe-area-inset-top, 0px);
+    left: 0;
+    right: 0;
+    z-index: 9999;
+
+    display: flex;
+    justify-content: flex-end;
+
+    padding: .35rem .8rem .25rem;
+    pointer-events: none;
+    /* let only the button/menu receive clicks */
+  }
+
+  /* Make the bar full width so “right” is the real screen right */
+  #authControls .auth-bar {
+    width: 100%;
+    max-width: none !important;
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-end !important;
+
+    gap: .5rem !important;
+    pointer-events: auto;
+    /* turn clicks back on for children */
+  }
+
+  /* If logged in, keep greeting left, icon right */
+  #authControls .hello {
+    margin-right: auto !important;
+  }
+
+  /* Person icon always hugs the right */
+  #authControls .icon-btn {
+    margin-left: auto !important;
+  }
+
+  /* Menu stays attached to the icon */
+  #authControls .menu {
+    right: .8rem !important;
+    top: calc(44px + env(safe-area-inset-top, 0px)) !important;
+  }
+
+  /* IMPORTANT: push the page down so your title/hero don't hide under fixed bar */
+  main.page {
+    padding-top: calc(52px + env(safe-area-inset-top, 0px)) !important;
+  }
+
+  /* ++++++++++++++++++++++++++++++++++++++++++ */
+
+  /* ++++++++++++++++++++++++++++++++++++++++++ */
+
+  /* =========================
+ MENU: make Logout look intentional
+ ========================= */
+
+  /* Make menu items feel like tidy rows */
+  #authControls .menu .menu-item {
+    padding: .75rem .95rem !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  /* Consistent hover */
+  #authControls .menu .menu-item:hover {
+    background: rgba(0, 0, 0, .04) !important;
+  }
+
+  /* Make the danger row look designed (subtle tint) */
+  #authControls .menu .menu-item.danger {
+    background: rgba(185, 28, 28, .06) !important;
+    /* soft red wash */
+  }
+
+  /* Danger text: clearly “action” */
+  #authControls .menu .menu-item.danger .mi-text strong,
+  #authControls .menu .menu-item.danger .mi-ico {
+    color: #b91c1c !important;
+  }
+
+  /* Danger subtext: muted red-gray */
+  #authControls .menu .menu-item.danger .mi-sub {
+    color: rgba(185, 28, 28, .75) !important;
+  }
+
+  /* Optional: add a top divider above logout so it feels separated */
+  #authControls #logoutBtn {
+    border-top: 1px solid rgba(0, 0, 0, .10) !important;
+    margin-top: 4px !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-bottom: 1px solid rgba(0, 0, 0, .10) !important;
+
+  }
+
+  /* Make Logout (button) match the full width of the <a> menu items */
+  #authControls .menu .menu-item {
+    width: 100% !important;
+    display: flex !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Some browsers keep button “fit-content” vibes — force it */
+  #authControls .menu button.menu-item {
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  /* If anything is causing the button to shrink, this kills it */
+  #authControls .menu {
+    padding: 0 !important;
+  }
+
+  /* Ensure the inner text takes the full row so it doesn't look inset */
+  #authControls .menu .mi-text {
+    flex: 1 1 auto !important;
+  }
+
+  /* Remove the side/outline border on the Log out button only */
+  #btnLogout {
+    border-left: none !important;
+    border-right: none !important;
+
+    /* (optional) if you want ZERO border at all */
+    border: none !important;
+
+    /* (optional) match the row look */
+    box-shadow: none !important;
+  }
+
+  #btnLogout {
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+
+    /* makes it feel like a row item, not a button-in-a-box */
+    width: 100%;
+    justify-content: flex-start;
+    padding: 12px 14px;
+    border-radius: 12px;
+  }
+
+  #btnLogout:active {
+    transform: none;
+    /* keeps it from “button pressing” if you don’t want that */
+    filter: brightness(0.98);
+  }
+
+  /* =================== remove link underline ============ */
+  /* Card buttons that are <a> links should not look like links */
+  a.card-btn,
+  a.card-btn:visited,
+  a.card-btn:hover,
+  a.card-btn:active,
+  a.card-btn:focus {
+    text-decoration: none !important;
+    color: inherit !important;
+  }
+
+  /* ================================
+  ==========================================
+  ======================== */
+  /* =========================
+AUTH TOP BAR (CLEAN + FINAL)
+========================= */
+
+  #authControls {
+    width: 100%;
+    display: block;
+    position: relative;
+    z-index: 20;
+
+    /* match main.page padding */
+    padding: .5rem 1rem 0;
+    margin: 0;
+  }
+
+  /* inner bar aligns to the 620px column */
+  #authControls .auth-bar {
+    max-width: 620px;
+    width: 100%;
+    margin: 0 auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+
+    position: relative;
+    /* anchors the dropdown */
+  }
+
+  #authControls .hello {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* icon stays right */
+  #authControls .icon-btn {
+    flex: 0 0 auto;
+    margin: 0;
+  }
+
+  /* the inner bar aligns to the same 620px column as your content */
+  #authControls .auth-bar {
+    max-width: 620px;
+    margin: 0 auto;
+    /* centers the bar container */
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    /* name left, icon right */
+    gap: .5rem;
+
+    position: relative;
+    /* anchors the dropdown */
+  }
+
+  /* greeting stays LEFT */
+  #authControls .hello {
+    flex: 1 1 auto;
+    min-width: 0;
+
+    margin: 0;
+    padding: 0;
+
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* icon stays RIGHT */
+  #authControls .icon-btn {
+    flex: 0 0 auto;
+    margin: 0;
+  }
+
+  /* dropdown stays attached under icon */
+  #authControls .menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    z-index: 999;
+  }
+
+  /* IMPORTANT: do not push the page down */
+  main.page {
+    padding-top: 0 !important;
+  }
+
+  /* =========================
+ACCOUNT MENU (RELIABLE)
+========================= */
+
+  /* make the user icon look like a small chip */
+  #authControls .icon-btn {
+    width: 40px;
+    height: 34px;
+    border-radius: 10px;
+    border: 1px solid rgba(0, 0, 0, .18);
+    background: rgba(255, 255, 255, .65);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, .08);
+  }
+
+  /* menu is hidden by default */
+  #authControls .menu {
+    display: none;
+    min-width: 250px;
+    max-width: 320px;
+
+    background: rgba(255, 255, 255, .92);
+    border: 1px solid rgba(0, 0, 0, .14);
+    border-radius: 16px;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, .18);
+    padding: 10px;
+  }
+
+  /* show when open class is present */
+  #authControls .menu.open {
+    display: block;
+  }
+
+  /* header inside menu */
+  #authControls .menu-head {
+    padding: 8px 10px 10px;
+    border-bottom: 1px solid rgba(0, 0, 0, .10);
+    margin-bottom: 8px;
+  }
+
+  #authControls .menu-title {
+    font-weight: 900;
+    font-size: 1rem;
+  }
+
+  #authControls .menu-sub {
+    font-size: .88rem;
+    opacity: .75;
+  }
+
+  /* menu items */
+  #authControls .menu-item {
+    width: 100%;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+
+    padding: 10px 10px;
+    border-radius: 12px;
+    text-decoration: none;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  #authControls .menu-item:hover {
+    background: rgba(0, 0, 0, .06);
+  }
+
+  #authControls .menu-item.danger:hover {
+    background: rgba(255, 0, 0, .08);
+  }
+
+  /* keep menu text blocks nice */
+  #authControls .mi-text strong {
+    display: block;
+    font-weight: 900;
+  }
+
+  #authControls .mi-sub {
+    display: block;
+    font-size: .86rem;
+    opacity: .78;
+  }
+
+  #authControls .auth-bar {
+    position: relative;
+  }
+
+  #authControls .menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+  }
+
+  #authControls .menu {
+    position: absolute !important;
+    right: 0 !important;
+    top: calc(100% + 8px) !important;
+  }
+
+  /* =========================
+AUTH TOP BAR — ICON LEFT, NAME RIGHT
+(drop this at the very bottom)
+========================= */
+
+#authControls {
+  padding: .5rem 1rem 0 !important;
 }
 
-.legal-footer {
-  margin-top: 8px;
+#authControls .auth-bar {
+  max-width: 620px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important; /* left align */
+  gap: .55rem !important;
+
+  position: relative !important; /* anchors dropdown */
 }
 
-.legal-footer {
-  margin-top: 24px !important;
+/* icon button on the left */
+#authControls .icon-btn {
+  flex: 0 0 auto !important;
+  order: 0 !important;
+  margin: 0 !important;
 }
 
-.legal-footer {
-  margin-top: 12px;
-  margin-bottom: calc(var(--gs-nav-h) + 24px); /* room above nav */
+/* name sits right next to icon */
+#authControls .hello {
+  flex: 1 1 auto !important;
+  order: 1 !important;
+  margin: 0 !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: .35rem !important;
+
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
 }
 
-.intro-text {
-  font-family: 'Open Sans', sans-serif;
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text-color);      /* ← uses theme text color */
-  padding: 0 1.1rem;
-  line-height: 1.5;
+/* dropdown attaches under the icon (left side now) */
+#authControls .menu {
+  left: 0 !important;
+  right: auto !important;
+  top: calc(100% + 8px) !important;
 }
 
-.header-bars {
-  color: #3bb5b3 !important;
+.intro{
+  margin: .15rem 0 .65rem;
+  padding: .25rem .15rem;
+}
+
+.intro-title{
+  margin: 0 0 .25rem;
+  font-size: 1.05rem;
+  font-weight: 900;
+  line-height: 1.25;
+  color: var(--text-color);
+}
+
+.intro-text{
+  margin: 0;
+  font-size: .98rem;
+  font-weight: 700;
+  line-height: 1.4;
+  opacity: .92;
+  color: var(--text-color);
+}
+/* ===== Intro alignment fix ===== */
+.intro{
+  max-width: 620px;
+  margin: .35rem auto .55rem;
+  padding: 0 14px;     /* match main.page padding exactly */
+  text-align: left;
+}
+
+.intro-title{
+  margin: 0;
+  font-size: 1.02rem;
+  font-weight: 900;
+  line-height: 1.3;
+  color: var(--text-color);
+}
+
+.intro{
+  max-width: 620px;
+  margin: .35rem auto .55rem;
+  padding: .55rem 14px;
+  border-radius: 14px;
+  background: rgba(255,255,255,.20);
+}
+
+/* ====================================
+======================================*/
+.tools-wrap {
+  background: rgba(255,255,255,0.25);
+  border-radius: 20px;
+  padding: 14px;
+  backdrop-filter: blur(6px);
+}
+
+.tool.sos {
+  background: rgba(255, 230, 230, 0.9);
+  border: 1px solid rgba(255, 120, 120, 0.35);
+}
+
+.tools-wrap {
+  margin-top: 12px; /* not 20+ */
 }
 
 </style>
 
-  <!-- Service worker registration -->
-  <script src="./sw-register.js"></script>
-
-  <!-- BFCache reveal: if page is restored, use show() if available -->
-  <script>
-    window.addEventListener("pageshow", function (e) {
-      if (e.persisted) {
-        if (typeof window.__showOnce === "function") {
-          window.__showOnce();
-        } else {
-          const d = document.documentElement;
-          d.setAttribute("data-ready", "1");
-          d.setAttribute("data-boot", "1");
-          d.style.opacity = "1";
-        }
+<!-- BFCache reveal -->
+<script>
+  window.addEventListener("pageshow", function (e) {
+    if (e.persisted) {
+      if (typeof window.__showOnce === "function") window.__showOnce();
+      else {
+        const d = document.documentElement;
+        d.setAttribute("data-ready", "1");
+        d.setAttribute("data-boot", "1");
+        d.style.opacity = "1";
       }
-    });    
-  </script>
+    }
+  });
+</script>
 </head>
 
 <body class="gs-has-nav has-bottom-nav">
-  <div id="sparkleWrapper" class="full-page-sparkle-wrapper"></div>
-  <div id="authControls" class="auth-buttons"></div>
+  <div id="sparkleWrapper"></div>
 
-    <!-- 🌸 Redesigned Top Section -->
-    <div class="page-header">
-        <h1 class="three-d-title">
-          <span class="header-bars">▀▄▀▄▀▄▀▄▀▄</span>          <br>
-          <span style="color:#f584b7;">ⓉĤяＥᵉ Ⓢι∂έs</span><br>
-          <span class="header-bars">▀▄▀▄▀▄▀▄▀▄</span>
-                </h1>
+  <!-- Auth controls -->
+  <div id="authControls"></div>
 
-        <div class="image-text-box">
-            <img src="relax.png" alt="Relaxing mental health image" class="hero-image">
-            <br>
-            <p class="hero-caption">
-                When we or someone we love is living with bipolar disorder, it’s important to pause and ask: <em>What is
-                    bipolar?</em>
-            </p>
-</div>
+  <main class="page">
+    <header class="brand">
+      <h1 class="theme-main">𝔸𝕄𝕐𝔾𝔻𝔸𝕃𝔸</h1>
+    </header>
 
-<p class="intro-text">
-  <strong>3-Sides</strong> represents the emotional shifts of bipolar life: the highs, the lows, and the
-  moments of balance. This planner helps you make sense of it all, one day at a time.
-</p>
+    <section class="intro">
+      <h2 class="intro-title">If your mind feels loud, you’re not doing anything wrong.</h2>
+    </section>
+
+    <section class="hero" aria-label="calm hero">
+      <img src="relax.png" alt="Calming image">
+
+      <div class="hero-pad">
+        <p>
+          Amygdala is built for anxiety + depression days.
+          Quick distractions. Softer thoughts. Tiny steps that actually feel doable.
+        </p>
+      </div>
+    </section>
+
+    <!-- OUTSIDE the container (same page background) -->
+  
+    
+    <!-- INSIDE the container -->
+    <section class="feelings-wrap" aria-label="how are you feeling section">
+
+      <!--  ========== container with how are you feeling right now ========= -->
+      <span class="subtitle-strong">How are you feeling right now?</span>
+      <div class="grid" role="group" aria-label="feelings">
 
 
-        <div class="cloud-section intro-paragraph"></div>
+        <!-- =================================
+       ===================== UPDATE WITH NEW PANIC ACTION/PAGE
+       ===================================-->
 
-        <div class="dropdown-section">
-            <p style="font-family: 'Open Sans', sans-serif; text-align: center; font-size: 1.2rem; font-weight: 700; line-height: 1.3;">
-                🎭 Understanding Bipolar: <br>Your questions, answered.
-            </p>
+        <a class="card-btn" id="btnPanic" href="./panicky.html#panic" role="button">
+          <span class="big">😵‍💫 Panicky</span>
+          <span class="small">1-minute grounding + reset.</span>
+        </a>
 
-            <details>
-                <summary>🌿 Stability</summary>
-                <p>Stability is the sweet spot — when your mood is balanced, your thoughts are clear, and you feel
-                    grounded.
-                    You’re able to enjoy your life, stick to routines, manage stress, and connect with people in a
-                    steady way.
-                    Stability isn’t about being perfect — it’s about feeling more like yourself. It’s the calm in the
-                    middle of
-                    the storm, the feeling that you can breathe fully again without fear of the next swing. During
-                    stable periods,
-                    you may find it easier to build healthy habits, follow through on plans, and reflect on past
-                    episodes with
-                    more clarity. This is a powerful time for self-awareness and growth. It’s also when your support
-                    tools — like
-                    this app — can be fine-tuned to prepare for future highs or lows. The goal of this app is to help
-                    you stay in
-                    this place as much as possible, and return here gently and safely when you’re not. Stability
-                    deserves
-                    celebration — not because it means everything is perfect, but because it means you’re at peace,
-                    moving forward
-                    one steady step at a time.</p>
-            </details>
+        <button class="card-btn" id="btnLow" type="button">
+          <span class="big">🌧️ Low / numb</span>
+          <span class="small">Biblical verses to give hope.</span>
+        </button>
 
-            <details>
-                <summary>🌞 Mania</summary>
-                <p>Mania can feel like a superpower. You might feel unstoppable — bursting with energy, creativity,
-                    confidence,
-                    and big ideas that seem to flow faster than you can keep up with. At first, it might feel exciting,
-                    even
-                    euphoric. You may find yourself starting new projects, talking a mile a minute, making bold plans,
-                    or feeling
-                    like everything is finally falling into place. But mania isn’t just about feeling good — it can also
-                    come with
-                    serious risks. You might sleep very little and still feel wired, take impulsive actions like
-                    overspending,
-                    driving too fast, hypersexuality, or starting risky relationships. You might feel unusually
-                    irritable or
-                    defensive when others question you, or like you're on a mission and no one can slow you down. The
-                    thing about
-                    mania is that it often sneaks in quietly, feeling helpful or powerful at first, which is why it’s so
-                    important
-                    to learn your early signs and triggers. Recognizing those signs — even the subtle ones — can help
-                    you act
-                    before things spiral. This planner can be a tool for spotting patterns, staying grounded, and
-                    reaching out for
-                    support when needed. You deserve stability, and having a plan in place is a powerful act of
-                    self-love and
-                    protection.</p>
-            </details>
+        <button class="card-btn" id="btnRacing" type="button">
+          <span class="big">💭 Racing thoughts</span>
+          <span class="small">Distraction that slows your mind down.</span>
+        </button>
 
-            <details>
-                <summary>🌤️ Hypomania</summary>
-                <p>Hypomania is like mania’s quieter cousin. It can feel like a burst of sunshine after a long storm —
-                    your mind
-                    feels sharp, your energy is up, and you might feel more social, creative, or productive than usual.
-                    Unlike
-                    full mania, hypomania doesn’t typically cause major disruptions in your life — you may still be
-                    going to work
-                    or keeping up with your responsibilities. In fact, it can feel really good. But it’s also easy to
-                    miss or
-                    dismiss, especially because it can feel like “just having a good day.” The challenge is that
-                    hypomania can
-                    escalate into full-blown mania or crash into depression if not recognized early. Tracking your
-                    sleep, energy,
-                    and behavior during these times can help you catch it before it tips too far. Knowing your early
-                    signs gives
-                    you the power to pause, reflect, and protect your stability before things spiral.</p>
-            </details>
+        <button class="card-btn" id="btnCalm" type="button">
+          <span class="big">🫶 I just want calm</span>
+          <span class="small">Breath + a softer focus.</span>
+        </button>
+    </section>
 
-            <details>
-                <summary>🌧️ Depression</summary>
-                <p>Bipolar depression is more than just feeling sad — it's like a fog that settles over everything. It’s
-                    a deep,
-                    persistent heaviness that can make even the simplest tasks feel overwhelming. You might feel numb,
-                    hopeless,
-                    or weighed down by sadness. It can show up as a lack of energy, loss of interest in things you used
-                    to enjoy,
-                    or feeling disconnected from the people around you. Even things like eating, showering, or getting
-                    out of bed
-                    might feel too difficult. Depression can also come with negative thoughts that lie to you — telling
-                    you you're
-                    a burden, that you're not enough, or that things will never get better. These thoughts are part of
-                    the
-                    illness, not the truth. Guilt and shame often tag along, especially if you’ve been in a productive
-                    or "high"
-                    state before and now feel like you’ve crashed. It’s important to remember: depression is not your
-                    fault. It
-                    doesn’t mean you’re weak or lazy — it means your brain is going through something heavy. Recognizing
-                    your
-                    early warning signs, having a safety plan, and checking in with your support system can make a huge
-                    difference. Even if you can’t see it right now, you are not alone, and this low will not last
-                    forever. This
-                    planner is here to help you document your patterns, reflect gently, and remind yourself that healing
-                    is
-                    possible, one step at a time.</p>
-            </details>
+    <section class="tools-wrap">
+      <span class="subtitle-strong">Quick tools</span>
+    <div class="tools" aria-label="quick tools">
+      <button class="tool" id="goToolkit" type="button">🧰 <br> Tools<span></span></button>
+      <button class="tool" id="goJournal" type="button">📓 <br> Journal<span></span></button>
+      <button class="tool" id="goLetter" type="button">💌 <br>Letter to self<span></span></button>
 
-            <details>
-                <summary>😵‍💫 Mixed Episodes</summary>
-                <p>Mixed states are when symptoms of mania and depression show up at the same time. You might feel
-                    extremely
-                    agitated or restless, but also hopeless and low. You could be full of energy but filled with despair
-                    — crying
-                    while your mind is racing. These episodes are often the most dangerous because you may feel
-                    impulsive and
-                    hopeless at once, which can lead to risky choices or thoughts of self-harm. They’re hard to
-                    recognize and even
-                    harder to explain. This app can help you track overlapping feelings, so you’re more equipped to spot
-                    when
-                    you’re not “just anxious” or “just sad” — you’re in a mixed state, and you deserve support.</p>
-            </details>
+      <button class="tool" id="goPet" type="button">🐱 <br>Pet<span></span></button>
 
-            <details>
-                <summary>🌪️ Rapid Cycling</summary>
-                <p>Rapid cycling is when mood episodes — like mania, hypomania, or depression — happen more often than
-                    usual.
-                    Instead of lasting for weeks or months, these shifts can happen in just days or even hours. You
-                    might feel
-                    like you're constantly flipping between emotional states, never getting a break to catch your
-                    breath. This can
-                    feel exhausting, confusing, and hard to explain to others. If you've ever felt like your mood
-                    changes “too
-                    fast” to be taken seriously, know that you are not imagining it. Rapid cycling is real, and it's
-                    more common
-                    in some people with bipolar than others. It doesn’t make your experience less valid — it just means
-                    your
-                    emotional shifts happen more quickly. Tracking your moods, patterns, and triggers in this app can
-                    help you
-                    notice those shifts sooner and feel more prepared. You're not broken — your brain is just moving
-                    through
-                    cycles at a different rhythm.</p>
-            </details>
-        </div>
- <br>
- 
-<div class="legal-footer">
-  View our
-  <a href="privacy.html" rel="noopener">Privacy Policy</a>
-  and
-  <a href="terms.html" rel="noopener">Terms of Use</a>.
-</div>
-
-        <!-- ========== IDENTICAL NAV HTML (copy this exact block to every page) ========== -->
-        <!-- Standard Bottom Nav (use on every page) -->
-        <footer class="gs-nav">
-          <a href="index.html" class="gs-nav__item"><span class="ico">🏠</span><span>Home</span></a>
-          <a href="toolkit-hub.html" class="gs-nav__item" data-auth="true"><span class="ico">🧰</span><span>Toolkit</span></a>
-          <a href="wellness.html" class="gs-nav__item" data-auth="true"><span class="ico">💖</span><span>Wellness</span></a>
-          <a href="pet.html" class="gs-nav__item" data-auth="true"><span class="ico">🐾</span><span>Pet</span></a>
-          <a href="important-numbers.html" class="gs-nav__item"><span class="ico">🆘</span><span>Help</span></a>
-          <a href="systemSettings.html" class="gs-nav__item" data-auth="true"><span
-              class="ico">☸</span><span>Settings</span></a>
-        </footer>
-        
-        <!-- ====================== SCRIPT (drop-in) ====================== -->
-        <script type="module">
-          import { auth, db } from "./firebase-init.js";
-          import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-          import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-          import { signOutUser } from "./auth.js";
-
-          const html = document.documentElement;
-
-          // --- One-shot reveal control (prevents iOS flicker) ---
-          let revealed = false;
-          function show() {
-            if (revealed) return;
-            revealed = true;
-
-            // flip both flags and reveal via opacity
-            html.setAttribute("data-ready", "1");
-            html.setAttribute("data-boot", "1");
-            html.style.opacity = "1";
-
-            // resume sparkles only after boot (CSS handles display)
-            // cancel safety-net timer if set
-            if (window.__fallbackTimer) { clearTimeout(window.__fallbackTimer); window.__fallbackTimer = null; }
-          }
-          // Expose to BFCache/safety-net in <head>
-          window.__showOnce = show;
-
-          function syncMetaTheme() {
-            try {
-              const cs = getComputedStyle(document.documentElement);
-              const accent =
-                (cs.getPropertyValue("--accent-color") ||
-                  cs.getPropertyValue("--accent") ||
-                  "#6a5acd").trim() || "#6a5acd";
-              const meta = document.querySelector('meta[name="theme-color"]');
-              if (meta) meta.content = accent;
-            } catch { }
-          }
-
-          function applyThemeClass(themeClass) {
-            const root = document.documentElement;
-            const next = themeClass || "theme-original";
-
-            // keep non-theme classes; swap only theme-*
-            const keep = (root.className || "")
-              .split(/\s+/).filter(Boolean)
-              .filter(c => !c.startsWith("theme-"));
-
-            const curr = (root.className.match(/\btheme-[^\s]+/g) || [])[0];
-            if (curr === next) { syncMetaTheme(); return; }
-
-            root.className = [...keep, next].join(" ");
-
-            // persist for next boot (scoped by currentUser when present)
-            try {
-              const userKey = localStorage.getItem("currentUser") || "anon";
-              localStorage.setItem(userKey + ":themeClass", next);
-              localStorage.setItem("themeClass:last", next);
-            } catch { }
-
-            syncMetaTheme();
-          }
-
-          function renderLoggedOutUI() {
-            const host = document.getElementById("authControls");
-            if (host) host.innerHTML = `<a class="auth-button" href="./login.html">Log in</a>`;
-          }
-
-          function renderLoggedInUI(user) {
-  const host = document.getElementById("authControls");
-  if (!host) return;
-  const name = user.displayName || (user.email?.split("@")[0]) || "User";
-
-  host.innerHTML = `
-    <div class="auth-bar">
-      <span class="hello">👋 Hello, <strong>${name}</strong></span>
-      <button id="logoutBtn" type="button">Logout</button>
+      <button class="tool" id="goSOS" type="button">🆘 <br> SOS<span></span></button>
+      <button class="tool" id="learnMore" type="button">📚 <br> Learn more<span></span></button>
     </div>
+</section>
+   
+    <div class="legal-footer">
+      View our
+      <a href="privacy.html" rel="noopener">Privacy Policy</a>
+      and
+      <a href="terms.html" rel="noopener">Terms of Use</a>.
+    </div>
+
+    <!-- ====================== SCRIPT (clean, same behavior) ====================== -->
+    <script type="module">
+      import { auth, db } from "./firebase-init.js";
+      import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+      import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+      import { signOutUser } from "./auth.js";
+
+      const html = document.documentElement;
+
+      // ---------------------------
+      // Reveal (prevents iOS flicker)
+      // ---------------------------
+      let revealed = false;
+      function showOnce() {
+        if (revealed) return;
+        revealed = true;
+        html.setAttribute("data-ready", "1");
+        html.setAttribute("data-boot", "1");
+        html.style.opacity = "1";
+      }
+      window.__showOnce = showOnce;
+
+      // ---------------------------
+      // Theme helpers
+      // ---------------------------
+      function syncMetaTheme() {
+        try {
+          const cs = getComputedStyle(document.documentElement);
+          const accent =
+            (cs.getPropertyValue("--accent-color") ||
+              cs.getPropertyValue("--accent") ||
+              "#6a5acd").trim() || "#6a5acd";
+
+          const meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.content = accent;
+        } catch { }
+      }
+
+      function applyThemeClass(themeClass) {
+        const root = document.documentElement;
+        const next = themeClass || "theme-original";
+
+        const keep = (root.className || "")
+          .split(/\s+/)
+          .filter(Boolean)
+          .filter((c) => !c.startsWith("theme-"));
+
+        const curr = (root.className.match(/\btheme-[^\s]+/g) || [])[0];
+        if (curr === next) {
+          syncMetaTheme();
+          return;
+        }
+
+        root.className = [...keep, next].join(" ");
+
+        try {
+          const userKey = localStorage.getItem("currentUser") || "anon";
+          localStorage.setItem(userKey + ":themeClass", next);
+          localStorage.setItem("themeClass:last", next);
+        } catch { }
+
+        syncMetaTheme();
+      }
+
+      // ---------------------------
+      // Small DOM helpers
+      // ---------------------------
+      function $(id) {
+        return document.getElementById(id);
+      }
+
+      function go(dest) {
+        location.href = dest;
+      }
+
+      // ---------------------------
+      // Guard links that require auth
+      // ---------------------------
+      function guardLinks(isAuthed) {
+        document.querySelectorAll('[data-auth="true"]').forEach((a) => {
+          if (isAuthed) {
+            a.onclick = null;
+            return;
+          }
+          a.onclick = (e) => {
+            e.preventDefault();
+            const dest = a.getAttribute("href") || "./index.html";
+            location.href = `./login.html?next=${encodeURIComponent(dest)}`;
+          };
+        });
+      }
+
+      // ---------------------------
+      // Account Menu (single global wiring)
+      // ---------------------------
+      function setMenuOpen(isOpen) {
+        const menu = $("acctMenu");
+        if (!menu) return;
+        menu.classList.toggle("open", isOpen);
+        menu.setAttribute("aria-hidden", isOpen ? "false" : "true");
+      }
+
+      // We attach these ONCE. No duplicates.
+      function installGlobalMenuListeners() {
+        if (window.__acctMenuInstalled) return;
+        window.__acctMenuInstalled = true;
+
+        document.addEventListener("click", () => setMenuOpen(false), { passive: true });
+
+        window.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") setMenuOpen(false);
+        });
+      }
+
+      function wireMenuButton() {
+        const btn = $("acctBtn");
+        const menu = $("acctMenu");
+        if (!btn || !menu) return;
+
+        // stop clicks inside menu from closing immediately
+        menu.addEventListener("click", (e) => e.stopPropagation());
+
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const isOpen = menu.classList.contains("open");
+          setMenuOpen(!isOpen);
+        });
+      }
+
+      // ---------------------------
+      // UI Renderers
+      // ---------------------------
+      function renderLoggedOutUI() {
+          const host = $("authControls");
+          if (!host) return;
+
+          host.innerHTML = `
+  <div class="auth-bar">
+  
+    <button class="icon-btn" id="acctBtn" type="button" aria-label="Account">👤</button>
+    <span class="hello"></span>
+
+    <div class="menu" id="acctMenu" aria-hidden="true">
+      <div class="menu-head">
+        <div class="menu-title">Account</div>
+        <div class="menu-sub muted">You’re not logged in.</div>
+      </div>
+
+      <a class="menu-item" href="./login.html">
+        <span class="mi-ico">🔐</span>
+        <span class="mi-text">
+          <strong>Log in</strong>
+          <span class="mi-sub">Access your saved tools + progress.</span>
+        </span>
+      </a>
+
+      <a class="menu-item" href="./systemSettings.html">
+        <span class="mi-ico">⚙️</span>
+        <span class="mi-text">
+          <strong>Settings</strong>
+          <span class="mi-sub">Preferences + accessibility.</span>
+        </span>
+      </a>
+
+      <a class="menu-item" href="./privacy.html">
+        <span class="mi-ico">🔒</span>
+        <span class="mi-text">
+          <strong>Privacy</strong>
+          <span class="mi-sub">How we handle your data.</span>
+        </span>
+      </a>
+
+      <a class="menu-item" href="./terms.html">
+        <span class="mi-ico">📄</span>
+        <span class="mi-text">
+          <strong>Terms</strong>
+          <span class="mi-sub">The rules, in plain language.</span>
+        </span>
+      </a>
+    </div>
+  </div>
   `;
 
-  document.getElementById("logoutBtn")?.addEventListener("click", () => signOutUser());
-}
+          installGlobalMenuListeners();
+          wireMenuButton();
+          setMenuOpen(false);
+        }
 
+      function renderLoggedInUI(user) {
+          const host = $("authControls");
+          if (!host) return;
 
-          // Gate links like <a href="theme.html" data-auth="true">
-          function guardLinks(isAuthed) {
-            document.querySelectorAll('[data-auth="true"]').forEach(a => {
-              if (isAuthed) {
-                a.onclick = null;
-              } else {
-                a.onclick = (e) => {
-                  e.preventDefault();
-                  const dest = a.getAttribute("href") || "./index.html";
-                  location.href = `./login.html?next=${encodeURIComponent(dest)}`;
-                };
-              }
-            });
-          }
+          const name = user.displayName || (user.email?.split("@")[0]) || "Friend";
+          const email = user.email || "";
 
-          let unsub = null;
+          host.innerHTML = `
+<div class="auth-bar">
+  <!-- ICON FIRST (left) -->
+  <button class="icon-btn" id="acctBtn" type="button" aria-label="Account & settings">👤</button>
 
-          onAuthStateChanged(auth, (user) => {
-            if (unsub) { unsub(); unsub = null; }
+  <!-- NAME DIRECTLY TO THE RIGHT -->
+  <span class="hello">Hi, <strong>${name}</strong></span>
 
-            if (!user) {
-              // Logged out → reset theme to base + clear user marker
-              try {
-                localStorage.removeItem("currentUser");
-                localStorage.setItem("themeClass:last", "theme-original");
-              } catch { }
-              applyThemeClass("theme-original");
+  <div class="menu" id="acctMenu" aria-hidden="true">
+    <div class="menu-head">
+      <div class="menu-title">${name}</div>
+      <div class="menu-sub muted">${email}</div>
+    </div>
 
-              renderLoggedOutUI();
-              guardLinks(false);
-              show(); // reveal once
-              return;
+    <a class="menu-item" href="./systemSettings.html">
+      <span class="mi-ico">⚙️</span>
+      <span class="mi-text">
+        <strong>Settings</strong>
+        <span class="mi-sub">Account, security, privacy.</span>
+      </span>
+    </a>
+
+    <a class="menu-item" href="./badge.html">
+      <span class="mi-ico">🏆</span>
+      <span class="mi-text">
+        <strong>Badges</strong>
+        <span class="mi-sub">Your wins & progress.</span>
+      </span>
+    </a>
+
+    <a class="menu-item" href="./privacy.html">
+      <span class="mi-ico">🔒</span>
+      <span class="mi-text">
+        <strong>Privacy</strong>
+        <span class="mi-sub">How we handle your data.</span>
+      </span>
+    </a>
+
+    <a class="menu-item" href="./terms.html">
+      <span class="mi-ico">📄</span>
+      <span class="mi-text">
+        <strong>Terms</strong>
+        <span class="mi-sub">The rules, in plain language.</span>
+      </span>
+    </a>
+
+    <button class="menu-item danger" id="logoutBtn" type="button">
+      <span class="mi-ico">🚪</span>
+      <span class="mi-text">
+        <strong>Log out</strong>
+        <span class="mi-sub">Sign out of this device.</span>
+      </span>
+    </button>
+  </div>
+</div>
+`;
+
+          $("logoutBtn")?.addEventListener("click", () => signOutUser());
+
+          installGlobalMenuListeners();
+          wireMenuButton();
+          setMenuOpen(false);
+        }
+
+      // ---------------------------
+      // Wire index buttons AFTER DOM exists
+      // ---------------------------
+      function wireIndexButtons() {
+          $("btnPanic")?.addEventListener("click", () => go("./toolkit-hub.html#panic"));
+          $("btnRacing")?.addEventListener("click", () => go("./guess.html#racing"));
+          $("btnLow")?.addEventListener("click", () => go("./bible.html#racing"));
+          $("btnCalm")?.addEventListener("click", () => go("./calm.html#calm"));
+          $("learnMore")?.addEventListener("click", () => go("./learn.html"));
+          $("goToolkit")?.addEventListener("click", () => go("./toolkit.html"));
+          $("goJournal")?.addEventListener("click", () => go("./journal.html"));
+          $("goLetter")?.addEventListener("click", () => go("./letter.html"));
+
+          $("goPet")?.addEventListener("click", () => go("./pet.html"));
+
+          $("goSOS")?.addEventListener("click", () => go("./important-numbers.html"));
+        }
+
+      // ---------------------------
+      // Active bottom nav highlight
+      // ---------------------------
+      function markActiveNav() {
+        const here = (location.pathname.split("/").pop() || "index.html").toLowerCase();
+        document.querySelectorAll(".gs-nav__item").forEach((a) => {
+          const href = (a.getAttribute("href") || "").toLowerCase();
+          if (href === here) a.setAttribute("aria-current", "page");
+          else a.removeAttribute("aria-current");
+        });
+      }
+
+      // ---------------------------
+      // MAIN
+      // ---------------------------
+      document.addEventListener("DOMContentLoaded", () => {
+        wireIndexButtons();
+        markActiveNav();
+      });
+
+      let unsubTheme = null;
+
+      onAuthStateChanged(auth, (user) => {
+        // clear prior theme listener
+        if (unsubTheme) {
+          unsubTheme();
+          unsubTheme = null;
+        }
+
+        if (!user) {
+          try {
+            localStorage.removeItem("currentUser");
+            localStorage.setItem("themeClass:last", "theme-original");
+          } catch { }
+          applyThemeClass("theme-original");
+
+          renderLoggedOutUI();
+          guardLinks(false);
+          showOnce();
+          return;
+        }
+
+        try {
+          localStorage.setItem("currentUser", user.uid);
+        } catch { }
+
+        renderLoggedInUI(user);
+        guardLinks(true);
+
+        let firstPaint = true;
+        unsubTheme = onSnapshot(
+          doc(db, "users", user.uid),
+          (snap) => {
+            const t = snap.exists() ? snap.data()?.themeClass : "";
+            if (t) applyThemeClass(t);
+            else syncMetaTheme();
+
+            if (firstPaint) {
+              showOnce();
+              firstPaint = false;
             }
-
-            // NEW: remember active user so per-user theme keys line up on index.html
-            try { localStorage.setItem("currentUser", user.uid); } catch { }
-
-            // Logged in → live theme from Firestore
-            renderLoggedInUI(user);
-            guardLinks(true);
-
-            let first = true;
-            unsub = onSnapshot(
-              doc(db, "users", user.uid),
-              (snap) => {
-                const t = snap.exists() ? (snap.data()?.themeClass || "") : "";
-                if (t) applyThemeClass(t); else syncMetaTheme();
-                if (first) { show(); first = false; } // reveal after first paint
-              },
-              (err) => {
-                console.error("[index] theme snapshot error:", err);
-                // Even if Firestore fails, don't block the page
-                syncMetaTheme();
-                show();
-              }
-            );
-          });
-
-          // iOS BFCache restores → reveal (no re-hide)
-          window.addEventListener("pageshow", (e) => {
-            if (e.persisted) show();
-          });
-
-          // 🚫 DO NOT re-hide on pagehide — this causes the strobe on iOS
-          // window.addEventListener("pagehide", () => { html.removeAttribute("data-ready"); });
-        </script>
-       
-      <script>
-        /* Glow bottom nav: mark active tab + gate authed links */
-        (function () {
-          // mark current tab active (works with .gs-nav__item)
-          const here = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
-          document.querySelectorAll('.gs-nav__item').forEach(a => {
-            const href = (a.getAttribute('href') || '').toLowerCase();
-            if (href === here) a.setAttribute('aria-current', 'page');
-          });
-
-          // gate links that require auth (uses your localStorage marker)
-          const isAuthed = !!localStorage.getItem('currentUser');
-          if (!isAuthed) {
-            document.querySelectorAll('.gs-nav__item[data-auth="true"]').forEach(a => {
-              a.addEventListener('click', (e) => {
-                e.preventDefault();
-                const dest = a.getAttribute('href') || 'index.html';
-                location.href = `login.html?next=${encodeURIComponent(dest)}`;
-              });
-            });
+          },
+          (err) => {
+            console.error("[index] theme snapshot error:", err);
+            syncMetaTheme();
+            showOnce();
           }
-        })();
-      </script>
+        );
+      });
+    </script>
 
-      </body>
+</body>
+
 </html>

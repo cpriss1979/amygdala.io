@@ -2,30 +2,43 @@
 
 /* -------------------- ANIMATIONS -------------------- */
 @keyframes backgroundShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 @keyframes fadeIn {
-  to { opacity: 1; }
+  to {
+    opacity: 1;
+  }
 }
 
 /* -------------------- TYPOGRAPHY -------------------- */
 
 .three-d-title {
-  font-size: 2.5rem; /* or 2.5rem if you want it just slightly smaller */
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;  text-align: center;
+  font-size: 2.5rem;
+  /* or 2.5rem if you want it just slightly smaller */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  text-align: center;
   margin-bottom: 2rem;
   color: var(--accent-color);
   letter-spacing: 1.5px;
   font-weight: bold;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.25);
-} 
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.25);
+}
 
 h1.three-d-title {
   font-size: 1.7rem;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;  font-weight: bold;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-weight: bold;
   color: var(--accent-color);
   letter-spacing: 1.5px;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.25);
@@ -35,7 +48,7 @@ h1.three-d-title {
 
 h2 {
   color: black;
-font-family: 'Open Sans', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-size: 1.8rem;
   margin-top: 2rem;
 }
@@ -50,8 +63,9 @@ h3 {
 }
 
 .three-d-title-two {
-font-size: 3rem; /* or 2.5rem if you want it just slightly smaller */
-font-family: 'Open Sans', sans-serif;
+  font-size: 3rem;
+  /* or 2.5rem if you want it just slightly smaller */
+  font-family: 'Open Sans', sans-serif;
   text-align: center;
   margin-bottom: 2rem;
   color: var(--accent-color);
@@ -59,11 +73,12 @@ font-family: 'Open Sans', sans-serif;
   font-weight: bold;
   padding-left: 2rem;
   padding-right: 2rem;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.25);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.25);
 }
 
 .wellness-page h3 {
-  font-size: 1.1rem; /* or try 1rem if you want it even smaller */
+  font-size: 1.1rem;
+  /* or try 1rem if you want it even smaller */
   color: black;
   font-weight: normal;
   margin-top: 1.5rem;
@@ -78,7 +93,8 @@ p {
 }
 
 /* -------------------- FORM ELEMENTS -------------------- */
-input[type="text"], textarea {
+input[type="text"],
+textarea {
   width: 95%;
   padding: 1rem;
   font-size: 1rem;
@@ -96,17 +112,17 @@ input[type="text"], textarea {
 
 
 /*====================== save/my pet buttons - journal =============== */
-    .icon-button {
-      background-color: #ffc6e0 !important;
-      color: black !important;
-      border: .1px solid #d394b0;
-      padding: 10px 15px;
-      font-size: 1rem;
-      border-radius: 5px;
-      margin: 0 10px;
-      cursor: pointer;
-        font-weight: bold;
-    }
+.icon-button {
+  background-color: #ffc6e0 !important;
+  color: black !important;
+  border: .1px solid #d394b0;
+  padding: 10px 15px;
+  font-size: 1rem;
+  border-radius: 5px;
+  margin: 0 10px;
+  cursor: pointer;
+  font-weight: bold;
+}
 
 .icon-button:hover {
   background-color: #cd8fc3 !important;
@@ -117,14 +133,17 @@ input[type="text"], textarea {
   box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.4);
 }
 
-button, .toolkit-entry button, .journal-entries-box h2 {
-font-family: 'Open Sans', sans-serif;
+button,
+.toolkit-entry button,
+.journal-entries-box h2 {
+  font-family: 'Open Sans', sans-serif;
   color: #2988a7;
   font-size: 2rem;
   margin-bottom: 1.5rem;
 }
 
-.button, .toolkit-entry button {
+.button,
+.toolkit-entry button {
   background-color: #2988a7;
   color: white;
   border-radius: .85rem;
@@ -139,7 +158,8 @@ font-family: 'Open Sans', sans-serif;
   transition: background-color 0.3s ease;
 }
 
-.button:hover, .toolkit-entry button:hover {
+.button:hover,
+.toolkit-entry button:hover {
   background-color: #66bb6a;
   transform: scale(1.05);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -147,12 +167,16 @@ font-family: 'Open Sans', sans-serif;
 
 .button-row {
   display: flex;
-  flex-direction: row; /* Put buttons side-by-side */
-  justify-content: center; /* Center horizontally */
-  align-items: center; /* Center vertically just in case */
+  flex-direction: row;
+  /* Put buttons side-by-side */
+  justify-content: center;
+  /* Center horizontally */
+  align-items: center;
+  /* Center vertically just in case */
   gap: 1.5rem;
   margin-top: 2rem;
-  flex-wrap: wrap; /* Nice for small screens */
+  flex-wrap: wrap;
+  /* Nice for small screens */
 }
 
 .button-row button {
@@ -169,7 +193,7 @@ font-family: 'Open Sans', sans-serif;
   font-size: 1.1rem;
   padding: 0.8rem 1.5rem;
   border-radius: 50rem;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   transition: background-color 0.3s ease;
   display: inline-flex;
   align-items: center;
@@ -196,7 +220,8 @@ font-family: 'Open Sans', sans-serif;
   width: 100%;
   max-width: 600px;
   margin: 0 auto;
-  padding: 0; /* Restore index.html layout */
+  padding: 0;
+  /* Restore index.html layout */
   box-sizing: border-box;
 }
 
@@ -211,7 +236,9 @@ font-family: 'Open Sans', sans-serif;
   margin-top: 1rem;
 }
 
-.container, .wellness-wrapper, .gradient-section-box {
+.container,
+.wellness-wrapper,
+.gradient-section-box {
   margin-left: auto;
   margin-right: auto;
 }
@@ -241,7 +268,7 @@ details {
   padding: .8rem 1rem;
   margin-bottom: .85rem;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-font-family: 'Open Sans', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   transition: all 0.3s ease;
 }
 
@@ -249,7 +276,7 @@ summary {
   font-size: 1.2rem;
   font-weight: bold;
   /* text color inside dropdown boxes on index.html */
-  color: black; 
+  color: black;
   cursor: pointer;
   outline: none;
   text-align: left;
@@ -263,270 +290,270 @@ summary::marker {
 }
 
 details[open] summary {
-  color: black;}
+  color: black;
+}
+
+/* -------------------- JOURNAL PAGE -------------------- */
+body.journal-page .container {
+  margin-top: rem;
+  padding-top: 0.5rem;
+}
+
+/* Journal input field */
+textarea {
+  width: 95%;
+  height: 100px;
+  font-size: 1.1rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 2px solid #ccc;
+  margin-bottom: 1rem;
+}
+
+/* Save button */
+button {
+  padding: 0.7rem 1.5rem;
+  font-size: 1rem;
+  background-color: rgb(107, 228, 157);
+  border: none;
+  border-radius: 0.5rem;
+  color: black;
+  cursor: pointer;
+}
+
+.bubble-box {
+  font-family: 'Comic Neue', sans-serif;
+  background: rgba(231, 253, 157, 0.816);
+  border-radius: 1.75rem;
+  padding: 2rem;
+  /* increased padding */
+  margin: 1.7rem auto;
+  max-width: 200px;
+  /* smaller width */
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+  text-align: center;
+  border: 2.55px solid rgb(201, 220, 140);
+  font-size: 1.14rem;
+  /* you can tweak this if you want */
+}
+
+/* dreamy background on journal.html behind entries and text */
+/* Journal Entry Container - match toolkit dreamy look */
+/* Saved journal entry style */
+.entry {
+  background-color: white;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  margin-top: 1rem;
+  position: relative;
+  border: 1.9px solid #307e7d;
+}
+
+.entry time {
+  display: block;
+  font-size: 0.9rem;
+  color: rgba(26, 24, 28, 0.698);
+  margin-bottom: 0.5rem;
+}
+
+#entryList {
+  padding: 1rem;
+  margin: 0 auto;
+  max-width: 800px;
+  box-sizing: border-box;
+}
+
+/* Entry Timestamp */
+.entry time {
+  display: block;
+  font-size: 0.9rem;
+  color: #607d8b;
+  margin-bottom: 0.5rem;
+}
+
+.full-width-wrapper {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(145deg, #e0f7fa, #fdfcdc);
+  display: flex;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.full-journal-box {
+  width: 100%;
+  margin-left: calc(-50vw + 50%);
+  padding-left: 1rem;
+  padding-right: 1rem;
+  background: linear-gradient(to bottom, #fff9b0, #cceeff, #fff9b0);
+  /* match toolkit */
+  box-sizing: border-box;
+}
+
+.gradient-section-box {
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(to bottom, #89cbd4, rgb(40, 130, 180), #89cbd4);
+  z-index: -1;
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  min-height: 100vh;
+}
+
+.gradient-section-box {
+  min-height: 100%;
+}
+
+.bottom-wrapper {
+  width: 100%;
+  margin: 0;
+  padding: 2rem 1rem;
+  background: linear-gradient(to bottom, #fff9b0, #cceeff, #fff9b0);
+  /* Match toolkit */
+  display: flex;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.journal-entries-box {
+  width: 100%;
+  max-width: 600px;
+  background: white;
+  border-radius: 1.5rem;
+  padding: 2rem;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  border-top: 3px solid rgba(40, 130, 180, 0.2);
+  border-bottom: 3px solid rgba(40, 130, 180, 0.2);
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.full-journal-wrapper {
+  width: 100vw;
+  margin: 0;
+  padding: 0 1rem;
+  background: linear-gradient(to bottom, #fff9b0, #cceeff, #fff9b0);
+  /* matches existing */
+  box-sizing: border-box;
+}
+
+.full-journal-box {
+  max-width: 100%;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1.5rem;
+  box-sizing: border-box;
+}
+
+body.journal-page {
+  margin: 0;
+  padding: 0;
+  font-family: 'Open Sans', sans-serif;
+  background: #e0f7fa;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Top Section (Title, Intro, Save Box) */
+.top-section {
+  max-width: 800px;
+  margin: 2rem auto;
+  text-align: center;
+  padding: 1rem;
+}
+
+/* Bottom Section (Entries Box) */
+.bottom-section {
+  background: linear-gradient(to bottom, #89cbd4, rgb(40, 130, 180), #89cbd4);
+  flex-grow: 1;
+  width: 100%;
+  padding: 2rem 1rem;
+  box-sizing: border-box;
+  border-top-left-radius: 1.5rem;
+  border-top-right-radius: 1.5rem;
+}
+
+/* Entries Box (just one container inside) */
+.entries-box {
+  background: white;
+  border-radius: 1rem;
+  padding: 1rem;
+  max-width: 800px;
+  margin: 0 auto;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Journal Textarea */
+textarea {
+  width: 80%;
+  max-width: 700px;
+  height: 100px;
+  font-size: 1.1rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 2px solid #ccc;
+  margin: 0 auto 1rem auto;
+  display: block;
+}
+
+/* Button */
+button {
+  padding: 0.7rem 1.5rem;
+  font-size: 1rem;
+  border-radius: 0.5rem;
+  border: none;
+  background-color: #468faf;
+  color: white;
+  cursor: pointer;
+  margin-top: 1rem;
+}
+
+/* Entire top section (soft yellow background) */
+.top-journal-section {
+  width: 100vw;
+  margin: 0;
+  background: linear-gradient(to bottom, #fff9b0, #fdfcdc);
+  text-align: center;
+  box-sizing: border-box;
+}
+
+/* Entry container */
+.journal-entries-box {
+  max-width: 700px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 1.5rem;
+  padding: 2rem;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  text-align: left;
+}
+
+/* Entry timestamp */
+.entry time {
+  display: block;
+  font-size: 0.9rem;
+  color: #607d8b;
+  margin-bottom: 0.5rem;
+}
+
+.torn-paper-divider {
+  width: 100%;
+  height: 60px;
+  background: #3bb5b3;
+  background: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1440 150' xmlns='http://www.w3.org/2000/svg'><path fill='%23030352' fill-opacity='1' d='M0,40 Q80,90 160,40 T320,40 T480,40 T640,40 T800,40 T960,40 T1120,40 T1280,40 T1440,40 L1440,0 L0,0 Z'/></svg>") no-repeat center;
+  background-size: cover;
+  margin: 0;
+  padding: 0;
+  transform: rotate(180deg);
+  /* optional, depending on your direction */
+}
 
 
-    /* -------------------- JOURNAL PAGE -------------------- */
-    body.journal-page .container {
-      margin-top: rem;
-      padding-top: 0.5rem;
-    }
-  
-    /* Journal input field */
-    textarea {
-      width: 95%;
-      height: 100px;
-      font-size: 1.1rem;
-      padding: 1rem;
-      border-radius: 0.5rem;
-      border: 2px solid #ccc;
-      margin-bottom: 1rem;
-    }
-  
-    /* Save button */
-    button {
-      padding: 0.7rem 1.5rem;
-      font-size: 1rem;
-      background-color: rgb(107, 228, 157);
-      border: none;
-      border-radius: 0.5rem;
-      color: black;
-      cursor: pointer;
-    }
-  
-    .bubble-box {
-      font-family: 'Comic Neue', sans-serif;
-      background: rgba(231, 253, 157, 0.816);
-      border-radius: 1.75rem;
-      padding: 2rem;
-      /* increased padding */
-      margin: 1.7rem auto;
-      max-width: 200px;
-      /* smaller width */
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
-      text-align: center;
-      border: 2.55px solid rgb(201, 220, 140);
-      font-size: 1.14rem;
-      /* you can tweak this if you want */
-    }
-  
-    /* dreamy background on journal.html behind entries and text */
-    /* Journal Entry Container - match toolkit dreamy look */
-    /* Saved journal entry style */
-    .entry {
-      background-color: white;
-      padding: 0.75rem;
-      border-radius: 0.75rem;
-      margin-top: 1rem;
-      position: relative;
-      border: 1.9px solid #307e7d;
-    }
-  
-    .entry time {
-      display: block;
-      font-size: 0.9rem;
-      color: rgba(26, 24, 28, 0.698);
-      margin-bottom: 0.5rem;
-    }
-  
-    #entryList {
-      padding: 1rem;
-      margin: 0 auto;
-      max-width: 800px;
-      box-sizing: border-box;
-    }
-  
-    /* Entry Timestamp */
-    .entry time {
-      display: block;
-      font-size: 0.9rem;
-      color: #607d8b;
-      margin-bottom: 0.5rem;
-    }
-  
-    .full-width-wrapper {
-      width: 100%;
-      margin: 0;
-      padding: 0;
-      background: linear-gradient(145deg, #e0f7fa, #fdfcdc);
-      display: flex;
-      justify-content: center;
-      box-sizing: border-box;
-    }
-  
-    .full-journal-box {
-      width: 100%;
-      margin-left: calc(-50vw + 50%);
-      padding-left: 1rem;
-      padding-right: 1rem;
-      background: linear-gradient(to bottom, #fff9b0, #cceeff, #fff9b0);
-      /* match toolkit */
-      box-sizing: border-box;
-    }
-  
-    .gradient-section-box {
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: linear-gradient(to bottom, #89cbd4, rgb(40, 130, 180), #89cbd4);
-      z-index: -1;
-      position: absolute;
-      inset: 0;
-      z-index: -1;
-      min-height: 100vh;
-    }
-  
-    .gradient-section-box {
-      min-height: 100%;
-    }
-  
-    .bottom-wrapper {
-      width: 100%;
-      margin: 0;
-      padding: 2rem 1rem;
-      background: linear-gradient(to bottom, #fff9b0, #cceeff, #fff9b0);
-      /* Match toolkit */
-      display: flex;
-      justify-content: center;
-      box-sizing: border-box;
-    }
-  
-    .journal-entries-box {
-      width: 100%;
-      max-width: 600px;
-      background: white;
-      border-radius: 1.5rem;
-      padding: 2rem;
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
-      border-top: 3px solid rgba(40, 130, 180, 0.2);
-      border-bottom: 3px solid rgba(40, 130, 180, 0.2);
-      box-sizing: border-box;
-      text-align: center;
-    }
-  
-    .full-journal-wrapper {
-      width: 100vw;
-      margin: 0;
-      padding: 0 1rem;
-      background: linear-gradient(to bottom, #fff9b0, #cceeff, #fff9b0);
-      /* matches existing */
-      box-sizing: border-box;
-    }
-  
-    .full-journal-box {
-      max-width: 100%;
-      width: 100%;
-      margin: 0 auto;
-      padding: 1.5rem;
-      box-sizing: border-box;
-    }
-  
-    body.journal-page {
-      margin: 0;
-      padding: 0;
-      font-family: 'Open Sans', sans-serif;
-      background: #e0f7fa;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-  
-    /* Top Section (Title, Intro, Save Box) */
-    .top-section {
-      max-width: 800px;
-      margin: 2rem auto;
-      text-align: center;
-      padding: 1rem;
-    }
-  
-    /* Bottom Section (Entries Box) */
-    .bottom-section {
-      background: linear-gradient(to bottom, #89cbd4, rgb(40, 130, 180), #89cbd4);
-      flex-grow: 1;
-      width: 100%;
-      padding: 2rem 1rem;
-      box-sizing: border-box;
-      border-top-left-radius: 1.5rem;
-      border-top-right-radius: 1.5rem;
-    }
-  
-    /* Entries Box (just one container inside) */
-    .entries-box {
-      background: white;
-      border-radius: 1rem;
-      padding: 1rem;
-      max-width: 800px;
-      margin: 0 auto;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-  
-    /* Journal Textarea */
-    textarea {
-      width: 80%;
-      max-width: 700px;
-      height: 100px;
-      font-size: 1.1rem;
-      padding: 1rem;
-      border-radius: 0.5rem;
-      border: 2px solid #ccc;
-      margin: 0 auto 1rem auto;
-      display: block;
-    }
-  
-    /* Button */
-    button {
-      padding: 0.7rem 1.5rem;
-      font-size: 1rem;
-      border-radius: 0.5rem;
-      border: none;
-      background-color: #468faf;
-      color: white;
-      cursor: pointer;
-      margin-top: 1rem;
-    }
-  
-    /* Entire top section (soft yellow background) */
-    .top-journal-section {
-      width: 100vw;
-      margin: 0;
-      background: linear-gradient(to bottom, #fff9b0, #fdfcdc);
-      text-align: center;
-      box-sizing: border-box;
-    }
-  
-    /* Entry container */
-    .journal-entries-box {
-      max-width: 700px;
-      margin: 0 auto;
-      background: white;
-      border-radius: 1.5rem;
-      padding: 2rem;
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
-      text-align: left;
-    }
-  
-    /* Entry timestamp */
-    .entry time {
-      display: block;
-      font-size: 0.9rem;
-      color: #607d8b;
-      margin-bottom: 0.5rem;
-    }
-  
-    .torn-paper-divider {
-      width: 100%;
-      height: 60px;
-      background: #3bb5b3;
-      background: url("data:image/svg+xml;utf8,<svg viewBox='0 0 1440 150' xmlns='http://www.w3.org/2000/svg'><path fill='%23030352' fill-opacity='1' d='M0,40 Q80,90 160,40 T320,40 T480,40 T640,40 T800,40 T960,40 T1120,40 T1280,40 T1440,40 L1440,0 L0,0 Z'/></svg>") no-repeat center;
-      background-size: cover;
-      margin: 0;
-      padding: 0;
-      transform: rotate(180deg);
-      /* optional, depending on your direction */
-    }
-  
-    
 /* ------- IMPORTANT NUMBERS PAGE / QUICK HELP--------- */
 body.important-page {
   align-items: flex-start;
@@ -553,17 +580,19 @@ li {
   border-radius: 1rem;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
+
 strong {
   color: white;
 }
 
 footer {
-    margin-top: 3rem;
-    text-align: center;
-    font-size: 1.6em;
-    color: Black; /* ← updated from pink */
-    padding: 1rem;
-  }
+  margin-top: 3rem;
+  text-align: center;
+  font-size: 1.6em;
+  color: Black;
+  /* ← updated from pink */
+  padding: 1rem;
+}
 
 /* -------------------- SUPPORT PAGE -------------------- */
 body.support-page {
@@ -582,7 +611,8 @@ body.support-page {
 }
 
 body.support-page .container {
-  margin-top: -.3rem !important; /* try -1.5rem if you want it touching the top */
+  margin-top: -.3rem !important;
+  /* try -1.5rem if you want it touching the top */
   padding-top: 0 !important;
   padding-left: 1.2rem;
   padding-right: 1.2rem;
@@ -590,7 +620,8 @@ body.support-page .container {
 
 /* ---------------------- Wellness Plan -------------------- */
 .saved-section {
-  background-color: #ffffffcc; /* Optional soft white background */
+  background-color: #ffffffcc;
+  /* Optional soft white background */
   padding: 2rem;
   margin: 2rem auto;
   border-radius: 1.5rem;
@@ -615,7 +646,7 @@ body.support-page .container {
 }
 
 .plan-heading {
-font-family: 'Open Sans', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-size: 1.5rem;
   margin: -1rem;
   color: #032d3b;
@@ -625,7 +656,8 @@ font-family: 'Open Sans', sans-serif;
 }
 
 .tool-headers {
-  font-family: 'Georgia', serif; /* or whatever font you want */
+  font-family: 'Georgia', serif;
+  /* or whatever font you want */
   font-size: 1.3rem;
   color: #a4f0b5;
   text-align: center;
@@ -641,7 +673,8 @@ font-family: 'Open Sans', sans-serif;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
   box-sizing: border-box;
   font-family: 'Open Sans', sans-serif;
-  border: 2px dashed rgba(40, 130, 180, 0.7); /* ← dotted border! */
+  border: 2px dashed rgba(40, 130, 180, 0.7);
+  /* ← dotted border! */
 }
 
 /* -------------------- IMAGE OVERLAYS -------------------- */
@@ -703,7 +736,7 @@ font-family: 'Open Sans', sans-serif;
 }
 
 .tagline {
-font-family: 'Open Sans', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-size: 1.1rem;
   color: #4b6578;
   margin-top: -0.5rem;
@@ -717,7 +750,8 @@ font-family: 'Open Sans', sans-serif;
   border-radius: 1.5rem;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   margin-bottom: 1rem;
-  opacity: 0; /* Start hidden */
+  opacity: 0;
+  /* Start hidden */
   animation: fadeIn 1.7s ease-in-out forwards;
 }
 
@@ -747,7 +781,7 @@ font-family: 'Open Sans', sans-serif;
   color: rgb(20, 20, 170);
   padding: 2rem 4rem;
   border-radius: 1.5rem;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
   font-family: 'Shadows Into Light', Arial, Helvetica, sans-serif;
   font-size: 1.2rem;
   text-align: center;
@@ -766,7 +800,8 @@ font-family: 'Open Sans', sans-serif;
   cursor: pointer;
   transition: transform 0.2s ease;
   margin-left: 1rem;
-  align-self: flex-start; /* optional if your layout needs it */
+  align-self: flex-start;
+  /* optional if your layout needs it */
 }
 
 /* Only use absolute positioning when .delete-button is inside a journal .entry */
@@ -774,7 +809,8 @@ font-family: 'Open Sans', sans-serif;
   position: absolute;
   top: 0.5rem;
   right: 0.8rem;
-  margin-left: 0; /* override margin-left for absolute layout */
+  margin-left: 0;
+  /* override margin-left for absolute layout */
 }
 
 /* Hover style for all delete buttons */
@@ -789,11 +825,13 @@ font-family: 'Open Sans', sans-serif;
     flex-direction: column;
     align-items: center;
   }
+
   .info-image {
     width: 100%;
     height: auto;
     max-height: 300px;
   }
+
   .info-text {
     text-align: center;
     padding-top: 1rem;
@@ -805,10 +843,12 @@ font-family: 'Open Sans', sans-serif;
     width: 95%;
     max-width: 300px;
   }
+
   details {
     font-size: 0.9rem;
     padding: 0.5rem 0.7rem;
   }
+
   summary {
     font-size: 1.05rem;
   }
@@ -818,9 +858,11 @@ font-family: 'Open Sans', sans-serif;
   .info-image {
     max-width: 60px;
   }
+
   .info-image-large {
     max-width: 100%;
   }
+
   .info-text p {
     font-size: 0.85rem;
   }
@@ -829,7 +871,8 @@ font-family: 'Open Sans', sans-serif;
 @media not all and (min-resolution:.001dpcm) {
   @supports (-webkit-appearance:none) {
     .button-row {
-      transform: translateZ(0); /* triggers hardware acceleration to reset layout */
+      transform: translateZ(0);
+      /* triggers hardware acceleration to reset layout */
     }
   }
 }
@@ -843,7 +886,8 @@ font-family: 'Open Sans', sans-serif;
 }
 
 /* -------------------- BASE PAGE LAYOUT -------------------- */
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
@@ -882,21 +926,25 @@ body {
   display: inline-block;
   margin: 2rem auto;
   padding: 10px 20px;
-  background-color: #000 !important;  /* Black background */
-  color: #fff !important;             /* White text */
+  background-color: #000 !important;
+  /* Black background */
+  color: #fff !important;
+  /* White text */
   font-size: 1rem;
   font-weight: 600;
   border: 1px solid white;
   border-radius: 8px;
   text-decoration: none;
   cursor: pointer;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2); /* Soft white-ish glow */
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+  /* Soft white-ish glow */
   transition: background-color 0.3s, transform 0.2s;
   text-align: center;
 }
 
 .backToApp:hover {
-  background-color: #222 !important;  /* Darker hover */
+  background-color: #222 !important;
+  /* Darker hover */
   color: #fff !important;
   transform: scale(1.03);
 }
@@ -924,8 +972,20 @@ body {
 
 .auth-button {
 
-.auth-button {
-  background-color: var(--accent-color);
+  .auth-button {
+    background-color: var(--accent-color);
+    color: var(--text-color);
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    margin: 0 10px;
+    font-family: 'Open Sans', sans-serif;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+
   color: var(--text-color);
   padding: 10px 16px;
   border: none;
@@ -933,19 +993,11 @@ body {
   text-decoration: none;
   font-weight: 600;
   margin: 0 10px;
-font-family: 'Open Sans', sans-serif;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  transition: background-color 0.3s ease, transform 0.2s ease;
-}  color: var(--text-color);
-  padding: 10px 16px;
-  border: none;
-  border-radius: 8px;
-  text-decoration: none;
-  font-weight: 600;
-  margin: 0 10px;
-font-family: 'Open Sans', sans-serif;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  font-family: 'Open Sans',
+  sans-serif;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease,
+  transform 0.2s ease;
 }
 
 .auth-button:hover {
@@ -955,7 +1007,8 @@ font-family: 'Open Sans', sans-serif;
 }
 
 #authControls {
-  margin-top: 10px; /* Add space at the very top */
+  margin-top: 10px;
+  /* Add space at the very top */
   text-align: center;
 }
 
@@ -966,8 +1019,10 @@ body {
 /* ------------------------  buttons ---------------- */
 
 .button-row .button {
- background-color: #ffc6e0 !important; /* black background */
-  color: black !important;            /* white text */
+  background-color: #ffc6e0 !important;
+  /* black background */
+  color: black !important;
+  /* white text */
   border: 1px solid black;
   padding: 10px 20px;
   text-decoration: none;
@@ -978,7 +1033,7 @@ body {
 }
 
 .button-row .button:hover {
- background-color: rgb(91, 5, 91) !important;
+  background-color: rgb(91, 5, 91) !important;
 }
 
 /* --------------------- Mobile-safe media query -------------------- */
@@ -990,7 +1045,8 @@ body {
     margin-right: 0;
     border-radius: 0;
     padding: 1rem 0.75rem;
-    text-align: left; /* optional: center if you prefer */
+    text-align: left;
+    /* optional: center if you prefer */
   }
 
   .hero-image {

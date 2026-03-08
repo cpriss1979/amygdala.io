@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en" class="theme-original">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Amygdala — Learn</title>
+  <meta name="description" content="Gentle learning in plain language. Tap a topic for a calm, simple explanation." />
+
+  <!-- PWA -->
+  <meta name="theme-color" content="#6a5acd" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="format-detection" content="telephone=no" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Quicksand:wght@600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Your existing CSS -->
+  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="./mainTheme.css" />
+
+  <!-- ===== Early Theme Boot (same idea as index) ===== -->
+  <script>
+    (function () {
+      try {
+        const root = document.documentElement;
+        const userKey = localStorage.getItem("currentUser") || "anon";
+        const savedTheme =
+          localStorage.getItem(userKey + ":themeClass") ||
+          localStorage.getItem("themeClass:last") ||
+          "theme-original";
+
+        const keep = (root.className || "")
+          .split(/\s+/).filter(Boolean)
+          .filter(c => !c.startsWith("theme-"));
+
+        root.className = [...keep, savedTheme].join(" ");
+
+        const meta = document.querySelector('meta[name="theme-color"]') || (function () {
+          const m = document.createElement('meta'); m.name = 'theme-color'; document.head.appendChild(m); return m;
+        })();
+        const cs = getComputedStyle(root);
+        meta.content = (cs.getPropertyValue('--accent-color') || cs.getPropertyValue('--accent') || '#6a5acd').trim() || '#6a5acd';
+      } catch { }
+    })();
+  </script>
+
+  <style>
+     :root {
+      --ink: rgba(10, 25, 30, .90);
+      --muted: rgba(10, 25, 30, .62);
+
+      --glass: rgba(255, 255, 255, .72);
+      --glass2: rgba(255, 255, 255, .62);
+      --border: rgba(0, 0, 0, .10);
+      --shadow: 0 14px 40px rgba(0, 0, 0, .10);
+
+      --radius: 20px;
+      --radius-sm: 14px;
+
+      --accent: var(--accent-color, #6a5acd);
+    }
+
+    html,
+    body {
+      height: 100%;
+      font-family: "Open Sans", sans-serif;
+      color: var(--ink);
+      background: linear-gradient(135deg,
+          rgba(205, 177, 227, 0.68) 0%,
+          rgb(42, 164, 195) 45%,
+          rgba(255, 198, 224, .24) 100%) !important;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    /* --- App shell --- */
+    .app {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  min-height: 100%;
+  padding: 0 1rem calc(2.5rem + env(safe-area-inset-bottom));
+}
+
+    .appbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      padding-top: env(safe-area-inset-top);
+      backdrop-filter: blur(12px) saturate(1.1);
+      background: linear-gradient(to bottom, rgba(255, 255, 255, .55), rgba(255, 255, 255, .15));
+      border-bottom: 1px solid rgba(255, 255, 255, .40);
+      margin: 0 -1rem .9rem;
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+
+    .appbar-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .75rem;
+      padding: .75rem 0;
+    }
+
+    .app-title {
+      display: grid;
+      line-height: 1.05;
+    }
+
+    .app-title .kicker {
+      font-family: "Quicksand", sans-serif;
+      font-weight: 900;
+      letter-spacing: .4px;
+      font-size: .9rem;
+      opacity: .75;
+    }
+
+    .app-title .title {
+      font-family: "Quicksand", sans-serif;
+      font-weight: 900;
+      letter-spacing: .3px;
+      font-size: 1.15rem;
+    }
+
+    .pillrow {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .pill {
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, .65);
+      color: var(--ink);
+      font-weight: 900;
+      padding: .55rem .8rem;
+      border-radius: 999px;
+      text-decoration: none;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, .06);
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+    }
+
+    .pill.primary {
+      border-color: rgba(0, 0, 0, .18);
+      background: rgba(255, 255, 255, .78);
+    }
+
+    /* --- Cards --- */
+    .card {
+      background: var(--glass);
+      border: 1px solid rgba(255, 255, 255, .55);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      overflow: hidden;
+      backdrop-filter: blur(10px) saturate(1.1);
+    }
+
+    .pad {
+      padding: 1rem;
+    }
+
+    .hero h1 {
+      margin: 0 0 .35rem;
+      font-weight: 900;
+      font-size: 1.15rem;
+      letter-spacing: .1px;
+    }
+
+    .hero p {
+      margin: 0;
+      font-weight: 700;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .tipline {
+      margin-top: .75rem;
+      padding: .65rem .75rem;
+      border-radius: var(--radius-sm);
+      background: rgba(255, 255, 255, .55);
+      border: 1px solid rgba(0, 0, 0, .08);
+      font-weight: 800;
+      color: rgba(10, 25, 30, .78);
+      display: flex;
+      gap: .6rem;
+      align-items: flex-start;
+    }
+
+    .tipline .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      margin-top: .3rem;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px rgba(255, 255, 255, .45);
+      flex: 0 0 auto;
+    }
+
+    /* --- App-y list --- */
+    .section-title {
+      margin: 1rem 0 .55rem;
+      font-weight: 900;
+      letter-spacing: .2px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .75rem;
+    }
+
+    .section-title small {
+      font-weight: 900;
+      color: var(--muted);
+      opacity: .95;
+    }
+
+    .list {
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--glass2);
+      border: 1px solid rgba(255, 255, 255, .55);
+      box-shadow: 0 12px 26px rgba(0, 0, 0, .08);
+      backdrop-filter: blur(10px) saturate(1.05);
+    }
+
+    .rowbtn {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      padding: .85rem .9rem;
+      display: grid;
+      grid-template-columns: 34px 1fr 18px;
+      gap: .75rem;
+      align-items: center;
+      text-align: left;
+      cursor: pointer;
+      color: inherit;
+    }
+
+    .rowbtn:active {
+      transform: scale(.995);
+      background: rgba(255, 255, 255, .25);
+    }
+
+    .rowbtn + .rowbtn {
+      border-top: 1px solid rgba(0, 0, 0, .08);
+    }
+
+    .icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      font-size: 1.05rem;
+      background: rgba(255, 255, 255, .60);
+      border: 1px solid rgba(0, 0, 0, .08);
+      box-shadow: 0 8px 18px rgba(0, 0, 0, .06);
+    }
+
+    .rowtext .t {
+      font-weight: 900;
+      line-height: 1.15;
+      margin: 0;
+    }
+
+    .rowtext .s {
+      margin: .15rem 0 0;
+      font-weight: 800;
+      color: var(--muted);
+      font-size: .92rem;
+      line-height: 1.25;
+    }
+
+    .chev {
+      font-weight: 900;
+      opacity: .55;
+    }
+
+    /* --- Bottom-sheet modal --- */
+    dialog {
+      border: none;
+      padding: 0;
+      width: min(560px, calc(100vw - 1.25rem));
+      border-radius: 22px;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, .35);
+      overflow: hidden;
+      background: rgba(255, 255, 255, .90);
+    }
+
+    dialog::backdrop {
+      background: rgba(0, 0, 0, .35);
+      backdrop-filter: blur(4px);
+    }
+
+    .sheet {
+      padding: 1rem 1rem 1.1rem;
+    }
+
+    .sheet-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .75rem;
+      margin-bottom: .35rem;
+    }
+
+    .sheet-title {
+      font-family: "Quicksand", sans-serif;
+      font-weight: 900;
+      font-size: 1.1rem;
+      margin: 0;
+    }
+
+    .sheet-close {
+      border: 1px solid rgba(0, 0, 0, .14);
+      background: rgba(255, 255, 255, .75);
+      border-radius: 999px;
+      padding: .55rem .8rem;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .sheet p {
+      margin: .65rem 0 0;
+      font-weight: 750;
+      color: rgba(10, 25, 30, .78);
+      line-height: 1.55;
+    }
+
+    .sheet .mini {
+      margin-top: .75rem;
+      padding: .65rem .75rem;
+      border-radius: 16px;
+      background: rgba(0, 0, 0, .04);
+      border: 1px solid rgba(0, 0, 0, .08);
+      font-weight: 850;
+      color: rgba(10, 25, 30, .70);
+    }
+
+    /* Reduce motion friendliness */
+    @media (prefers-reduced-motion: reduce) {
+      .rowbtn:active { transform: none; }
+    }
+
+    /* --- FIX: global button styles were making sheet button text white --- */
+#sheet .sheet-close {
+  color: rgba(10, 25, 30, .90) !important;
+  background: rgba(255, 255, 255, .85) !important;
+  border: 1px solid rgba(0, 0, 0, .14) !important;
+}
+
+/* Optional: if your global CSS is affecting other buttons inside the dialog */
+#sheet button {
+  color: rgba(10, 25, 30, .90) !important;
+}
+
+/* FORCE bottom breathing room */
+.app {
+  padding-bottom: calc(3.25rem + env(safe-area-inset-bottom)) !important;
+}
+
+
+/* ===============================
+   LEARN — FIX BOTTOM CUT OFF
+   Paste at VERY END of <style>
+   =============================== */
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+/* Give the page real viewport height (mobile-friendly) */
+body {
+  min-height: 100svh; /* better than 100% on mobile */
+}
+
+/* Add extra breathing room under ALL content */
+.app {
+  padding-bottom: calc(6.5rem + env(safe-area-inset-bottom)) !important;
+}
+
+/* Extra insurance so the last card/list never kisses the bottom */
+.list {
+  margin-bottom: 1.25rem;
+}
+
+/* Optional: adds a guaranteed spacer even if something overrides padding later */
+.app::after {
+  content: "";
+  display: block;
+  height: calc(1.75rem + env(safe-area-inset-bottom));
+}
+
+  </style>
+  </head>
+
+<body>
+  <div class="app">
+    <!-- Sticky app header -->
+    <header class="appbar">
+      <div class="appbar-row">
+        <div class="app-title">
+          <div class="kicker">Amygdala</div>
+          <div class="title">Learn</div>
+        </div>
+
+        <div class="pillrow">
+          <a class="pill" href="./index.html">🏠 Home</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero / gentle reminder -->
+    <section class="card hero">
+      <div class="pad">
+        <h1>Before you log in… a gentle reminder.</h1>
+        <p>
+          If your mind feels loud, you’re not doing anything wrong.
+          Your body and brain are trying to protect you — even if it’s overreacting.
+        </p>
+
+        <div class="tipline">
+          <div class="dot"></div>
+          <div>
+            If you’re in a rough moment, tap one topic below first.
+            Pick the one that matches what you’re feeling right now.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-title">
+      <div>Learn (no scary language)</div>
+      <small>Tap a topic</small>
+    </div>
+
+    <!-- App-y list -->
+    <section class="list" aria-label="Learn topics">
+      <button class="rowbtn" data-title="Panic attack — what it is" data-icon="⚡"
+        data-body="A panic attack can feel like danger, even when you’re safe. Your body goes into “protect mode” — fast heart, shaky, short breath, dread. It’s intense, but it passes. You are not broken."
+        data-mini="Tiny anchor: Look for 5 things you can see. 4 you can touch. 3 you can hear. 2 you can smell. 1 you can taste.">
+        <div class="icon">⚡</div>
+        <div class="rowtext">
+          <p class="t">Panic attack</p>
+          <p class="s">Your body hits protect-mode. It passes.</p>
+        </div>
+        <div class="chev">›</div>
+      </button>
+
+      <button class="rowbtn" data-title="Anxiety — what it is" data-icon="🫧"
+        data-body="Anxiety is your brain trying to predict and prevent pain. Sometimes it overdoes it and makes normal life feel urgent. Skills + repetition can retrain this—gently."
+        data-mini="Tiny anchor: Name it. “This is anxiety.” Then do one small safe action anyway.">
+        <div class="icon">🫧</div>
+        <div class="rowtext">
+          <p class="t">Anxiety</p>
+          <p class="s">Your brain trying to keep you safe.</p>
+        </div>
+        <div class="chev">›</div>
+      </button>
+
+      <button class="rowbtn" data-title="Overthinking — what it is" data-icon="🧠"
+        data-body="Overthinking is when your brain keeps trying to “solve” something by looping it. It usually comes from fear, not logic. The goal isn’t to force your thoughts to stop—it's to gently redirect your attention to something simple and safe."
+        data-mini="Tiny anchor: Do a 60-second task: drink water, wash hands, or step outside and feel the air.">
+        <div class="icon">🧠</div>
+        <div class="rowtext">
+          <p class="t">Overthinking</p>
+          <p class="s">A loop, not a problem you must solve.</p>
+        </div>
+        <div class="chev">›</div>
+      </button>
+
+      <button class="rowbtn" data-title="Dissociation — what it is" data-icon="🫥"
+        data-body="Dissociation is a disconnect—like your mind hits a “distance” button when things feel too intense. You might feel spacey, numb, on autopilot, or like you’re watching yourself from the outside. It can be scary, but it’s a protective response—and it can pass."
+        data-mini="Tiny anchor: Press your feet into the floor. Feel the chair. Say your name + today’s date out loud.">
+        <div class="icon">🫥</div>
+        <div class="rowtext">
+          <p class="t">Dissociation</p>
+          <p class="s">Distance mode. Protective, temporary.</p>
+        </div>
+        <div class="chev">›</div>
+      </button>
+
+      <button class="rowbtn" data-title="Derealization — what it is" data-icon="🌫️"
+        data-body="Derealization is a type of dissociation where the world feels unreal—foggy, far away, dreamlike, or “off.” Your surroundings can look normal, but your brain doesn’t feel connected to them. It’s common with anxiety and panic, and it doesn’t mean you’re losing your mind."
+        data-mini="Tiny anchor: Touch something textured and describe it in detail (cold/warm, rough/smooth).">
+        <div class="icon">🌫️</div>
+        <div class="rowtext">
+          <p class="t">Derealization</p>
+          <p class="s">The world feels “off.” It’s a symptom, not danger.</p>
+        </div>
+        <div class="chev">›</div>
+      </button>
+
+      <button class="rowbtn" data-title="Depression — what it is" data-icon="🌙"
+        data-body="Depression can feel like low battery in your body and your thoughts. It’s not laziness. It’s weight. Small steps count more than you think—especially on the hard days."
+        data-mini="Tiny anchor: Choose ONE tiny win: shower, brush teeth, open curtains, or eat something simple.">
+        <div class="icon">🌙</div>
+        <div class="rowtext">
+          <p class="t">Depression</p>
+          <p class="s">Low battery + heavy feelings. Small steps matter.</p>
+        </div>
+        <div class="chev">›</div>
+      </button>
+    </section>
+
+    <!-- Bottom sheet -->
+    <dialog id="sheet">
+      <div class="sheet">
+        <div class="sheet-top">
+          <h3 class="sheet-title" id="sheetTitle">Title</h3>
+          <button class="sheet-close" id="sheetClose" type="button">Close</button>
+        </div>
+        <p id="sheetBody"></p>
+        <div class="mini" id="sheetMini"></div>
+      </div>
+    </dialog>
+  </div>
+
+  <script type="module">
+    import { auth } from "./firebase-init.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const sheet = document.getElementById("sheet");
+    const sheetTitle = document.getElementById("sheetTitle");
+    const sheetBody = document.getElementById("sheetBody");
+    const sheetMini = document.getElementById("sheetMini");
+    const sheetClose = document.getElementById("sheetClose");
+    const authPill = document.getElementById("authPill");
+
+    
+    
+
+    // Open sheet when tapping a topic row
+    document.querySelectorAll(".rowbtn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const title = btn.getAttribute("data-title") || "Learn";
+        const body = btn.getAttribute("data-body") || "";
+        const mini = btn.getAttribute("data-mini") || "";
+        const icon = btn.getAttribute("data-icon") || "";
+
+        sheetTitle.textContent = `${icon} ${title}`.trim();
+        sheetBody.textContent = body;
+        sheetMini.textContent = mini;
+
+        if (typeof sheet.showModal === "function") {
+          sheet.showModal();
+        } else {
+          // fallback (older browsers): basic display
+          sheet.setAttribute("open", "");
+        }
+      });
+    });
+
+    function closeSheet() {
+      if (sheet.open) sheet.close();
+      sheet.removeAttribute("open");
+    }
+
+    sheetClose.addEventListener("click", closeSheet);
+
+    // Tap outside dialog to close
+    sheet.addEventListener("click", (e) => {
+      const rect = sheet.getBoundingClientRect();
+      const inDialog =
+        e.clientX >= rect.left && e.clientX <= rect.right &&
+        e.clientY >= rect.top && e.clientY <= rect.bottom;
+      if (!inDialog) closeSheet();
+    });
+
+    // ESC closes dialog naturally
+  </script>
+</body>
+
+</html>

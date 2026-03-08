@@ -1,5 +1,5 @@
 // outbox.js (ES module with multi-tab safe claims)
-const DB_NAME = "three-sides-outbox";
+const DB_NAME = "amygdala-outbox";
 const STORE = "outbox";
 const CLAIM_TTL_MS = 3 * 60 * 1000; // 3 minutes; stale claims auto-expire
 const _clientId = (() => {

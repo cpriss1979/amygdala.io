@@ -1,6 +1,6 @@
 {
-    "name": "Three Sides",
-    "short_name": "3-Sides",
+    "name": "TAmygdala",
+    "short_name": "A",
     "id": "./",
     "start_url": "index.html",
     "scope": "./",
@@ -14,7 +14,7 @@
     "theme_color": "#6a5acd",
     "lang": "en",
     "dir": "ltr",
-    "description": "A gentle, themeable planner for tracking mood, routines, and wellness across the three sides: highs, lows, and balance.",
+    "description": "A gentle, themeable planner for tracking mood, routines, and wellness across the Amygdala: highs, lows, and balance.",
     "prefer_related_applications": false,
     "handle_links": "preferred",
     "edge_side_panel": {

@@ -1785,7 +1785,10 @@ body.gs-has-nav .appbar{
   border-radius: 0 !important;
 }
 
-
+/* Optional: make the bottom edge look crisp */
+body.gs-has-nav .appbar{
+  overflow: visible !important;   /* just in case something is clipping */
+}
     </style>
 </head>
 

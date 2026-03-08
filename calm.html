@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Amygdala — Calm</title>
+
+    <!-- Match the rest of Amygdala -->
+    <meta name="theme-color" content="#0a2351" />
+
+    
+<style>
+    /* ===========================
+   AMYGDALA — CALM (RELAXING PURPLE)
+   One coherent theme system
+   (background → glass card → lilac breath panel)
+   =========================== */
+
+/* ---------- Theme tokens (ONLY place to tweak colors) ---------- */
+:root{
+  /* layout */
+  --radius-lg: 22px;
+  --radius-md: 16px;
+  --radius-sm: 14px;
+  --pad: 18px;
+
+  /* typography */
+  --font: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+
+  /* ink on light panels */
+  --ink: rgba(22, 18, 40, .92);
+  --muted: rgba(22, 18, 40, .62);
+
+  /* deep purple night background */
+  --bgA: rgba(66, 40, 110, .92);
+  --bgB: rgba(18, 10, 35, .96);
+
+  /* soft glows */
+  --glowA: rgba(190, 160, 255, .42);
+  --glowB: rgba(140, 210, 255, .22);
+  --glowC: rgba(255, 190, 235, .18);
+
+  /* glass card */
+  --glass: rgba(255, 255, 255, .14);
+  --glassStrong: rgba(255, 255, 255, .20);
+  --cardBorder: rgba(235, 225, 255, .28);
+  --shadow-lg: 0 18px 55px rgba(0,0,0,.22);
+  --shadow-md: 0 12px 26px rgba(0,0,0,.12);
+
+  /* lilac breath panel (your favorite) */
+  --panelA: rgba(211, 191, 245, .98);
+  --panelB: rgba(255, 255, 255, .44);
+  --panelC: rgba(235, 245, 255, .26);
+  --panelBorder: rgba(180, 150, 240, .26);
+  --panelInk: rgba(45, 30, 70, .92);
+  --panelMuted: rgba(45, 30, 70, .70);
+
+  /* controls */
+  --controlBg: rgba(245, 238, 255, .62);
+  --controlBgHover: rgba(250, 245, 255, .72);
+  --controlBorder: rgba(90, 60, 140, .16);
+
+  /* primary button (calm periwinkle) */
+  --primaryA: #7aa9ff;
+  --primaryB: #4b7fe9;
+
+  /* success / danger (soft) */
+  --goodBg: rgba(120, 220, 190, .20);
+  --goodBr: rgba(120, 220, 190, .32);
+  --goodInk: rgba(10, 60, 55, .92);
+
+  --dangerBg: rgba(255, 120, 150, .18);
+  --dangerBr: rgba(255, 120, 150, .28);
+  --dangerInk: rgba(120, 15, 45, .92);
+
+  /* orb hues (lilac + ice) */
+  --orbWhite: rgba(255, 255, 255, .72);
+  --orbIce: rgba(190, 225, 255, .28);
+  --orbLilac: rgba(205, 180, 255, .30);
+  --orbPink: rgba(255, 190, 235, .16);
+}
+
+/* ---------- Reset / Base ---------- */
+*{ box-sizing:border-box; }
+
+html, body{
+  height:100%;
+  margin:0;
+  font-family: var(--font);
+  color: var(--ink);
+  overflow-x:hidden;
+
+  /* Relaxing purple night */
+  background:
+    radial-gradient(980px 560px at 18% 10%, var(--glowA), transparent 64%),
+    radial-gradient(900px 520px at 88% 18%, var(--glowB), transparent 66%),
+    radial-gradient(980px 640px at 50% 112%, var(--glowC), transparent 70%),
+    radial-gradient(820px 520px at 30% 78%, rgba(200, 210, 255, .10), transparent 70%),
+    linear-gradient(180deg, var(--bgA), var(--bgB));
+}
+
+/* Soft blur veil */
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:0;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+/* ---------- Sparkles ---------- */
+#sparkleLayer{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:1;
+  overflow:hidden;
+}
+.sparkle{
+  position:absolute;
+  border-radius:999px;
+  background: radial-gradient(circle, rgba(255,255,255,.92), rgba(255,255,255,0) 70%);
+  filter: blur(.6px);
+  opacity:.10;
+  mix-blend-mode: screen;
+  animation:
+    drift var(--drift, 26s) linear infinite,
+    twinkle var(--twinkle, 12s) ease-in-out infinite;
+}
+@keyframes drift{
+  from{ transform: translate3d(0, 25vh, 0); }
+  to{ transform: translate3d(0, -140vh, 0); }
+}
+@keyframes twinkle{
+  0%,100%{ opacity:.06; }
+  50%{ opacity:.16; }
+}
+
+/* ---------- Layout wrapper ---------- */
+.wrap{
+  min-height:100%;
+  display:grid;
+  place-items:center;
+  padding:18px 16px calc(env(safe-area-inset-bottom, 0px) + 22px);
+  position:relative;
+  z-index:2;
+}
+
+/* ---------- Main Card ---------- */
+.card{
+  width:min(520px, 100%);
+  border-radius: var(--radius-lg);
+  border:1px solid var(--cardBorder);
+  background: var(--glass);
+  box-shadow: var(--shadow-lg);
+  padding: var(--pad);
+  position:relative;
+  overflow:hidden;
+
+  backdrop-filter: blur(16px) saturate(1.15);
+  -webkit-backdrop-filter: blur(16px) saturate(1.15);
+}
+.card::before{
+  content:"";
+  position:absolute;
+  inset:-40px;
+  pointer-events:none;
+  background:
+    radial-gradient(520px 240px at 18% 0%, rgba(255,255,255,.18), transparent 60%),
+    radial-gradient(520px 240px at 92% 110%, rgba(255,255,255,.10), transparent 60%);
+}
+.card > *{ position:relative; z-index:1; }
+
+/* ---------- Header ---------- */
+header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:10px;
+}
+.title{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+h1{
+  margin:0;
+  font-size:20px;
+  font-weight:900;
+  letter-spacing:.2px;
+
+  /* make header readable on dark glass */
+  color: rgba(255,255,255,.92);
+  text-shadow: 0 10px 26px rgba(0,0,0,.28);
+}
+.sub{
+  margin:0;
+  font-size:13px;
+  font-weight:650;
+  color: rgba(255,255,255,.72);
+  line-height:1.35;
+}
+
+/* status pill */
+.pill{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  user-select:none;
+
+  border-radius:999px;
+  padding:8px 10px;
+  font-size:12px;
+  font-weight:900;
+
+  background: rgba(235, 220, 255, .55);
+  border: 1px solid rgba(110, 80, 170, .18);
+  color: rgba(45, 30, 70, .88);
+  box-shadow: 0 10px 18px rgba(0,0,0,.10);
+}
+
+/* ---------- Top row controls ---------- */
+.row{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+  margin:12px 0 6px;
+}
+
+/* unified control look */
+.btn, select{
+  border-radius: var(--radius-sm);
+  border:1px solid var(--controlBorder);
+  background: var(--controlBg);
+  color: rgba(35, 25, 60, .92);
+  font-weight:900;
+  cursor:pointer;
+
+  padding:9px 12px;
+  box-shadow: 0 10px 18px rgba(0,0,0,.08);
+  transition: transform .12s ease, background .15s ease, filter .15s ease;
+  outline:none;
+  text-decoration:none;
+
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+}
+.btn:hover, select:hover{
+  background: var(--controlBgHover);
+  transform: translateY(-1px);
+}
+.btn:active{ transform: translateY(1px); }
+
+.btn.secondary{
+  background: rgba(210, 195, 240, .28);
+  border: 1px solid rgba(90, 60, 140, .16);
+  box-shadow:none;
+}
+.btn.secondary:hover{
+  background: rgba(210, 195, 240, .34);
+}
+
+.btn.primary{
+  border:0;
+  color:#fff;
+  background: linear-gradient(145deg, var(--primaryA), var(--primaryB));
+  box-shadow: 0 12px 26px rgba(90, 130, 220, .22);
+}
+.btn.primary:hover{ filter: brightness(1.04); }
+
+.btn.good{
+  background: var(--goodBg);
+  border:1px solid var(--goodBr);
+  box-shadow:none;
+  color: var(--goodInk);
+}
+.btn.danger{
+  background: var(--dangerBg);
+  border:1px solid var(--dangerBr);
+  box-shadow:none;
+  color: var(--dangerInk);
+}
+
+/* select specifics */
+select{
+  appearance:none;
+  -webkit-appearance:none;
+  -moz-appearance:none;
+}
+
+/* ---------- Breath area (RELAXING LILAC PANEL) ---------- */
+.breath-area{
+  margin-top:14px;
+  border-radius: var(--radius-md);
+  padding:18px 14px 16px;
+  text-align:center;
+
+  background:
+    radial-gradient(520px 220px at 50% 0%, var(--panelA) 70%),
+    linear-gradient(180deg, var(--panelB), var(--panelC));
+
+  border:1px solid var(--panelBorder);
+
+  box-shadow:
+    0 18px 45px rgba(0,0,0,.12),
+    0 0 0 1px rgba(255,255,255,.14) inset;
+
+  backdrop-filter: blur(12px) saturate(1.08);
+  -webkit-backdrop-filter: blur(12px) saturate(1.08);
+
+  color: var(--panelInk);
+}
+
+/* stage + hint */
+.stage{
+  font-size:22px;
+  font-weight:900;
+  margin:6px 0 8px;
+  letter-spacing:.3px;
+  color: var(--panelInk);
+}
+.hint{
+  font-size:14px;
+  line-height:1.6;
+  color: var(--panelMuted);
+  font-weight:700;
+  margin:0 0 12px;
+}
+
+/* ---------- Orb ---------- */
+.orb-wrap{
+  height:280px;
+  display:grid;
+  place-items:center;
+  position:relative;
+  filter: saturate(1.04) brightness(1.03);
+}
+.ring{
+  position:absolute;
+  inset:50%;
+  width:240px;
+  height:240px;
+  transform: translate(-50%, -50%);
+  border-radius:999px;
+  border:1px solid rgba(90, 60, 140, .14);
+  box-shadow: 0 0 0 1px rgba(255,255,255,.08) inset;
+  opacity:.50;
+}
+.orb{
+  width:180px;
+  height:180px;
+  border-radius:999px;
+
+  background:
+    radial-gradient(circle at 30% 25%, var(--orbWhite), rgba(255,255,255,.42) 35%, rgba(120, 155, 230, .28) 70%),
+    radial-gradient(circle at 70% 75%, var(--orbLilac), transparent 58%),
+    radial-gradient(circle at 40% 85%, var(--orbIce), transparent 62%),
+    radial-gradient(circle at 68% 30%, rgba(170, 190, 255, .24), transparent 60%),
+    radial-gradient(circle at 40% 38%, var(--orbPink), transparent 62%);
+
+  border:1px solid rgba(90, 60, 140, .14);
+
+  box-shadow:
+    0 30px 80px rgba(0,0,0,.18),
+    0 0 80px rgba(210, 190, 255, .16);
+
+  transform: scale(0.78);
+}
+
+/* timer + footer */
+.timer{
+  margin-top:12px;
+  font-weight:800;
+  font-size:13px;
+  color: var(--panelMuted);
+}
+.controls{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:10px;
+  margin-top:12px;
+}
+.controls .btn{
+  justify-content:center;
+  border-radius:16px;
+}
+.foot{
+  margin-top:12px;
+  font-size:12px;
+  color: rgba(45, 30, 70, .66);
+  text-align:center;
+  line-height:1.35;
+  font-weight:700;
+}
+
+/* legal footer */
+.legal{
+  margin-top:10px;
+  text-align:center;
+  font-size:.80rem;
+  color: rgba(255,255,255,.82);
+  text-shadow: 0 6px 18px rgba(0,0,0,.35);
+}
+.legal a{
+  color: rgba(255,255,255,.92);
+  font-weight:900;
+  text-decoration: underline;
+  text-underline-offset:3px;
+}
+
+/* mobile */
+@media (max-width: 420px){
+  .orb-wrap{ height:250px; }
+  .orb{ width:165px; height:165px; }
+  .ring{ width:220px; height:220px; }
+  .controls{ grid-template-columns: 1fr; }
+}
+
+/* reduce motion */
+@media (prefers-reduced-motion: reduce){
+  .btn, select{ transition:none !important; }
+  #sparkleLayer{ display:none !important; }
+}
+
+</style>
+
+
+</head>
+
+<body>
+    <div id="sparkleLayer" aria-hidden="true"></div>
+
+    <div class="wrap">
+        <main class="card" role="main" aria-label="Calm breathing exercise">
+            <header>
+                <div class="title">
+                    <h1>🫶 Follow the Breath</h1>
+                    <p class="sub">No pressure. Just let your body match the circle.</p>
+                </div>
+
+                <div class="pill" id="statusPill" aria-live="polite">● ready</div>
+            </header>
+
+            <div class="row">
+                <a class="btn secondary" href="./index.html">🏠 Home</a>
+                <button class="btn primary" id="soundBtn" type="button" aria-pressed="false">🔕 Sound: Off</button>
+
+                <select id="durationSel" aria-label="Duration">
+                    <option value="60">1 minute</option>
+                    <option value="180">3 minutes</option>
+                    <option value="300">5 minutes</option>
+                </select>
+            </div>
+
+            <section class="breath-area">
+                <div class="stage" id="stageText">Whenever you’re ready</div>
+                <p class="hint" id="hintText">Just follow the circle. No need to do it perfectly.</p>
+
+                <div class="orb-wrap" aria-hidden="true">
+                    <div class="ring"></div>
+                    <div class="orb" id="orb"></div>
+                </div>
+
+                <div class="timer" id="timerText">Time: 1:00</div>
+
+                <div class="controls">
+                    <button class="btn good" id="startBtn" type="button">▶️ Start</button>
+                    <button class="btn primary" id="pauseBtn" type="button" disabled>⏸ Pause</button>
+                    <button class="btn danger" id="resetBtn" type="button">↩ Reset</button>
+                    <button class="btn secondary" id="doneBtn" type="button">✅ I feel a bit calmer</button>
+                </div>
+
+                <div class="foot">
+                    If breathing feels uncomfortable, just watch the orb softly — that still helps.
+                </div>
+            </section>
+
+            <div class="legal">
+                View our <a href="./privacy.html">Privacy Policy</a> and <a href="./terms.html">Terms of Use</a>.
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // ===== calm sparkles (inline) =====
+        (function makeSparkles() {
+            const layer = document.getElementById("sparkleLayer");
+            if (!layer) return;
+
+            if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+            layer.innerHTML = "";
+            const COUNT = 55;
+
+            for (let i = 0; i < COUNT; i++) {
+                const s = document.createElement("div");
+                s.className = "sparkle";
+
+                const left = Math.random() * 100;
+                const top = Math.random() * 120;
+
+                const bigChance = Math.random();
+                const size = bigChance < 0.15
+                    ? 12 + Math.random() * 10
+                    : 5 + Math.random() * 7;
+
+                const drift = 26 + Math.random() * 26;
+                const twinkle = 15 + Math.random() * 10;
+                const delay1 = Math.random() * 12;
+                const delay2 = Math.random() * 6;
+
+                const opacity = .06 + Math.random() * 0.10;
+
+                s.style.left = left + "vw";
+                s.style.top = top + "vh";
+                s.style.width = size + "px";
+                s.style.height = size + "px";
+                s.style.opacity = opacity.toFixed(2);
+
+                s.style.setProperty("--drift", `${drift}s`);
+                s.style.setProperty("--twinkle", `${twinkle}s`);
+                s.style.animationDelay = `${delay1}s, ${delay2}s`;
+
+                layer.appendChild(s);
+            }
+        })();
+    </script>
+
+    <script>
+        // ====== Breath pattern (seconds) ======
+        const PATTERN = [
+            { label: "Inhale…", seconds: 4, scale: 1.00 },
+            { label: "Hold…", seconds: 2, scale: 1.00 },
+            { label: "Exhale…", seconds: 6, scale: 0.78 },
+        ];
+
+        const orb = document.getElementById("orb");
+        const stageText = document.getElementById("stageText");
+        const hintText = document.getElementById("hintText");
+        const timerText = document.getElementById("timerText");
+        const statusPill = document.getElementById("statusPill");
+
+        const startBtn = document.getElementById("startBtn");
+        const pauseBtn = document.getElementById("pauseBtn");
+        const resetBtn = document.getElementById("resetBtn");
+        const doneBtn = document.getElementById("doneBtn");
+
+        const soundBtn = document.getElementById("soundBtn");
+        const durationSel = document.getElementById("durationSel");
+
+        let running = false;
+        let paused = false;
+
+        let patternIndex = 0;
+        let stepRemaining = PATTERN[0].seconds;
+
+        let durationTotal = 60;
+        let durationLeft = 60;
+
+        let tickInterval = null;
+
+        // ====== Soft chime (WebAudio) ======
+        let soundOn = false;
+        let audioCtx = null;
+
+        function chime() {
+            if (!soundOn) return;
+
+            try {
+                audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = "triangle";
+                osc.frequency.value = 220;
+                gain.gain.value = 0.0001;
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+
+                gain.gain.exponentialRampToValueAtTime(0.035, now + 0.4);
+                gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.6);
+
+                osc.start(now);
+                osc.stop(now + 1.8);
+            } catch (e) { }
+        }
+
+        function setStatus(text) {
+            statusPill.textContent = "● " + text;
+        }
+
+        function fmtTime(s) {
+            s = Math.max(0, s);
+            const m = Math.floor(s / 60);
+            const r = s % 60;
+            return `${m}:${String(r).padStart(2, "0")}`;
+        }
+
+        function updateTimerUI() {
+            timerText.textContent = `Time: ${fmtTime(durationLeft)}`;
+        }
+
+        function applyOrb(scale, seconds) {
+            const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+            orb.style.transition = reduce ? "none" : `transform ${seconds}s ease-in-out`;
+            orb.style.transform = `scale(${scale})`;
+        }
+
+        function resetState() {
+            running = false;
+            paused = false;
+
+            patternIndex = 0;
+            stepRemaining = PATTERN[0].seconds;
+
+            durationTotal = parseInt(durationSel.value, 10) || 60;
+            durationLeft = durationTotal;
+
+            stageText.textContent = "Whenever you’re ready";
+            hintText.textContent = "Just follow the circle. No need to do it perfectly.";
+            setStatus("ready");
+
+            startBtn.disabled = false;
+            pauseBtn.disabled = true;
+            pauseBtn.textContent = "⏸ Pause";
+
+            clearInterval(tickInterval);
+            tickInterval = null;
+
+            applyOrb(0.78, 0.2);
+            updateTimerUI();
+        }
+
+        function beginStep() {
+            const step = PATTERN[patternIndex];
+            stageText.textContent = step.label;
+            stepRemaining = step.seconds;
+            applyOrb(step.scale, step.seconds);
+            chime();
+        }
+
+        function nextStep() {
+            patternIndex = (patternIndex + 1) % PATTERN.length;
+            beginStep();
+        }
+
+        function finishSession() {
+            clearInterval(tickInterval);
+            tickInterval = null;
+            running = false;
+            paused = false;
+
+            stageText.textContent = "Nice job.";
+            hintText.textContent = "Stay here as long as you want, or head back when you’re ready.";
+            setStatus("complete");
+
+            startBtn.disabled = false;
+            pauseBtn.disabled = true;
+            pauseBtn.textContent = "⏸ Pause";
+
+            applyOrb(0.78, 0.6);
+            timerText.textContent = "Time: done ✅";
+        }
+
+        function tick() {
+            if (!running || paused) return;
+
+            durationLeft = Math.max(0, durationLeft - 1);
+            updateTimerUI();
+
+            if (durationLeft === 0) {
+                finishSession();
+                return;
+            }
+
+            stepRemaining -= 1;
+            if (stepRemaining <= 0) nextStep();
+        }
+
+        function start() {
+            if (running && paused) {
+                paused = false;
+                setStatus("running");
+                pauseBtn.textContent = "⏸ Pause";
+                return;
+            }
+            if (running) return;
+
+            durationTotal = parseInt(durationSel.value, 10) || 60;
+            durationLeft = durationTotal;
+
+            running = true;
+            paused = false;
+
+            startBtn.disabled = true;
+            pauseBtn.disabled = false;
+
+            setStatus("running");
+            updateTimerUI();
+
+            patternIndex = 0;
+            beginStep();
+
+            clearInterval(tickInterval);
+            tickInterval = setInterval(tick, 1000);
+        }
+
+        function pause() {
+            if (!running) return;
+            paused = !paused;
+
+            if (paused) {
+                setStatus("paused");
+                pauseBtn.textContent = "▶️ Resume";
+                orb.style.transition = "none";
+            } else {
+                setStatus("running");
+                pauseBtn.textContent = "⏸ Pause";
+                const step = PATTERN[patternIndex];
+                applyOrb(step.scale, Math.max(0.6, stepRemaining));
+            }
+        }
+
+        startBtn.addEventListener("click", start);
+        pauseBtn.addEventListener("click", pause);
+        resetBtn.addEventListener("click", resetState);
+
+        doneBtn.addEventListener("click", () => {
+            location.href = "./index.html";
+        });
+
+        soundBtn.addEventListener("click", async () => {
+            soundOn = !soundOn;
+            soundBtn.setAttribute("aria-pressed", soundOn ? "true" : "false");
+            soundBtn.textContent = soundOn ? "🔔 Sound: On" : "🔕 Sound: Off";
+
+            if (soundOn) {
+                try {
+                    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+                    await audioCtx.resume();
+                    chime();
+                } catch (e) { }
+            }
+        });
+
+        durationSel.addEventListener("change", () => {
+            if (running) return;
+            resetState();
+        });
+
+        resetState();
+    </script>
+</body>
+
+</html>

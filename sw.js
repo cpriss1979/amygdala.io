@@ -9,7 +9,7 @@
     // ----- Versioned cache name derived from sw.js?v=NUMBER -----
     const regURL = new URL(self.location.href);
     const SWV = regURL.searchParams.get("v") || "0"; // e.g. "8" when sw.js?v=8
-    const CACHE_PREFIX = "three-sides-v";
+    const CACHE_PREFIX = "amygdala-v";
     const CACHE_NAME = `${CACHE_PREFIX}${SWV}`;
 
     // Scope-aware helper for absolute same-origin URLs

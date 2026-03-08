@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Amygdala — Panicky</title>
+    <meta name="description" content="Fast grounding tool for panic: follow the dot on an infinity loop." />
+
+    <!-- Optional: keep your app styling if you want -->
+    <!-- <link rel="stylesheet" href="./style.css" /> -->
+    <!-- <link rel="stylesheet" href="./mainTheme.css" /> -->
+
+    <style>
+        :root {
+            --bg1: #160f2b;
+            --bg2: #1b2a5f;
+            --card: rgba(255, 255, 255, .10);
+            --card2: rgba(255, 255, 255, .14);
+            --stroke: rgba(255, 255, 255, .18);
+            --text: rgba(255, 255, 255, .92);
+            --muted: rgba(255, 255, 255, .72);
+            --muted2: rgba(255, 255, 255, .55);
+
+            --dot: rgba(210, 245, 255, 1);
+            --dot2: rgba(255, 206, 242, 1);
+            --trail: rgba(210, 245, 255, .22);
+
+            --radius: 18px;
+            --shadow: 0 18px 55px rgba(0, 0, 0, .35);
+
+            --speed: 1.0;
+            /* 0.6 (slow) -> 1.6 (fast) */
+            --glow: 1.0;
+            /* 0.6 -> 1.6 */
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(1200px 700px at 10% 0%, rgba(255, 204, 242, .22), transparent 55%),
+                radial-gradient(1000px 650px at 90% 20%, rgba(140, 210, 255, .20), transparent 50%),
+                linear-gradient(135deg, var(--bg1), var(--bg2));
+            overflow-x: hidden;
+        }
+
+        .page {
+            width: 100%;
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 14px 14px calc(18px + env(safe-area-inset-bottom, 0px));
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 8px 0 12px;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            border-radius: 999px;
+            border: 1px solid var(--stroke);
+            background: rgba(255, 255, 255, .10);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, .18);
+            font-weight: 800;
+        }
+
+        .home {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 900;
+            padding: 10px 12px;
+            border-radius: 999px;
+            border: 1px solid var(--stroke);
+            background: rgba(255, 255, 255, .10);
+            backdrop-filter: blur(10px);
+        }
+
+        .home:active {
+            transform: translateY(1px);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1.05fr .95fr;
+            gap: 12px;
+            align-items: start;
+        }
+
+        @media (max-width: 760px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            border-radius: var(--radius);
+            border: 1px solid var(--stroke);
+            background: linear-gradient(180deg, rgba(255, 255, 255, .12), rgba(255, 255, 255, .08));
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(12px) saturate(1.12);
+            overflow: hidden;
+        }
+
+        .card .pad {
+            padding: 14px;
+        }
+
+        h1 {
+            margin: 0 0 6px;
+            font-size: 1.25rem;
+            line-height: 1.15;
+            letter-spacing: .2px;
+            font-weight: 950;
+        }
+
+        .sub {
+            margin: 0;
+            color: var(--muted);
+            font-weight: 650;
+            line-height: 1.45;
+        }
+
+        .stage {
+            position: relative;
+            height: 420px;
+            background:
+                radial-gradient(800px 260px at 50% 10%, rgba(255, 255, 255, .10), transparent 55%),
+                linear-gradient(180deg, rgba(255, 255, 255, .06), rgba(0, 0, 0, .08));
+            border-top: 1px solid rgba(255, 255, 255, .10);
+        }
+
+        @media (max-width: 520px) {
+            .stage {
+                height: 380px;
+            }
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            display: grid;
+            place-items: center;
+        }
+
+        .centerPrompt {
+            pointer-events: none;
+            text-align: center;
+            padding: 10px 14px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, .14);
+            background: rgba(0, 0, 0, .18);
+            backdrop-filter: blur(10px);
+            max-width: min(92%, 520px);
+        }
+
+        .centerPrompt strong {
+            display: block;
+            font-size: 1.05rem;
+            font-weight: 950;
+            margin-bottom: 3px;
+        }
+
+        .centerPrompt span {
+            color: var(--muted);
+            font-weight: 650;
+            font-size: .95rem;
+        }
+
+        .controls {
+            display: grid;
+            gap: 10px;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        @media (max-width: 520px) {
+            .row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .btn {
+            appearance: none;
+            border: 1px solid rgba(255, 255, 255, .16);
+            background: rgba(255, 255, 255, .12);
+            color: var(--text);
+            padding: 12px 12px;
+            border-radius: 14px;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, .22);
+            transition: transform .12s ease, filter .2s ease;
+        }
+
+        .btn:hover {
+            filter: brightness(1.02);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn.primary {
+            background: linear-gradient(135deg, rgba(210, 245, 255, .32), rgba(255, 206, 242, .22));
+            border: 1px solid rgba(255, 255, 255, .22);
+        }
+
+        .btn.ghost {
+            background: rgba(0, 0, 0, .12);
+        }
+
+        .pillGroup {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .pill {
+            border: 1px solid rgba(255, 255, 255, .16);
+            background: rgba(255, 255, 255, .10);
+            color: var(--text);
+            padding: 9px 10px;
+            border-radius: 999px;
+            font-weight: 900;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .pill[aria-pressed="true"] {
+            background: rgba(255, 255, 255, .18);
+            border-color: rgba(255, 255, 255, .26);
+        }
+
+        .meta {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            align-items: center;
+            padding-top: 6px;
+            color: var(--muted2);
+            font-weight: 700;
+            font-size: .92rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 900;
+            margin: 10px 0 6px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            accent-color: rgba(220, 250, 255, .95);
+        }
+
+        .tiny {
+            font-size: .9rem;
+            color: var(--muted2);
+            font-weight: 650;
+            line-height: 1.4;
+        }
+
+        .footerNote {
+            text-align: center;
+            margin-top: 12px;
+            color: var(--muted2);
+            font-weight: 650;
+            font-size: .92rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <header>
+            <a class="home" href="./index.html">🏠 Home</a>
+            <div class="chip">😵‍💫 Panicky — Follow the Dot</div>
+        </header>
+
+        <div class="grid">
+            <!-- LEFT: STAGE -->
+            <section class="card">
+                <div class="pad">
+                    <h1>Just follow the dot.</h1>
+                    <p class="sub">
+                        You don’t have to “do it perfectly.” Let your eyes track the dot.
+                        That’s it. Your brain will start to settle.
+                    </p>
+                </div>
+
+                <div class="stage">
+                    <canvas id="c"></canvas>
+
+                    <div class="overlay">
+                        <div class="centerPrompt" id="prompt">
+                            <strong>Whenever you’re ready…</strong>
+                            <span>Press Start. Follow the dot on the ∞ path.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pad">
+                    <div class="meta">
+                        <div id="status">Status: <strong>Ready</strong></div>
+                        <div id="time">Time: <strong>0:00</strong></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- RIGHT: CONTROLS -->
+            <section class="card">
+                <div class="pad controls">
+                    <div class="row">
+                        <button class="btn primary" id="startBtn">▶ Start</button>
+                        <button class="btn ghost" id="pauseBtn" disabled>⏸ Pause</button>
+                    </div>
+
+                    <div class="row">
+                        <button class="btn" id="resetBtn">↩ Reset</button>
+                        <button class="btn" id="doneBtn">✅ I feel a tiny bit steadier</button>
+                    </div>
+
+                    <div>
+                        <label>Timer</label>
+                        <div class="pillGroup" id="timerPills">
+                            <button class="pill" data-sec="30" aria-pressed="false">30s</button>
+                            <button class="pill" data-sec="60" aria-pressed="true">60s</button>
+                            <button class="pill" data-sec="90" aria-pressed="false">90s</button>
+                        </div>
+                        <div class="tiny" style="margin-top:8px;">
+                            If you can’t do the whole time, do 10 seconds. That still counts.
+                        </div>
+                    </div>
+
+                    <div>
+                        <label>Intensity</label>
+                        <input id="intensity" type="range" min="0.6" max="1.6" step="0.05" value="1.0" />
+                        <div class="tiny">Lower = slower + softer. Higher = faster + stronger focus.</div>
+                    </div>
+
+                    <div>
+                        <label>Sound (optional)</label>
+                        <div class="pillGroup">
+                            <button class="pill" id="soundToggle" aria-pressed="false">🔇 Off</button>
+                        </div>
+                        <div class="tiny">A tiny tick can help you “lock on.” Off by default.</div>
+                    </div>
+
+                    <div class="footerNote">
+                        If this feels too intense, drop Intensity down and keep your head still.
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        // =========================
+        // Panicky: Follow-the-Dot Infinity Loop
+        // =========================
+
+        const canvas = document.getElementById("c");
+        const ctx = canvas.getContext("2d");
+
+        const statusEl = document.getElementById("status");
+        const timeEl = document.getElementById("time");
+        const promptEl = document.getElementById("prompt");
+
+        const startBtn = document.getElementById("startBtn");
+        const pauseBtn = document.getElementById("pauseBtn");
+        const resetBtn = document.getElementById("resetBtn");
+        const doneBtn = document.getElementById("doneBtn");
+        const intensity = document.getElementById("intensity");
+
+        const timerPills = document.getElementById("timerPills");
+        const soundToggle = document.getElementById("soundToggle");
+
+        // State
+        let running = false;
+        let paused = false;
+
+        let durationSec = 60;
+        let elapsed = 0;
+        let lastTS = 0;
+
+        let t = 0;                 // animation phase
+        let speed = 1.0;           // controlled by intensity
+        let glow = 1.0;
+
+        // trail buffer
+        const trail = [];
+        const TRAIL_MAX = 38;
+
+        // sound (tiny tick)
+        let audioCtx = null;
+        let soundOn = false;
+        let tickAcc = 0;
+
+        function setStatus(text) {
+            statusEl.innerHTML = `Status: <strong>${text}</strong>`;
+        }
+
+        function fmt(sec) {
+            sec = Math.max(0, Math.floor(sec));
+            const m = Math.floor(sec / 60);
+            const s = sec % 60;
+            return `${m}:${String(s).padStart(2, "0")}`;
+        }
+
+        function resize() {
+            const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = Math.floor(rect.width * dpr);
+            canvas.height = Math.floor(rect.height * dpr);
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+
+        window.addEventListener("resize", resize);
+
+        function pickDuration(sec) {
+            durationSec = sec;
+            // pills UI
+            [...timerPills.querySelectorAll(".pill")].forEach(p => {
+                p.setAttribute("aria-pressed", String(Number(p.dataset.sec) === sec));
+            });
+            updateTimeUI();
+        }
+
+        timerPills.addEventListener("click", (e) => {
+            const btn = e.target.closest(".pill");
+            if (!btn) return;
+            pickDuration(Number(btn.dataset.sec));
+        });
+
+        intensity.addEventListener("input", () => {
+            const v = Number(intensity.value);
+            speed = v;
+            glow = v;
+            document.documentElement.style.setProperty("--speed", v.toFixed(2));
+            document.documentElement.style.setProperty("--glow", v.toFixed(2));
+        });
+
+        soundToggle.addEventListener("click", async () => {
+            soundOn = !soundOn;
+            soundToggle.textContent = soundOn ? "🔊 On" : "🔇 Off";
+            soundToggle.setAttribute("aria-pressed", String(soundOn));
+            if (soundOn && !audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                try { await audioCtx.resume(); } catch { }
+            }
+        });
+
+        function tick() {
+            if (!soundOn || !audioCtx) return;
+            // tiny, soft tick
+            const o = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            o.type = "sine";
+            o.frequency.value = 880;
+            g.gain.value = 0.00001;
+
+            o.connect(g);
+            g.connect(audioCtx.destination);
+
+            const now = audioCtx.currentTime;
+            g.gain.setValueAtTime(0.00001, now);
+            g.gain.linearRampToValueAtTime(0.03, now + 0.01);
+            g.gain.exponentialRampToValueAtTime(0.00001, now + 0.08);
+
+            o.start(now);
+            o.stop(now + 0.09);
+        }
+
+        function updateTimeUI() {
+            if (!running) {
+                timeEl.innerHTML = `Time: <strong>${fmt(0)}</strong>`;
+                return;
+            }
+            const remaining = durationSec - elapsed;
+            timeEl.innerHTML = `Time: <strong>${fmt(remaining)}</strong>`;
+        }
+
+        function start() {
+            if (running && paused) {
+                paused = false;
+                setStatus("Running");
+                pauseBtn.textContent = "⏸ Pause";
+                promptEl.style.opacity = "0";
+                return;
+            }
+
+            running = true;
+            paused = false;
+            elapsed = 0;
+            lastTS = 0;
+            t = 0;
+            trail.length = 0;
+            tickAcc = 0;
+
+            setStatus("Running");
+            promptEl.style.opacity = "0";
+            startBtn.textContent = "▶ Start";
+            pauseBtn.disabled = false;
+            pauseBtn.textContent = "⏸ Pause";
+
+            updateTimeUI();
+            requestAnimationFrame(loop);
+        }
+
+        function pause() {
+            if (!running) return;
+            paused = !paused;
+            if (paused) {
+                setStatus("Paused");
+                pauseBtn.textContent = "▶ Resume";
+                promptEl.style.opacity = "1";
+                promptEl.querySelector("strong").textContent = "Paused.";
+                promptEl.querySelector("span").textContent = "Whenever you’re ready, press Resume.";
+            } else {
+                setStatus("Running");
+                pauseBtn.textContent = "⏸ Pause";
+                promptEl.style.opacity = "0";
+            }
+        }
+
+        function reset() {
+            running = false;
+            paused = false;
+            elapsed = 0;
+            lastTS = 0;
+            t = 0;
+            trail.length = 0;
+
+            setStatus("Ready");
+            pauseBtn.disabled = true;
+            pauseBtn.textContent = "⏸ Pause";
+            promptEl.style.opacity = "1";
+            promptEl.querySelector("strong").textContent = "Whenever you’re ready…";
+            promptEl.querySelector("span").textContent = "Press Start. Follow the dot on the ∞ path.";
+
+            updateTimeUI();
+            drawFrame(0);
+        }
+
+        function done() {
+            // gentle “exit” action: send them to Calm, or back home
+            // change this if you want a different flow.
+            window.location.href = "./index.html";
+        }
+
+        startBtn.addEventListener("click", start);
+        pauseBtn.addEventListener("click", pause);
+        resetBtn.addEventListener("click", reset);
+        doneBtn.addEventListener("click", done);
+
+        // Infinity curve (lemniscate style)
+        // Parametric: x = sin(u), y = sin(u)*cos(u)
+        // then scale to fit, and soften corners with easing.
+        function dotPos(u, w, h) {
+            const cx = w / 2;
+            const cy = h / 2;
+
+            // size tuned for phone screens
+            const sx = Math.min(w, h) * 0.34;
+            const sy = Math.min(w, h) * 0.22;
+
+            const s = Math.sin(u);
+            const c = Math.cos(u);
+
+            const x = s;        // [-1, 1]
+            const y = s * c;    // [-0.5, 0.5]
+
+            return {
+                x: cx + x * sx,
+                y: cy + y * sy
+            };
+        }
+
+        function drawInfinityPath(w, h) {
+            ctx.save();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = "rgba(255,255,255,.14)";
+            ctx.beginPath();
+
+            const steps = 220;
+            for (let i = 0; i <= steps; i++) {
+                const u = (i / steps) * Math.PI * 2;
+                const p = dotPos(u, w, h);
+                if (i === 0) ctx.moveTo(p.x, p.y);
+                else ctx.lineTo(p.x, p.y);
+            }
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        function drawFrame(dt) {
+            const w = canvas.clientWidth;
+            const h = canvas.clientHeight;
+
+            // clear
+            ctx.clearRect(0, 0, w, h);
+
+            // subtle vignette
+            const g = ctx.createRadialGradient(w / 2, h / 2, 10, w / 2, h / 2, Math.max(w, h) * 0.65);
+            g.addColorStop(0, "rgba(255,255,255,.02)");
+            g.addColorStop(1, "rgba(0,0,0,.18)");
+            ctx.fillStyle = g;
+            ctx.fillRect(0, 0, w, h);
+
+            // path
+            drawInfinityPath(w, h);
+
+            // dot position
+            const u = t;
+            const p = dotPos(u, w, h);
+
+            // add to trail
+            trail.unshift({ x: p.x, y: p.y });
+            if (trail.length > TRAIL_MAX) trail.pop();
+
+            // trail
+            for (let i = trail.length - 1; i >= 0; i--) {
+                const pt = trail[i];
+                const k = 1 - (i / trail.length);
+                const r = 4 + k * 10 * glow;
+                ctx.beginPath();
+                ctx.fillStyle = `rgba(210,245,255,${0.015 + k * 0.10})`;
+                ctx.arc(pt.x, pt.y, r, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // dot glow
+            const glowR = 22 * glow;
+            const gg = ctx.createRadialGradient(p.x, p.y, 2, p.x, p.y, glowR);
+            gg.addColorStop(0, "rgba(255, 206, 242, .95)");
+            gg.addColorStop(0.4, "rgba(210, 245, 255, .55)");
+            gg.addColorStop(1, "rgba(210, 245, 255, 0)");
+            ctx.fillStyle = gg;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, glowR, 0, Math.PI * 2);
+            ctx.fill();
+
+            // dot core
+            ctx.beginPath();
+            ctx.fillStyle = "rgba(255,255,255,.96)";
+            ctx.arc(p.x, p.y, 7.2, 0, Math.PI * 2);
+            ctx.fill();
+
+            // dot ring
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = "rgba(210,245,255,.55)";
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 11.5, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+
+        function loop(ts) {
+            if (!running) return;
+
+            if (!lastTS) lastTS = ts;
+            const dt = (ts - lastTS) / 1000;
+            lastTS = ts;
+
+            if (!paused) {
+                elapsed += dt;
+
+                // speed: base cycle is 4.8s at speed=1
+                const base = (Math.PI * 2) / 4.8;
+                t += dt * base * speed;
+
+                // tick about 2x/sec at speed=1
+                tickAcc += dt * speed;
+                if (tickAcc >= 0.5) {
+                    tickAcc = 0;
+                    tick();
+                }
+
+                // finish
+                if (elapsed >= durationSec) {
+                    elapsed = durationSec;
+                    updateTimeUI();
+                    setStatus("Done");
+                    running = false;
+                    paused = false;
+                    pauseBtn.disabled = true;
+
+                    promptEl.style.opacity = "1";
+                    promptEl.querySelector("strong").textContent = "Nice job.";
+                    promptEl.querySelector("span").textContent = "If you want, tap “I feel steadier” or do another round.";
+
+                    drawFrame(dt);
+                    return;
+                }
+            }
+
+            updateTimeUI();
+            drawFrame(dt);
+            requestAnimationFrame(loop);
+        }
+
+        // Init
+        resize();
+        pickDuration(60);
+        intensity.dispatchEvent(new Event("input"));
+        reset();
+    </script>
+</body>
+
+</html>

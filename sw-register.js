@@ -42,7 +42,7 @@
         return new URL(".", location).pathname;
     }
 
-    const BASE = computeBase();             // e.g. "/three-sides.io/" or "/"
+    const BASE = computeBase();             // e.g. "/amygdala.io/" or "/"
     const SW_URL = `${BASE}sw.js?v=${SW_VERSION}`;
     const SCOPE = BASE;
 

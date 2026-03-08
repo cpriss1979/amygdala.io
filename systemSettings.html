@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Settings — Three Sides</title>
+  <title>Settings — Amygdala</title>
 
   <!-- Firebase bootstrap -->
   <script type="module">import './firebase-init.js';</script>
@@ -39,6 +39,10 @@
       document.documentElement.style.setProperty('--text-size', p.largerText ? '1.1rem' : '1rem');
     })();
   </script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 
   <style>
     :root {
@@ -621,16 +625,639 @@ a {
   border: .01px solid rgb(89, 105, 149);
   color: white;
 }
+
+html, body{
+  background: var(--page-bg) !important;
+}
+
+/* +++++++++++++++++++++++++++ 
+++++++++++++++++++++++++++++++
++++++++++++++++++++++++++++++++ */
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      text-decoration: none;
+      background: rgba(255, 255, 255, .78);
+      border: 1px solid rgba(10, 20, 35, .12);
+      box-shadow: 0 10px 22px rgba(0, 0, 0, .08);
+      color: rgba(10, 20, 35, .92);
+      font-weight: 900;
+      line-height: 1;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform calc(150ms * var(--motion-scale, 1));
+    }
+
+    .pill:active {
+      transform: translateY(1px);
+    }
+    .btn-pill {
+      flex: 0 0 auto;
+      text-decoration: none;
+      font-weight: 900;
+      border-radius: 999px;
+      padding: 8px 12px;
+      border: 1px solid rgba(10, 20, 35, .14);
+      background: rgba(255, 255, 255, .78);
+      color: var(--link);
+      box-shadow: 0 8px 18px rgba(0, 0, 0, .08);
+      white-space: nowrap;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform calc(150ms * var(--motion-scale, 1));
+    }
+
+    .btn-pill:active {
+      transform: translateY(1px);
+    }
+
+    /* Make Settings layout match Journal-style column */
+main {
+  max-width: 430px;
+  margin: 0 auto;
+  padding: 10px 16px calc(var(--nav-h) + 24px + env(safe-area-inset-bottom, 0px));
+}
+
+/* Home pill row like journal */
+.topbar {
+  display: flex;
+  justify-content: flex-start;
+  margin: 0 0 10px;
+}
+
+/* Keep pill consistent */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  text-decoration: none;
+  background: rgba(255, 255, 255, .75);
+  border: 1px solid rgba(10, 20, 35, .12);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, .08);
+  color: rgba(10, 20, 35, .92);
+  font-weight: 900;
+  line-height: 1;
+}
+
+.pill:active { transform: translateY(1px); }
+
+body { background: #0b1220; }
+html, body { background: var(--page-bg) !important; }
+
+
+/* Remove the side/outline border on the Log out button only */
+#btnLogout{
+  border-left: none !important;
+  border-right: none !important;
+
+  /* (optional) if you want ZERO border at all */
+  border: none !important;
+
+  /* (optional) match the row look */
+  box-shadow: none !important;
+}
+
+#btnLogout{
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+
+  /* makes it feel like a row item, not a button-in-a-box */
+  width: 100%;
+  justify-content: flex-start;
+  padding: 12px 14px;
+  border-radius: 12px;
+}
+#btnLogout:active{
+  transform: none; /* keeps it from “button pressing” if you don’t want that */
+  filter: brightness(0.98);
+}
+
+/* =========================================================
+   SYSTEM SETTINGS → MATCH TERMS.HTML
+   DROP THIS AT THE VERY BOTTOM OF THE <style> TAG
+========================================================= */
+
+/* Match the Terms page overall look */
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  background: var(--page-bg, linear-gradient(135deg, #cde8ff 0%, #7fdbe0 45%, rgba(255, 198, 224, 0.35) 100%)) !important;
+  color: rgba(0, 0, 0, 0.78) !important;
+}
+
+/* Settings page font like Terms */
+body {
+  font-family: 'Open Sans', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif !important;
+  padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+/* Keep page in the same centered column style */
+main {
+  width: 100%;
+  max-width: 720px !important;
+  margin: 0 auto !important;
+  padding-left: max(12px, env(safe-area-inset-left, 0px)) !important;
+  padding-right: max(12px, env(safe-area-inset-right, 0px)) !important;
+  padding-top: 14px !important;
+  padding-bottom: calc(var(--nav-h) + 28px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+/* Top home row */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 12px;
+  padding-top: calc(10px + env(safe-area-inset-top, 0px));
+  padding-bottom: 10px;
+  padding-left: 0;
+  padding-right: 0;
+  background: transparent;
+}
+
+/* Home pill like Terms */
+.pill {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  background: rgba(255, 255, 255, 0.75) !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06) !important;
+  color: #000 !important;
+  text-decoration: none !important;
+  font-weight: 800 !important;
+  line-height: 1;
+}
+
+.pill:active {
+  transform: translateY(1px);
+}
+
+/* Heading/subheading */
+h1 {
+  margin: 0 0 6px !important;
+  text-align: left !important;
+  font-size: 1.55rem !important;
+  letter-spacing: 0.2px;
+  color: rgba(0, 0, 0, 0.78) !important;
+  font-weight: 900 !important;
+}
+
+.sub {
+  margin: 0 0 14px !important;
+  text-align: left !important;
+  font-weight: 800;
+  opacity: 0.75;
+  color: rgba(0, 0, 0, 0.7) !important;
+  max-width: none !important;
+}
+
+/* Cards like Terms */
+.card {
+  background: rgba(255, 255, 255, 0.76) !important;
+  border: 1px solid rgba(0, 80, 90, 0.12) !important;
+  box-shadow:
+    0 10px 26px rgba(0, 70, 80, 0.10),
+    0 1px 0 rgba(255, 255, 255, 0.70) inset !important;
+  border-radius: 18px !important;
+  padding: 16px !important;
+  color: rgba(0, 0, 0, 0.78) !important;
+  backdrop-filter: blur(10px) saturate(1.15);
+}
+
+/* Section headings inside cards */
+.card > h2,
+.card h2 {
+  margin: 0 0 8px !important;
+  font-size: 1.05rem !important;
+  font-weight: 900 !important;
+  color: rgba(0, 0, 0, 0.78) !important;
+}
+
+/* Body copy */
+.card p,
+.card li,
+.card div,
+.meta,
+label,
+.kbd {
+  color: rgba(0, 0, 0, 0.72) !important;
+}
+
+.meta {
+  font-weight: 600 !important;
+}
+
+/* Account email line */
+#acctEmail {
+  color: rgba(11, 108, 196, 1) !important;
+}
+
+/* Rows */
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+}
+
+.item + .item {
+  border-top: 1px dashed rgba(0, 80, 90, 0.12) !important;
+}
+
+/* Inputs */
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 16px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 80, 90, 0.16);
+  background: rgba(255, 255, 255, 0.85);
+  color: rgba(0, 0, 0, 0.78);
+  outline: none;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus {
+  border-color: rgba(11, 108, 196, 0.45);
+  box-shadow: 0 0 0 3px rgba(11, 108, 196, 0.10);
+}
+
+/* Buttons — soft, light, matches Terms vibe */
+.btn,
+.btn-wide,
+.btn-ghost,
+.btn-danger,
+a.btn-ghost {
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 999px !important;
+  min-height: 42px;
+  padding: 10px 14px !important;
+  font: 800 0.95rem/1 'Open Sans', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif !important;
+  text-decoration: none !important;
+  transition: transform calc(120ms * var(--motion-scale, 1)), filter .2s ease, background .2s ease;
+}
+
+/* Primary buttons */
+.btn,
+.btn-wide {
+  background: rgba(11, 108, 196, 1) !important;
+  color: #fff !important;
+  border: 1px solid rgba(11, 108, 196, 0.15) !important;
+  box-shadow: 0 8px 20px rgba(11, 108, 196, 0.18) !important;
+}
+
+.btn:hover,
+.btn-wide:hover,
+.btn-ghost:hover,
+.btn-danger:hover,
+a.btn-ghost:hover {
+  filter: brightness(0.98);
+}
+
+.btn:active,
+.btn-wide:active,
+.btn-ghost:active,
+.btn-danger:active,
+a.btn-ghost:active {
+  transform: translateY(1px);
+}
+
+/* Secondary buttons */
+.btn-ghost,
+a.btn-ghost {
+  background: rgba(255, 255, 255, 0.75) !important;
+  color: rgba(0, 0, 0, 0.78) !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Danger button */
+.btn-danger {
+  background: #d83b3b !important;
+  color: #fff !important;
+  border: 1px solid rgba(216, 59, 59, 0.2) !important;
+  box-shadow: 0 8px 20px rgba(216, 59, 59, 0.18) !important;
+}
+
+/* Logout button should look normal again */
+#btnLogout {
+  width: auto !important;
+  justify-content: center !important;
+  padding: 10px 14px !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, 0.75) !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06) !important;
+  color: rgba(0, 0, 0, 0.78) !important;
+}
+
+/* Toggle switch softened */
+.switch {
+  position: relative;
+  flex: 0 0 52px;
+  width: 52px;
+  height: 30px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.8) !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06) inset;
+}
+
+.switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 26px;
+  height: 26px;
+  background: #fff;
+  border-radius: 999px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.22);
+  transition: transform .2s ease;
+}
+
+.switch[data-on="1"] {
+  background: rgba(11, 108, 196, 1) !important;
+  border-color: rgba(11, 108, 196, 0.35) !important;
+}
+
+.switch[data-on="1"]::after {
+  transform: translateX(20px);
+}
+
+/* Danger card should still fit the light layout */
+.card.danger {
+  background: rgba(255, 245, 245, 0.88) !important;
+  border: 1px solid rgba(220, 38, 38, 0.18) !important;
+  box-shadow:
+    0 10px 26px rgba(140, 40, 40, 0.08),
+    0 1px 0 rgba(255, 255, 255, 0.70) inset !important;
+}
+
+.card.danger h2 {
+  color: #b91c1c !important;
+}
+
+.card.danger .muted,
+.card.danger p {
+  color: #7f1d1d !important;
+}
+
+/* Modal styling to match the soft page */
+.dialog {
+  width: min(520px, 92vw);
+  background: rgba(255, 255, 255, 0.96) !important;
+  color: rgba(0, 0, 0, 0.78) !important;
+  border: 1px solid rgba(0, 80, 90, 0.12) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 20px 50px rgba(0, 70, 80, 0.18) !important;
+  padding: 18px;
+}
+
+.banner-error {
+  background: #fff1f2 !important;
+  color: #b91c1c !important;
+  border: 1px solid #fecdd3 !important;
+}
+
+/* Bottom nav closer to Terms */
+footer.gs-nav {
+  background: #fafafa !important;
+  border-top: 1px solid rgba(69, 111, 179, 0.25) !important;
+}
+
+.gs-nav__item {
+  color: rgba(69, 111, 179, 1) !important;
+}
+
+.gs-nav__item[aria-current="page"] {
+  color: #0b6cc4 !important;
+  font-weight: 800 !important;
+}
+
+/* Links */
+a {
+  color: rgba(11, 108, 196, 1) !important;
+}
+
+/* Mobile heading size */
+@media (max-width: 520px) {
+  h1 {
+    font-size: 1.45rem !important;
+  }
+
+  .item {
+    align-items: flex-start;
+  }
+}
+
+/* ===== FIX RIGHT-SHIFT / OVERFLOW ===== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden !important;
+}
+
+main,
+.topbar,
+.card,
+.item,
+.prefs-row,
+.dialog,
+input,
+button,
+a {
+  max-width: 100%;
+}
+
+main {
+  width: 100%;
+  max-width: 720px !important;
+  margin: 0 auto !important;
+  box-sizing: border-box !important;
+}
+
+/* Prevent row items from forcing the card wider */
+.item {
+  min-width: 0;
+}
+
+.item > div:first-child {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.item .meta,
+#acctEmail,
+#acctName {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+  .item > .btn,
+  .item > .btn-ghost,
+  .item > .btn-danger,
+  .item > a.btn-ghost,
+  .item > #btnLogout,
+  .item > .switch,
+  .item > .prefs-row {
+    align-self: flex-start;
+  }
+
+  .prefs-row {
+    width: 100%;
+  }
+
+  .prefs-row > .btn,
+  .prefs-row > .btn-ghost {
+    width: 100%;
+  }
+
+/* =========================================================
+   SETTINGS MOBILE ROW FIXES
+   put this at the VERY BOTTOM of the <style>
+========================================================= */
+
+/* Base row behavior */
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.item > div:first-child {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* Keep normal right-side controls on the right */
+.item > .btn,
+.item > .btn-ghost,
+.item > .btn-danger,
+.item > a.btn-ghost,
+.item > .kbd,
+.item > .switch,
+.item > #btnLogout {
+  flex: 0 0 auto;
+}
+
+/* Fix the analytics toggle so it never squishes into itself */
+#toggleAnalytics {
+  flex: 0 0 52px !important;
+  width: 52px !important;
+  min-width: 52px !important;
+  max-width: 52px !important;
+  align-self: center !important;
+  margin-left: 12px;
+}
+
+/* Keep kbd "build" aligned right nicely */
+.kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+/* Default action buttons stay on the right */
+.item > .btn,
+.item > .btn-ghost,
+.item > .btn-danger,
+.item > a.btn-ghost,
+.item > #btnLogout {
+  align-self: center;
+  margin-left: 12px;
+}
+
+/* ONLY the accessibility row should stack on mobile */
+@media (max-width: 520px) {
+  .item {
+    flex-direction: row !important;
+    align-items: center !important;
+  }
+
+  .item > .prefs-row {
+    width: auto;
+    flex: 0 0 auto;
+  }
+
+  /* stack just the accessibility controls */
+  .item:has(.prefs-row) {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .item:has(.prefs-row) > .prefs-row {
+    width: 100% !important;
+    margin-top: 8px;
+  }
+
+  .item:has(.prefs-row) .prefs-row {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .item:has(.prefs-row) .prefs-row > .btn,
+  .item:has(.prefs-row) .prefs-row > .btn-ghost {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  /* keep analytics row horizontal */
+  .item:has(#toggleAnalytics) {
+    flex-direction: row !important;
+    align-items: center !important;
+  }
+
+  /* keep terms/contact/version rows horizontal */
+  .item:has(.kbd),
+  .item:has(a.btn-ghost),
+  .item:has(#btnLogout),
+  .item:has(.switch) {
+    flex-direction: row !important;
+    align-items: center !important;
+  }
+}
   </style>
 </head>
 
 <body class="gs-has-nav">
-  <header>
-    <a class="brand" href="index.html">3-Sides</a>
-    <div id="headerRight" class="muted">—</div>
-  </header>
 
   <main>
+    <div class="topbar">
+      <a class="pill" href="index.html">🏠 Home</a>
+    </div>
+
     <h1>Settings</h1>
     <p class="sub">Manage your account, security, privacy, and preferences. Deletion lives in the <strong>Danger
         zone</strong> at the bottom.</p>
@@ -638,7 +1265,7 @@ a {
     <!-- Account -->
     <section class="card">
       <h2>Account</h2>
-
+ 
       <div class="item">
         <div>
           <div id="acctEmail" style="font-weight:800; color:#9ec1ff; word-break:break-all">—</div>
@@ -752,14 +1379,6 @@ a {
 
       <div class="item">
         <div>
-          <div><strong>Theme</strong></div>
-          <div class="meta">Open theme settings and pick your look.</div>
-        </div>
-        <a class="btn" href="theme.html">Open theme</a>
-      </div>
-
-      <div class="item">
-        <div>
           <div><strong>Notifications</strong></div>
           <div class="meta">Coming soon. (TODO page & perms)</div>
         </div>
@@ -811,23 +1430,14 @@ a {
     <section id="danger-zone" class="card danger">
       <h2>Danger zone</h2>
       <p class="muted">Permanently delete your account and all app data linked to it. This cannot be undone.</p>
+    
       <div class="item" style="border-top:0">
-        <div>
+        <div></div>
         <button id="btnDelete" class="btn-danger" type="button">Delete…</button>
       </div>
     </section>
+    
   </main>
-
-  <!-- Bottom nav -->
-  <footer class="gs-nav">
-    <a href="index.html" class="gs-nav__item"><span class="ico">🏠</span><span>Home</span></a>
-    <a href="toolkit-hub.html" class="gs-nav__item" data-auth="true"><span class="ico">🧰</span><span>Toolkit</span></a>
-    <a href="wellness.html" class="gs-nav__item" data-auth="true"><span class="ico">💖</span><span>Wellness</span></a>
-    <a href="pet.html" class="gs-nav__item" data-auth="true"><span class="ico">🐾</span><span>Pet</span></a>
-    <a href="important-numbers.html" class="gs-nav__item"><span class="ico">🆘</span><span>Help</span></a>
-    <a href="systemSettings.html" class="gs-nav__item" aria-current="page" data-auth="true"><span
-        class="ico">⚙️</span><span>Settings</span></a>
-  </footer>
 
   <!-- Modals -->
   <!-- Name / Email -->
@@ -893,7 +1503,7 @@ a {
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     // ---------- constants ----------
-    const APP_VERSION = '2.0.0';
+    const APP_VERSION = '1.0.0';
     const ANALYTICS_KEY = 'gs_analytics_enabled';
     const PREFS_KEY = 'gs_prefs'; // { reducedMotion: bool, largerText: bool }
     const SESSION_BUMP_FIELD = 'sessionBumpedAt';
@@ -953,7 +1563,7 @@ a {
     function setHeaderSignedIn(user) {
       const name = user.displayName || '(no name)';
       const email = user.email || 'Account';
-      headerRight.innerHTML = `<span class="muted">Signed in as </span><strong>${name}</strong>`;
+
       acctEmail.textContent = email; acctName.textContent = name;
     }
     // Human-facing names for the sections that save data
@@ -1021,24 +1631,84 @@ a {
     });
     document.getElementById('neCancel').addEventListener('click', () => nameEmailModal.show(false));
     document.getElementById('neSave').addEventListener('click', async () => {
-      const u = auth.currentUser; if (!u) return;
-      neErr.style.display = 'none';
-      try {
+        const u = auth.currentUser;
+        if (!u) return;
+
+        neErr.style.display = 'none';
+
         const name = (displayNameInput.value || '').trim();
         const email = (emailEditInput.value || '').trim();
-        if (name && name !== u.displayName) await updateProfile(u, { displayName: name });
-        if (email && email !== u.email) await updateEmail(u, email);
-        setHeaderSignedIn(u);
-        nameEmailModal.show(false);
-      } catch (e) {
-        const msg = ({
-          'auth/email-already-in-use': 'That email is already in use.',
-          'auth/invalid-email': 'Please enter a valid email.',
-          'auth/requires-recent-login': 'Please sign in again and retry.'
-        })[e?.code] || 'Could not update. Try again.';
-        neErr.textContent = msg; neErr.style.display = 'block';
-      }
-    });
+
+        // basic validation
+        if (!name) {
+          neErr.textContent = 'Please enter a display name.';
+          neErr.style.display = 'block';
+          return;
+        }
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          neErr.textContent = 'Please enter a valid email.';
+          neErr.style.display = 'block';
+          return;
+        }
+
+        const nameChanged = name !== (u.displayName || '');
+        const emailChanged = email !== (u.email || '');
+
+        const btn = document.getElementById('neSave');
+        btn.disabled = true;
+        btn.textContent = 'Saving…';
+
+        let nameOk = false;
+
+        try {
+          // 1) name update (usually allowed without reauth)
+          if (nameChanged) {
+            await updateProfile(u, { displayName: name });
+          }
+          nameOk = true;
+
+          // 2) email update (may require reauth)
+          if (emailChanged) {
+            await updateEmail(u, email);
+          }
+
+          // reflect UI
+          setHeaderSignedIn(u);
+          nameEmailModal.show(false);
+
+        } catch (e) {
+          console.error('Update failed:', e);
+
+          const code = e?.code || '';
+
+          // If name already saved but email failed, tell them that clearly
+          if (nameOk && emailChanged) {
+            if (code === 'auth/requires-recent-login') {
+              neErr.textContent = 'Name saved ✅. Email needs a fresh login. Log out + log back in, then try again.';
+            } else if (code === 'auth/email-already-in-use') {
+              neErr.textContent = 'Name saved ✅. That email is already in use.';
+            } else {
+              neErr.textContent = 'Name saved ✅. Email could not update. Try again.';
+            }
+            neErr.style.display = 'block';
+            return;
+          }
+
+          // otherwise normal messaging
+          const msg = ({
+            'auth/email-already-in-use': 'That email is already in use.',
+            'auth/invalid-email': 'Please enter a valid email.',
+            'auth/requires-recent-login': 'Please sign in again and retry.',
+            'auth/operation-not-allowed': 'Email/password sign-in is not enabled in Firebase Auth.'
+          })[code] || 'Could not update. Try again.';
+
+          neErr.textContent = msg;
+          neErr.style.display = 'block';
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Save';
+        }
+      });
 
     // ---------- account: sign out everywhere ----------
     btnSignOutEverywhere.addEventListener('click', async () => {
@@ -1269,7 +1939,7 @@ a {
 
         // download
         const blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' });
-        const filename = 'three-sides-export.json';
+        const filename = 'amygdala-export.json';
 
         let ok = false;
         try { ok = await withTimeout(safeDownloadFile(filename, blob), 3000, 'download'); }

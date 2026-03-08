@@ -54,12 +54,17 @@
       background: var(--bg-color, #fff) !important;
       color: var(--text-color, #111) !important
     }
+
+    html, body{
+  background: var(--page-bg) !important;
+}
+
   </style>
 
   <!-- Meta -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Three Sides — BADGE WALL</title>
+  <title>Amygdala — BADGE WALL</title>
   <meta name="description" content="Your earned badges and milestones." />
   <meta name="theme-color" content="#6a5acd">
 
@@ -69,10 +74,10 @@
   <link rel="apple-touch-icon" href="icon-192.png">
 
   <!-- Favicons -->
-  <link rel="icon" type="image/svg+xml" sizes="any" href="/3-sides-planner.io/favicon.svg">
-  <link rel="icon" type="image/png" sizes="32x32" href="/3-sides-planner.io/favicon-32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/3-sides-planner.io/favicon-16.png">
-  <link rel="apple-touch-icon" href="/3-sides-planner.io/icon-192.png"> <!-- iOS Home screen -->
+  <link rel="icon" type="image/svg+xml" sizes="any" href="/amygdala.io/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/amygdala.io/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/amygdala.io/favicon-16.png">
+  <link rel="apple-touch-icon" href="/amygdala.io/icon-192.png"> <!-- iOS Home screen -->
 
   <!-- Fonts + global CSS -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -126,14 +131,17 @@
 
   <!-- Page-local styles -->
   <style>
-    body {
-      font-family: 'Quicksand', sans-serif;
-      margin: 0;
-      padding: 2rem;
-      background: #0a0d2b;
-      color: #fff
-    }
-
+  
+  body {
+  font-family: 'Quicksand', sans-serif;
+  margin: 0;
+  padding: 0;              /* <-- IMPORTANT */
+  background: #0a0d2b;
+  color: #fff;
+}
+.page-pad {
+  padding: 18px 18px 0;
+}
     h1 {
       margin: 0 0 1rem;
       text-align: center
@@ -201,8 +209,6 @@
       transform: translateY(-2px) scale(1.03)
     }
   
-    
-
 /* ================= navbar overrides ============= */
 /* === Glow Standard Bottom Nav (namespaced) === */
 :root{
@@ -214,6 +220,7 @@
   --gs-nav-text: rgba(69,111,179,1);
   --gs-nav-active: #0b6cc4;
 }
+
 
 /* Reserve space for the fixed bar (opt-in via body.gs-has-nav) */
 body.gs-has-nav{
@@ -237,6 +244,7 @@ footer.gs-nav{
   /* normalize inheritance so pages can’t change it */
   font-size: 0; line-height: 1; font-family: inherit;
 }
+
 
 /* Items are equal columns */
 .gs-nav__item{
@@ -262,13 +270,105 @@ footer.gs-nav{
 .gs-nav__item[aria-current="page"]{ color: var(--gs-nav-active); font-weight: 700; }
 .gs-nav__item:hover{ color:#72aadf; }
 
+.topbar .pill {
+            margin-left: auto;
+            padding: 10px 14px;
+            border-radius: 999px;
+            border: 1px solid rgba(0, 0, 0, .12);
+            background: rgba(255, 255, 255, .55);
+            font-weight: 900;
+            color: rgba(0, 0, 0, .75);
+            text-align: center;
+        }
 
+        .btn-home {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            border-radius: 999px;
+            border: 1px solid rgba(0, 0, 0, .12);
+            background: rgba(255, 255, 255, .75);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, .06);
+            color: #000;
+            text-decoration: none;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform calc(120ms * var(--motion-scale, 1)), filter .2s ease;
+        }
+
+        .btn-home:hover {
+            filter: brightness(.98);
+        }
+
+        .btn-home:active {
+            transform: translateY(1px);
+        }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            padding-top: calc(10px + env(safe-area-inset-top, 0px));
+            padding-bottom: 10px;
+            padding-left: max(12px, env(safe-area-inset-left, 0px));
+            padding-right: max(12px, env(safe-area-inset-right, 0px));
+
+            background: rgba(255, 255, 255, .35);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 0, 0, .08);
+        }
+
+        .topbar{
+  width: 100%;
+  box-sizing: border-box;
+}
+
+header.topbar{
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  /* 🔥 THIS is what makes it span full screen */
+  width: 100vw;
+  left: 0;
+  right: 0;
+
+  padding-top: calc(10px + env(safe-area-inset-top, 0px));
+  padding-bottom: 10px;
+  padding-left: max(12px, env(safe-area-inset-left, 0px));
+  padding-right: max(12px, env(safe-area-inset-right, 0px));
+
+  background: rgba(255, 255, 255, .35);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0, 0, 0, .08);
+  box-sizing: border-box;
+}
   </style>
 </head>
 
-<body>
-  <h1>🏅 My Badges</h1>
-  <div id="badgeGrid" class="badge-grid"></div>
+<body class="gs-has-nav">
+
+  <!-- FULL WIDTH TOPBAR -->
+  <header class="topbar">
+    <a class="btn-home" href="./index.html" aria-label="Back to Home">
+      🏠 <span>Home</span>
+    </a>
+    <div class="pill">Badges</div>
+  </header>
+
+  <!-- PAGE CONTENT (padded area) -->
+  <div class="page-pad">
+    <h1>🏅 My Badges</h1>
+    <div id="badgeGrid" class="badge-grid"></div>
+  </div>
 
   <script type="module">
     import { auth, db } from "./firebase-init.js";

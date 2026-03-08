@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Number Guessing Game</title>
+    <meta name="theme-color" content="#0a2351" />
+
+    <style>
+        :root {
+            /* Amygdala vibe */
+            --ink: rgba(10, 20, 35, .92);
+            --muted: rgba(10, 20, 35, .68);
+    
+            /* Glass card */
+            --card-bg: rgba(255, 255, 255, .90);
+            --card-border: rgba(255, 255, 255, .60);
+            --shadow: 0 22px 55px rgba(0, 0, 0, .28);
+            --radius: 18px;
+    
+            /* Primary blues (match your other pages) */
+            --primaryA: #5f9cff;
+            --primaryB: #4a88e6;
+    
+            /* Soft neutrals */
+            --softBlue: rgba(10, 35, 81, .08);
+            --softBlueBorder: rgba(10, 35, 81, .14);
+    
+            /* Feedback colors */
+            --danger: #b91c1c;
+    
+            /* Focus ring */
+            --ring: rgba(95, 156, 255, .22);
+        }
+    
+        * {
+            box-sizing: border-box;
+        }
+    
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+        }
+    
+        body {
+            font-family: "Open Sans", system-ui, -apple-system, Arial, sans-serif;
+            color: var(--ink);
+            background-image: url("number.jpeg");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: grid;
+            place-items: center;
+            padding: 18px;
+            overflow-x: hidden;
+            position: relative;
+        }
+    
+        /* Amygdala tint overlay (matches your garden tint style) */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(circle at 18% 12%, rgba(190, 170, 255, 0.35), transparent 58%),
+                radial-gradient(circle at 82% 22%, rgba(120, 215, 255, 0.25), transparent 60%),
+                linear-gradient(180deg, rgba(16, 60, 88, 0.55), rgba(5, 18, 35, 0.60));
+            pointer-events: none;
+            z-index: 0;
+        }
+    
+        /* soft-focus */
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            pointer-events: none;
+            z-index: 0;
+        }
+    
+        main {
+            width: 100%;
+            max-width: 520px;
+            position: relative;
+            z-index: 1;
+        }
+    
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            box-shadow: var(--shadow);
+            border-radius: var(--radius);
+            padding: 18px 16px 14px;
+            backdrop-filter: blur(10px) saturate(1.15);
+            -webkit-backdrop-filter: blur(10px) saturate(1.15);
+        }
+    
+        .title {
+            margin: 2px 0 6px;
+            font-size: 1.55rem;
+            font-weight: 900;
+            letter-spacing: .2px;
+            text-align: center;
+        }
+    
+        .subtitle {
+            margin: 0 auto 14px;
+            text-align: center;
+            color: var(--muted);
+            font-weight: 700;
+            line-height: 1.35;
+            max-width: 32ch;
+        }
+    
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+            font-weight: 800;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(10, 35, 81, .06);
+            border: 1px solid rgba(10, 35, 81, .14);
+            margin: 0 auto 14px;
+            width: fit-content;
+            color: rgba(10, 35, 81, .88);
+        }
+    
+        .row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+            align-items: center;
+            margin-top: 6px;
+        }
+    
+        input[type="number"] {
+            width: 100%;
+            padding: 12px 12px;
+            font-size: 1.05rem;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 0, 0, .14);
+            outline: none;
+            background: rgba(255, 255, 255, .95);
+            box-shadow: 0 10px 22px rgba(0, 0, 0, .08);
+        }
+    
+        input[type="number"]:focus {
+            border-color: rgba(95, 156, 255, .60);
+            box-shadow: 0 0 0 4px var(--ring), 0 10px 22px rgba(0, 0, 0, .08);
+        }
+    
+        /* ===================== Buttons ===================== */
+        .btn {
+            border: 0;
+            cursor: pointer;
+            font-weight: 800;
+            border-radius: 14px;
+            padding: 12px 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            white-space: nowrap;
+            user-select: none;
+            transition: transform .12s ease, filter .15s ease, background .15s ease;
+        }
+    
+        .btn:active {
+            transform: translateY(1px);
+        }
+    
+        /* Primary (Submit + Home) */
+        .btn:not(.secondary):not(.danger) {
+            color: #fff;
+            background: linear-gradient(145deg, var(--primaryA), var(--primaryB));
+            box-shadow: 0 10px 22px rgba(74, 136, 230, .28);
+        }
+    
+        .btn:not(.secondary):not(.danger):hover {
+            filter: brightness(1.05);
+            transform: translateY(-1px);
+        }
+    
+        /* Secondary (New number) frosty */
+        .btn.secondary {
+            background: rgba(10, 35, 81, .07);
+            color: rgba(10, 20, 35, .92);
+            border: 1px solid rgba(10, 35, 81, .16);
+            box-shadow: none;
+        }
+    
+        .btn.secondary:hover {
+            background: rgba(10, 35, 81, .10);
+            transform: translateY(-1px);
+        }
+    
+        /* Danger (if you ever use it) */
+        .btn.danger {
+            background: rgba(185, 28, 28, .08);
+            color: var(--danger);
+            border: 1px solid rgba(185, 28, 28, .20);
+            box-shadow: none;
+        }
+    
+        .result {
+            margin: 14px 0 10px;
+            padding: 12px 12px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, .90);
+            border: 1px solid rgba(10, 35, 81, .10);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, .10);
+            font-weight: 800;
+            line-height: 1.35;
+            text-align: center;
+            min-height: 44px;
+            display: grid;
+            place-items: center;
+        }
+    
+        .hint {
+            margin: 0;
+            text-align: center;
+            color: var(--muted);
+            font-weight: 700;
+            font-size: .92rem;
+        }
+    
+        .btn-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 12px;
+        }
+    
+        .footer-note {
+            margin-top: 10px;
+            text-align: center;
+            font-size: .85rem;
+            color: rgba(255, 255, 255, .82);
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 6px 18px rgba(0, 0, 0, .35);
+        }
+    
+        @media (max-width: 420px) {
+            .title {
+                font-size: 1.40rem;
+            }
+    
+            .row {
+                grid-template-columns: 1fr;
+            }
+    
+            .btn-row {
+                grid-template-columns: 1fr 1fr;
+            }
+    
+            .btn {
+                padding: 11px 12px;
+            }
+        }
+
+/* ================ privacy/terms ============== */
+.legal-footer{
+  margin-top: 12px;
+  text-align: center;
+  font-size: 12px;
+  color: rgba(10,20,35,0.60);
+  line-height: 1.35;
+  border-top: 1px solid rgba(10,35,81,0.10);
+  padding-top: 10px;
+}
+
+.legal-footer a{
+  color: rgba(10,35,81,0.92);
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.legal-footer a:hover{
+  filter: brightness(1.05);
+}
+
+.legal-footer a:visited{
+  color: rgba(10,35,81,0.92);
+}
+    </style>
+      
+</head>
+
+<body>
+    <main>
+        <section class="card" aria-label="Number guessing game">
+            <h1 class="title">Number Guessing Game</h1>
+            <p class="subtitle">A quick brain distraction for racing thoughts.</p>
+
+            <div class="pill" id="rangePill">🎯 Guess a number from <span id="rangeText">1–100</span></div>
+
+            <div class="row">
+                <input type="number" id="guess" inputmode="numeric" placeholder="Enter your guess…" min="1" max="100" />
+                <button class="btn" id="submitBtn" type="button">✅ Submit</button>
+            </div>
+
+            <div class="result" id="result">Press Submit (or Enter) to start guessing.</div>
+            <p class="hint" id="hint">Tip: smaller game = calmer brain. You can change the range in the script.</p>
+
+            <div class="btn-row">
+                <button class="btn secondary" id="resetBtn" type="button">🔄 New number</button>
+                <a class="btn" href="./index.html">🏠 Home</a>
+            </div>
+            
+            <div class="legal-footer">
+                View our
+                <a href="privacy.html" rel="noopener">Privacy Policy</a>
+                and
+                <a href="terms.html" rel="noopener">Terms of Use</a>.
+            </div>
+            </section>              
+
+        <div class="footer-note">You’re doing something good for your brain right now.</div>
+    </main>
+
+    <script>
+        // =========================
+        // Number Guessing Game
+        // =========================
+        let targetNumber = 0;
+        let attempts = 0;
+
+        // You can change these if you want it easier/harder:
+        const MIN = 1;
+        const MAX = 100;
+
+        const guessEl = document.getElementById("guess");
+        const resultEl = document.getElementById("result");
+        const hintEl = document.getElementById("hint");
+        const submitBtn = document.getElementById("submitBtn");
+        const resetBtn = document.getElementById("resetBtn");
+        const rangeText = document.getElementById("rangeText");
+
+        function startGame() {
+            targetNumber = Math.floor(Math.random() * (MAX - MIN + 1)) + MIN;
+            attempts = 0;
+            rangeText.textContent = `${MIN}–${MAX}`;
+            resultEl.textContent = "New number picked. Take a guess 🙂";
+            hintEl.textContent = "Tip: Enter key submits. You’ve got this.";
+            guessEl.value = "";
+            guessEl.focus();
+        }
+
+        function setMessage(msg) {
+            resultEl.textContent = msg;
+        }
+
+        function checkGuess() {
+            const raw = guessEl.value.trim();
+            const userGuess = Number(raw);
+
+            if (!raw) {
+                setMessage("Type a number first 🙂");
+                guessEl.focus();
+                return;
+            }
+
+            if (!Number.isFinite(userGuess) || userGuess < MIN || userGuess > MAX) {
+                setMessage(`Pick a number between ${MIN} and ${MAX}.`);
+                guessEl.focus();
+                return;
+            }
+
+            attempts++;
+
+            if (userGuess === targetNumber) {
+                setMessage(`🎉 You got it! ${targetNumber} in ${attempts} attempt${attempts === 1 ? "" : "s"}!`);
+                hintEl.textContent = "Auto-starting a new round in 2 seconds…";
+                setTimeout(startGame, 2000);
+                return;
+            }
+
+            if (userGuess < targetNumber) {
+                setMessage("⬆️ Too low. Try again.");
+            } else {
+                setMessage("⬇️ Too high. Try again.");
+            }
+
+            hintEl.textContent = `Attempts: ${attempts}`;
+            guessEl.select();
+        }
+
+        // Button + Enter key
+        submitBtn.addEventListener("click", checkGuess);
+        resetBtn.addEventListener("click", startGame);
+
+        guessEl.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") checkGuess();
+        });
+
+        // Start on load
+        startGame();
+    </script>
+</body>
+
+</html>

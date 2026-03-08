@@ -78,7 +78,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 
   <!-- Title + font (kept) -->
-  <title>Three Sides — THEME</title>
+  <title>Amygdala — THEME</title>
   <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
 
   <!-- Public page flag (prevents auth.js from redirecting) -->
@@ -99,10 +99,10 @@
   <script type="module" src="./badges.js"></script>
 
   <!-- Favicons -->
-  <link rel="icon" type="image/svg+xml" sizes="any" href="/3-sides-planner.io/favicon.svg">
-  <link rel="icon" type="image/png" sizes="32x32" href="/3-sides-planner.io/favicon-32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/3-sides-planner.io/favicon-16.png">
-  <link rel="apple-touch-icon" href="/3-sides-planner.io/icon-192.png"> <!-- iOS Home screen -->
+  <link rel="icon" type="image/svg+xml" sizes="any" href="/amygdala.io/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/amygdala.io/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/amygdala.io/favicon-16.png">
+  <link rel="apple-touch-icon" href="/amygdala.io/icon-192.png"> <!-- iOS Home screen -->
 
   <!-- NOTE: do NOT hide <html> on public pages -->
   <!-- (If you keep html{visibility:hidden} below for FOUC control, also add the tiny unlock script at the bottom) -->
@@ -595,6 +595,10 @@ h3,
   transform: scale(calc(1 + (0.03 * var(--motion-scale, 1))));
 }
 
+html, body{
+  background: var(--page-bg) !important;
+}
+
 </style>
 </head>
 
@@ -679,21 +683,6 @@ h3,
     <br>
     Click here to learn more
 </p>
-
-  <div class="legal-footer">View our <a href="privacy.html" rel="noopener">Privacy Policy</a>.</div>
-</div>
-
-<!-- ========== IDENTICAL NAV HTML (copy this exact block to every page) ========== -->
-<!-- Standard Bottom Nav (use on every page) -->
-<footer class="gs-nav">
-  <a href="index.html" class="gs-nav__item"><span class="ico">🏠</span><span>Home</span></a>
-  <a href="toolkit-hub.html" class="gs-nav__item" data-auth="true"><span class="ico">🧰</span><span>Toolkit</span></a>
-  <a href="wellness.html" class="gs-nav__item" data-auth="true"><span class="ico">💖</span><span>Wellness</span></a>
-  <a href="pet.html" class="gs-nav__item" data-auth="true"><span class="ico">🐾</span><span>Pet</span></a>
-  <a href="important-numbers.html" class="gs-nav__item"><span class="ico">🆘</span><span>Help</span></a>
-  <a href="systemSettings.html" class="gs-nav__item" data-auth="true"><span
-      class="ico">☸</span><span>Settings</span></a>
-</footer>
 
 <script type="module">
   import { auth, db } from "./firebase-init.js";

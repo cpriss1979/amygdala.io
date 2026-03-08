@@ -1,0 +1,23 @@
+/* HOME PILL — GLOBAL */
+.topbar {
+    display: flex;
+    justify-content: flex-start;
+    margin: 0 0 10px;
+}
+
+.pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    text-decoration: none;
+
+    background: rgba(255, 255, 255, .78);
+    border: 1px solid rgba(10, 20, 35, .12);
+    box-shadow: 0 10px 22px rgba(0, 0, 0, .08);
+
+    color: rgba(10, 20, 35, .92);
+    font-weight: 900;
+    line-height: 1;
+}

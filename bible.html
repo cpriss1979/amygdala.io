@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Bible Verse Generator</title>
+
+    <!-- Optional (works with your theme-meta setup) -->
+    <meta name="theme-color" content="#0a2351" />
+
+    <noscript>
+        <style>
+            html {
+                opacity: 1 !important;
+            }
+        </style>
+    </noscript>
+
+    <style>
+        /* ---------- page ---------- */
+        html {
+            opacity: 1;
+        }
+    
+        body {
+            background-image: url("garden.jpeg");
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+    
+            font-family: Georgia, serif;
+            color: white;
+            margin: 0;
+            min-height: 100vh;
+    
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 28px;
+            box-sizing: border-box;
+    
+            /* helps text readability over bright areas */
+            position: relative;
+        }
+    
+        /* soft dark overlay so the UI reads everywhere */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at 30% 20%, rgba(10, 35, 81, 0.35), rgba(0, 0, 0, 0.55));
+            pointer-events: none;
+        }
+    
+        /* ---------- main container ---------- */
+        .background-container {
+            position: relative;
+            padding: 22px;
+            text-align: center;
+            width: min(720px, 100%);
+            box-sizing: border-box;
+    
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            background: rgba(17, 29, 64, 0.78);
+            backdrop-filter: blur(10px);
+    
+            box-shadow: 0 18px 50px rgba(0, 0, 0, 0.30);
+        }
+    
+        /* top verse banner */
+        h1.badge {
+            margin: 0 0 14px;
+            padding: 12px 14px;
+            border-radius: 16px;
+            font-size: 16px;
+            line-height: 1.35;
+            font-weight: 700;
+    
+            background: rgba(255, 255, 255, 0.10);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+        }
+    
+        /* quote card */
+        #quote-container {
+            margin-top: 8px;
+            text-align: center;
+            padding: 18px 16px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            background: rgba(255, 255, 255, 0.96);
+            background-clip: padding-box;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25);
+            color: #121212;
+        }
+    
+        /* verse text */
+        #quote {
+            margin: 6px 0 14px;
+            font-size: 15px;
+            line-height: 1.5;
+            font-family: Georgia, serif;
+            position: relative;
+            padding: 2px 4px;
+        }
+    
+        /* decorative quote marks */
+        #quote::before,
+        #quote::after {
+            position: absolute;
+            font-size: 26px;
+            opacity: 0.18;
+            color: #0a2351;
+            font-weight: 900;
+        }
+    
+        #quote::before {
+            content: "“";
+            left: -6px;
+            top: -10px;
+        }
+    
+        #quote::after {
+            content: "”";
+            right: -6px;
+            bottom: -14px;
+        }
+    
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+    
+        button,
+        a.btn {
+            margin: 0;
+            padding: 10px 16px;
+            font-size: 15px;
+            color: white;
+            background: #0a2351;
+            border: 1px solid rgba(255, 255, 255, 0.45);
+            border-radius: 12px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.20);
+            transition: transform 0.08s ease, filter 0.15s ease;
+        }
+    
+        button:hover,
+        a.btn:hover {
+            filter: brightness(1.06);
+        }
+    
+        button:active,
+        a.btn:active {
+            transform: translateY(1px);
+        }
+    
+        .tiny-note {
+            margin-top: 12px;
+            font-size: 12px;
+            opacity: 0.78;
+            color: rgba(10, 35, 81, 0.75);
+        }
+    
+        @media (max-width: 520px) {
+            body {
+                padding: 18px;
+            }
+    
+            .background-container {
+                padding: 16px;
+                border-radius: 16px;
+            }
+    
+            h1.badge {
+                font-size: 14px;
+            }
+    
+            #quote {
+                font-size: 14px;
+            }
+        }
+
+  html { opacity: 1; }
+
+  body {
+    background-image: url("garden.jpeg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+
+    font-family: Georgia, serif;
+    color: white;
+    margin: 0;
+    min-height: 100vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 28px;
+    box-sizing: border-box;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* --- Amygdala "family" tint overlay + soft blur feel --- */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+
+    /* Photo stays, but we tint it to match Amygdala */
+    background:
+      radial-gradient(circle at 20% 10%, rgba(190, 170, 255, 0.35), transparent 55%),
+      radial-gradient(circle at 80% 25%, rgba(120, 215, 255, 0.25), transparent 60%),
+      linear-gradient(180deg, rgba(16, 60, 88, 0.55), rgba(5, 18, 35, 0.55));
+
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Optional “soft-focus” layer (makes garden feel calmer) */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .background-container {
+    position: relative;
+    z-index: 1;
+
+    padding: 22px;
+    text-align: center;
+    width: min(720px, 100%);
+    box-sizing: border-box;
+
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(17, 29, 64, 0.68);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.30);
+  }
+
+  h1.badge {
+    margin: 0 0 14px;
+    padding: 12px 14px;
+    border-radius: 16px;
+    font-size: 16px;
+    line-height: 1.35;
+    font-weight: 700;
+
+    background: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+  }
+
+  #quote-container {
+    margin-top: 8px;
+    text-align: center;
+    padding: 18px 16px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.96);
+    background-clip: padding-box;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25);
+    color: #121212;
+  }
+
+  #quote {
+    margin: 6px 0 14px;
+    font-size: 15px;
+    line-height: 1.5;
+    font-family: Georgia, serif;
+    position: relative;
+    padding: 2px 4px;
+  }
+
+  #quote::before,
+  #quote::after {
+    position: absolute;
+    font-size: 26px;
+    opacity: 0.18;
+    color: #0a2351;
+    font-weight: 900;
+  }
+
+  #quote::before {
+    content: "“";
+    left: -6px;
+    top: -10px;
+  }
+
+  #quote::after {
+    content: "”";
+    right: -6px;
+    bottom: -14px;
+  }
+
+  /* --- Comfort Mode toggle row --- */
+  .mode-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin: 6px 0 12px;
+    flex-wrap: wrap;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(10, 35, 81, 0.08);
+    border: 1px solid rgba(10, 35, 81, 0.18);
+    font-size: 13px;
+    color: rgba(10, 35, 81, 0.85);
+    user-select: none;
+  }
+
+  .switch {
+    position: relative;
+    width: 46px;
+    height: 26px;
+    border-radius: 999px;
+    background: rgba(10, 35, 81, 0.20);
+    border: 1px solid rgba(10, 35, 81, 0.25);
+    cursor: pointer;
+    flex: 0 0 auto;
+  }
+
+  .switch .knob {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 999px;
+    background: white;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.18);
+    transition: transform 0.18s ease;
+  }
+
+  .switch[data-on="1"] {
+    background: rgba(70, 150, 255, 0.35);
+    border-color: rgba(70, 150, 255, 0.50);
+  }
+
+  .switch[data-on="1"] .knob {
+    transform: translateX(20px);
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+
+  button,
+  a.btn {
+    margin: 0;
+    padding: 10px 16px;
+    font-size: 15px;
+    color: white;
+    background: #0a2351;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    border-radius: 12px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.20);
+    transition: transform 0.08s ease, filter 0.15s ease;
+  }
+
+  button:hover,
+  a.btn:hover { filter: brightness(1.06); }
+
+  button:active,
+  a.btn:active { transform: translateY(1px); }
+
+  .tiny-note {
+    margin-top: 12px;
+    font-size: 12px;
+    opacity: 0.78;
+    color: rgba(10, 35, 81, 0.75);
+  }
+
+  @media (max-width: 520px) {
+    body { padding: 18px; }
+    .background-container { padding: 16px; border-radius: 16px; }
+    h1.badge { font-size: 14px; }
+    #quote { font-size: 14px; }
+  }
+
+  .switch[data-on="1"] {
+  background: rgba(70, 150, 255, 0.45);
+  border-color: rgba(70, 150, 255, 0.70);
+}
+.switch[data-on="0"] {
+  background: rgba(10, 35, 81, 0.15);
+  border-color: rgba(10, 35, 81, 0.25);
+}
+
+.mode-pill{
+  appearance: none;
+  border: 1px solid rgba(10, 35, 81, 0.20);
+  background: rgba(10, 35, 81, 0.06);
+  color: rgba(10, 35, 81, 0.80);
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  cursor: pointer;
+  user-select: none;
+  transition: filter .15s ease, transform .08s ease, background .15s ease, border-color .15s ease;
+}
+
+.mode-pill:active{ transform: translateY(1px); }
+
+.mode-pill.is-active{
+  background: rgba(70, 150, 255, 0.22);
+  border-color: rgba(70, 150, 255, 0.55);
+  color: rgba(10, 35, 81, 0.95);
+  font-weight: 700;
+}
+
+.switch{
+  position: relative;
+  width: 46px;
+  height: 26px;
+  border-radius: 999px;
+  background: rgba(10, 35, 81, 0.18);
+  border: 1px solid rgba(10, 35, 81, 0.30);
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+.switch .knob{
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: white;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.18);
+  transition: transform 0.18s ease;
+}
+
+.switch[data-on="1"]{
+  background: rgba(70, 150, 255, 0.50);
+  border-color: rgba(70, 150, 255, 0.70);
+}
+
+.switch[data-on="1"] .knob{ transform: translateX(20px); }
+
+.mode-title {
+  font-weight: 700;
+  color: rgba(10,35,81,0.95);
+}
+
+.mode-row .mode-title:first-child{
+  background: rgba(70,150,255,0.22);
+  border: 1px solid rgba(70,150,255,0.55);
+  padding: 8px 12px;
+  border-radius: 999px;
+}
+
+/* ======================== bottom home/copy/verse =========== */
+.btn-primary {
+    background: linear-gradient(145deg, #5f9cff, #4a88e6);
+    color: white;
+    border: none;
+    box-shadow: 
+        0 6px 14px rgba(74, 136, 230, 0.35),
+        0 0 0 1px rgba(255,255,255,0.15) inset;
+}
+
+.btn-primary:hover {
+    filter: brightness(1.06);
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.75);
+    color: #2b3e66;
+    border: 1px solid rgba(90, 120, 170, 0.25);
+    backdrop-filter: blur(6px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.btn-home {
+    background: rgba(168, 49, 49, 0.06);
+    color: rgba(10,35,81,0.92);
+    border: 1px solid rgba(10,35,81,0.18);
+    box-shadow: none;
+  }
+
+.btn-home:hover {
+    filter: brightness(1.04);
+}
+
+.btn {
+    border-radius: 14px;
+    padding: 10px 16px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+button,
+a.btn {
+  margin: 0;
+  padding: 10px 16px;
+  font-size: 15px;
+  border-radius: 14px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+a.btn.btn-home { color: #3a568c; }
+a.btn.btn-home:visited { color: #3a568c; }
+
+/* ------------------------ home button --------*/
+/* Base button style (only for your bottom buttons) */
+.btn-row .btn,
+.btn-row button.btn {
+  margin: 0;
+  padding: 10px 16px;
+  font-size: 15px;
+  border-radius: 14px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+/* Variants */
+.btn-row .btn-primary {
+  background: linear-gradient(145deg, #5f9cff, #4a88e6);
+  color: #fff;
+  box-shadow: 0 10px 22px rgba(74, 136, 230, 0.28);
+}
+.btn-row .btn-primary:hover { transform: translateY(-1px); filter: brightness(1.05); }
+
+.btn-row .btn-secondary {
+  background: rgba(255,255,255,0.78);
+  color: rgba(10,35,81,0.90);
+  border: 1px solid rgba(70,150,255,0.28);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+}
+.btn-row .btn-secondary:hover { transform: translateY(-1px); background: rgba(255,255,255,0.92); }
+
+.btn-row .btn-home {
+  background: rgba(10,35,81,0.06);
+  color: rgba(10,35,81,0.92);
+  border: 1px solid rgba(10,35,81,0.18);
+  box-shadow: none;
+}
+.btn-row .btn-home:hover { transform: translateY(-1px); background: rgba(10,35,81,0.10); }
+
+/* Keep Home text color consistent even after visited */
+.btn-row a.btn.btn-home,
+.btn-row a.btn.btn-home:visited { color: rgba(10,35,81,0.92); }
+
+/* --- Legal links (Privacy / Terms) --- */
+.legal-footer{
+  margin-top: 10px;
+  font-size: 12px;
+  opacity: 0.85;
+  color: rgba(10,35,81,0.78);
+  line-height: 1.3;
+}
+
+.legal-footer a{
+  color: rgba(10,35,81,0.92);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.legal-footer a:hover{
+  filter: brightness(1.05);
+}
+
+.tiny-note{
+  margin-top: 12px;
+  font-size: 12px;
+  opacity: 0.9;
+  color: rgba(10,35,81,0.70);
+}
+
+.legal-footer{
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(10,35,81,0.12);
+  font-size: 12px;
+  color: rgba(10,35,81,0.76);
+}
+
+.mode-pill{
+  opacity: .85;
+}
+.mode-pill.is-active{
+  opacity: 1;
+}
+
+</style>     
+    
+</head>
+
+<body>
+    <div class="background-container">
+        <h1 class="badge">Cast all your anxiety on him because he cares for you. — 1 Peter 5:7</h1>
+
+        <div id="quote-container">
+            <div class="mode-row" role="group" aria-label="Verse mode">
+                <button id="modeComfort" type="button" class="mode-pill" aria-pressed="true">Comfort Only</button>
+            
+                <div id="comfortSwitch" class="switch" role="switch" aria-checked="true" tabindex="0" data-on="1">
+                    <div class="knob"></div>
+                </div>
+            
+                <button id="modeAll" type="button" class="mode-pill" aria-pressed="false">All Verses</button>
+            </div>
+              
+            <p id="quote">Click the button for a random Bible verse!</p>
+
+            <div class="btn-row">
+            <button id="generateBtn" class="btn btn-primary" type="button">✨ New Verse</button>
+            <button id="copyBtn" class="btn btn-secondary" type="button">📋 Copy</button>
+            <a class="btn btn-home" href="./index.html">🏠 Home</a>
+            </div>              
+
+            <div class="tiny-note">
+                (These are for comfort + encouragement — not a replacement for professional care.)
+            </div>
+
+            <div class="legal-footer">
+                View our
+                <a href="privacy.html" rel="noopener">Privacy Policy</a>
+                and
+                <a href="terms.html" rel="noopener">Terms of Use</a>.    </div>
+        </div>     
+    </div>
+
+    <script type="module">
+        // ---------------------------
+        // Optional Firebase theme (safe)
+        // If firebase-init.js is missing, this won't run (module will error),
+        // so keep it ONLY if you have firebase-init.js in the same folder.
+        // ---------------------------
+        let auth = null, db = null, onAuthStateChanged = null, doc = null, onSnapshot = null;
+
+        try {
+            const firebase = await import("./firebase-init.js");
+            auth = firebase.auth;
+            db = firebase.db;
+
+            const authLib = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
+            onAuthStateChanged = authLib.onAuthStateChanged;
+
+            const fsLib = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+            doc = fsLib.doc;
+            onSnapshot = fsLib.onSnapshot;
+        } catch (e) {
+            // If Firebase isn't ready on this page yet, that's fine.
+            // Page will still work (verses + UI).
+            // console.warn("Firebase not loaded on bible.html:", e);
+        }
+
+        // ---------------------------
+        // Theme helpers (same style as your index)
+        // ---------------------------
+        function syncMetaTheme() {
+            try {
+                const cs = getComputedStyle(document.documentElement);
+                const accent =
+                    (cs.getPropertyValue("--accent-color") ||
+                        cs.getPropertyValue("--accent") ||
+                        "#0a2351").trim() || "#0a2351";
+                const meta = document.querySelector('meta[name="theme-color"]');
+                if (meta) meta.content = accent;
+            } catch { }
+        }
+
+        function applyThemeClass(themeClass) {
+            const root = document.documentElement;
+            const next = themeClass || "theme-original";
+
+            const keep = (root.className || "")
+                .split(/\s+/)
+                .filter(Boolean)
+                .filter((c) => !c.startsWith("theme-"));
+
+            root.className = [...keep, next].join(" ");
+            syncMetaTheme();
+        }
+
+    const STORAGE = {
+        comfortOnly: "bible:comfortOnly",
+        lastVerse: "bible:lastVerse",
+    };
+
+        // ---------------------------
+        // Quotes (CLEAN + NO ERRORS)
+        // ---------------------------
+    const ALL_VERSES = [
+            "I can do all things through Christ who strengthens me. — Philippians 4:13",
+            "The Lord is my shepherd; I shall not want. — Psalm 23:1",
+            "Trust in the Lord with all your heart, and lean not on your own understanding; in all your ways acknowledge Him, and He shall direct your paths. — Proverbs 3:5–6",
+            "For I know the thoughts that I think toward you, says the Lord, thoughts of peace and not of evil, to give you a future and a hope. — Jeremiah 29:11",
+            "The name of the Lord is a strong tower; the righteous run to it and are safe. — Proverbs 18:10",
+            "Delight yourself also in the Lord, and He shall give you the desires of your heart. — Psalm 37:4",
+            "And we know that all things work together for good to those who love God, to those who are the called according to His purpose. — Romans 8:28",
+            "But the fruit of the Spirit is love, joy, peace, longsuffering, kindness, goodness, faithfulness, gentleness, self-control. Against such there is no law. — Galatians 5:22–23",
+            "Jesus said to him, “I am the way, the truth, and the life. No one comes to the Father except through Me.” — John 14:6",
+            "But seek first the kingdom of God and His righteousness, and all these things shall be added to you. — Matthew 6:33",
+            "Be anxious for nothing, but in everything by prayer and supplication, with thanksgiving, let your requests be made known to God. — Philippians 4:6",
+            "Let not your heart be troubled; you believe in God, believe also in Me. — John 14:1",
+            "The fear of the Lord is the beginning of knowledge, but fools despise wisdom and instruction. — Proverbs 1:7",
+            "And we have known and believed the love that God has for us. God is love, and he who abides in love abides in God, and God in him. — 1 John 4:16",
+            "And we know that in all things God works for the good of those who love him, who have been called according to his purpose. - Romans 8:28",
+            "The righteous cry out, and the Lord hears, and delivers them out of all their troubles. - Psalm 34:17",
+            "For I am persuaded that neither death nor life, nor angels nor principalities nor powers, nor things present nor things to come, nor height nor depth, nor any other created thing, shall be able to separate us from the love of God which is in Christ Jesus our Lord. - Romans 8:38-39",
+            "But those who wait on the Lord shall renew their strength; they shall mount up with wings like eagles, they shall run and not be weary, they shall walk and not faint. - Isaiah 40:31",
+            "For the wages of sin is death, but the gift of God is eternal life in Christ Jesus our Lord. - Romans 6:23",
+            "Your word is a lamp to my feet and a light to my path. - Psalm 119:105",
+            "The Lord is not slack concerning His promise, as some count slackness, but is longsuffering toward us, not willing that any should perish but that all should come to repentance. - 2 Peter 3:9",
+            "But God demonstrates His own love toward us, in that while we were still sinners, Christ died for us. - Romans 5:8",
+            "And let us not grow weary while doing good, for in due season we shall reap if we do not lose heart. - Galatians 6:9",
+            "For by grace you have been saved through faith, and that not of yourselves; it is the gift of God. - Ephesians 2:8",
+            "The earth is the Lord's, and all its , the world and those who dwell therein. - Psalm 24:1",
+            "I will bless the Lord at all times; His praise shall continually be in my mouth. - Psalm 34:1",
+            "For the word of God is living and powerful, and sharper than any two-edged sword, piercing even to the division of soul and spirit, and of joints and marrow, and is a discerner of the thoughts and intents of the heart. - Hebrews 4:12",
+            "The steps of a good man are ordered by the Lord, and He delights in his way. - Psalm 37:23",
+            "Therefore, if anyone is in Christ, he is a new creation; old things have passed away; behold, all things have become new. - 2 Corinthians 5:17",
+            "And we have known and believed the love that God has for us. God is love, and he who abides in love abides in God, and God in him. - 1 John 4:16",
+            "For the word of God is living and powerful, and sharper than any two-edged sword, piercing even to the division of soul and spirit, and of joints and marrow, and is a discerner of the thoughts and intents of the heart. - Hebrews 4:12",
+            "Therefore, if anyone is in Christ, he is a new creation; old things have passed away; behold, all things have become new. - 2 Corinthians 5:17",
+            "I can do all things through Christ who strengthens me. - Philippians 4:13",
+            "The Lord is my shepherd; I shall not want. - Psalm 23:1",
+            "Trust in the Lord with all your heart, and lean not on your own understanding; in all your ways acknowledge Him, and He shall direct your paths. - Proverbs 3:5-6",
+            "For I know the thoughts that I think toward you, says the Lord, thoughts of peace and not of evil, to give you a future and a hope. - Jeremiah 29:11",
+            "The name of the Lord is a strong tower; the righteous run to it and are safe. - Proverbs 18:10",
+            "Delight yourself also in the Lord, and He shall give you the desires of your heart. - Psalm 37:4",
+            "And we know that all things work together for good to those who love God, to those who are the called according to His purpose. - Romans 8:28",
+            "But the fruit of the Spirit is love, joy, peace, longsuffering, kindness, goodness, faithfulness, gentleness, self-control. Against such there is no law. - Galatians 5:22-23",
+            "Jesus said to him, 'I am the way, the truth, and the life. No one comes to the Father except through Me.' - John 14:6",
+            "But seek first the kingdom of God and His righteousness, and all these things shall be added to you. - Matthew 6:33",
+            "Be anxious for nothing, but in everything by prayer and supplication, with thanksgiving, let your requests be made known to God. - Philippians 4:6",
+            "Let not your heart be troubled; you believe in God, believe also in Me. - John 14:1",
+            "And we have known and believed the love that God has for us. God is love, and he who abides in love abides in God, and God in him. - 1 John 4:16",
+            "The righteous cry out, and the Lord hears, and delivers them out of all their troubles. - Psalm 34:17",
+            "But those who wait on the Lord shall renew their strength; they shall mount up with wings like eagles, they shall run and not be weary, they shall walk and not faint. - Isaiah 40:31",
+            "For the wages of sin is death, but the gift of God is eternal life in Christ Jesus our Lord. - Romans 6:23",
+            "Your word is a lamp to my feet and a light to my path. - Psalm 119:105",
+            "The Lord is not slack concerning His promise, as some count slackness, but is longsuffering toward us, not willing that any should perish but that all should come to repentance. - 2 Peter 3:9",
+            "But God demonstrates His own love toward us, in that while we were still sinners, Christ died for us. - Romans 5:8",
+            "And we know that the Son of God has come and has given us an understanding, that we may know Him who is true; and we are in Him who is true, in His Son Jesus Christ. This is the true God and eternal life. - 1 John 5:20",
+            "For the word of God is living and powerful, and sharper than any two-edged sword, piercing even to the division of soul and spirit, and of joints and marrow, and is a discerner of the thoughts and intents of the heart. - Hebrews 4:12",
+            "The steps of a good man are ordered by the Lord, and He delights in his way. - Psalm 37:23",
+            "Therefore, if anyone is in Christ, he is a new creation; old things have passed away; behold, all things have become new. - 2 Corinthians 5:17",
+            "The Lord will fight for you; you need only to be still. - Exodus 14:14",
+            "Do not be anxious about anything, but in every situation, by prayer and petition, with thanksgiving, present your requests to God. - Philippians 4:6",
+            "But those who hope in the Lord will renew their strength. They will soar on wings like eagles; they will run and not grow weary, they will walk and not be faint. - Isaiah 40:31",
+            "The Lord is close to the brokenhearted and saves those who are crushed in spirit. - Psalm 34:18",
+            "Have I not commanded you? Be strong and courageous. Do not be afraid; do not be discouraged, for the Lord your God will be with you wherever you go. - Joshua 1:9",
+            "The Lord is my light and my salvation—whom shall I fear? The Lord is the stronghold of my life—of whom shall I be afraid? - Psalm 27:1",
+            "For I am the Lord your God who takes hold of your right hand and says to you, Do not fear; I will help you. - Isaiah 41:13",
+            "But seek first his kingdom and his righteousness, and all these things will be given to you as well. - Matthew 6:33",
+            "He gives strength to the weary and increases the power of the weak. - Isaiah 40:29",
+            "I have told you these things, so that in me you may have peace. In this world you will have trouble. But take heart! I have overcome the world. - John 16:33",
+            "The Lord is gracious and compassionate, slow to anger and rich in love. - Psalm 145:8",
+            "The Lord is good, a refuge in times of trouble. He cares for those who trust in him. - Nahum 1:7",
+            "And my God will meet all your needs according to the riches of his glory in Christ Jesus. - Philippians 4:19",
+            "And we know that in all things God works for the good of those who love him, who have been called according to his purpose. - Romans 8:28",
+            "But the fruit of the Spirit is love, joy, peace, forbearance, kindness, goodness, faithfulness, gentleness and self-control. Against such things there is no law. - Galatians 5:22-23",
+            "Trust in the Lord with all your heart and lean not on your own understanding; in all your ways submit to him, and he will make your paths straight. - Proverbs 3:5-6",
+            "The Lord is my strength and my shield; my heart trusts in him, and he helps me. My heart leaps for joy, and with my song I praise him. - Psalm 28:7",
+            "I can do all this through him who gives me strength. - Philippians 4:13",
+            "But the Lord is faithful, and he will strengthen you and protect you from the evil one. - 2 Thessalonians 3:3",
+            "The Lord will keep you from all harm—he will watch over your life; the Lord will watch over your coming and going both now and forevermore. - Psalm 121:7-8",
+            "Be on your guard; stand firm in the faith; be courageous; be strong. - 1 Corinthians 16:13",
+            "Cast all your anxiety on him because he cares for you. - 1 Peter 5:7",
+            "The Lord is my shepherd, I lack nothing. - Psalm 23:1",
+            "Be kind and compassionate to one another, forgiving each other, just as in Christ God forgave you. - Ephesians 4:32",
+            "Consider it pure joy, my brothers and sisters, whenever you face trials of many kinds, because you know that the testing of your faith produces perseverance. - James 1:2-3",
+            "So do not fear, for I am with you; do not be dismayed, for I am your God. I will strengthen you and help you; I will uphold you with my righteous right hand. - Isaiah 41:10",
+            "May the God of hope fill you with all joy and peace as you trust in him, so that you may overflow with hope by the power of the Holy Spirit. - Romans 15:13",
+            "I sought the Lord, and he answered me; he delivered me from all my fears. - Psalm 34:4",
+            "The Lord your God is with you, the Mighty Warrior who saves. He will take great delight in you; in his love he will no longer rebuke you, but will rejoice over you with singing. - Zephaniah 3:17",
+            "Do not conform to the pattern of this world, but be transformed by the renewing of your mind. Then you will be able to test and approve what God's will is—his good, pleasing and perfect will. - Romans 12:2",          
+            
+            
+            "But in your hearts revere Christ as Lord. Always be prepared to give an answer to everyone who asks you to give the reason for the hope that you have. But do this with gentleness and respect. - 1 Peter 3:15",
+            "For we are God’s handiwork, created in Christ Jesus to do good works, which God prepared in advance for us to do. - Ephesians 2:10",
+            "The righteous cry out, and the Lord hears them; he delivers them from all their troubles. - Psalm 34:17",
+            "Praise be to the God and Father of our Lord Jesus Christ, the Father of compassion and the God of all comfort, who comforts us in all our troubles, so that we can comfort those in any trouble with the comfort we ourselves receive from God. - 2 Corinthians 1:3-4",
+            "For I know the plans I have for you, declares the Lord, plans for welfare and not for evil, to give you a future and a hope. - Jeremiah 29:11",
+            "The Lord is compassionate and gracious, slow to anger, abounding in love. - Psalm 103:8",
+            "And we have known and believed the love that God hath to us. God is love; and he that dwelleth in love dwelleth in God, and God in him. - 1 John 4:16 (KJV)",
+            "But the fruit of the Spirit is love, joy, peace, forbearance, kindness, goodness, faithfulness, gentleness and self-control. Against such things there is no law. - Galatians 5:22-23",
+            "The Lord will keep you from all harm—he will watch over your life; the Lord will watch over your coming and going both now and forevermore. - Psalm 121:7-8",
+            "Be on your guard; stand firm in the faith; be courageous; be strong. - 1 Corinthians 16:13",
+            "Cast all your anxiety on him because he cares for you. - 1 Peter 5:7",
+            "The Lord is my shepherd, I lack nothing. - Psalm 23:1",
+            "But God, who comforts the downcast, comforted us by the coming of Titus, and not only by his coming but also by the comfort you had given him. - 2 Corinthians 7:6-7",
+            "For the Lord is good and his love endures forever; his faithfulness continues through all generations. - Psalm 100:5",
+            "Blessed is the one who perseveres under trial because, having stood the test, that person will receive the crown of life that the Lord has promised to those who love him. - James 1:12",
+            "Be kind and compassionate to one another, forgiving each other, just as in Christ God forgave you. - Ephesians 4:32",
+            "Consider it pure joy, my brothers and sisters, whenever you face trials of many kinds, because you know that the testing of your faith produces perseverance. - James 1:2-3",
+            "So do not fear, for I am with you; do not be dismayed, for I am your God. I will strengthen you and help you; I will uphold you with my righteous right hand. - Isaiah 41:10",
+            "May the God of hope fill you with all joy and peace as you trust in him, so that you may overflow with hope by the power of the Holy Spirit. - Romans 15:13",
+            "I sought the Lord, and he answered me; he delivered me from all my fears. - Psalm 34:4",
+            "Do not conform to the pattern of this world, but be transformed by the renewing of your mind. Then you will be able to test and approve what God's will is—his good, pleasing and perfect will. - Romans 12:2",
+            "But in your hearts revere Christ as Lord. Always be prepared to give an answer to everyone who asks you to give the reason for the hope that you have. But do this with gentleness and respect. - 1 Peter 3:15",
+            "For we are God’s handiwork, created in Christ Jesus to do good works, which God prepared in advance for us to do. - Ephesians 2:10",
+            "The righteous cry out, and the Lord hears them; he delivers them from all their troubles. - Psalm 34:17",
+            "Praise be to the God and Father of our Lord Jesus Christ, the Father of compassion and the God of all comfort, who comforts us in all our troubles, so that we can comfort those in any trouble with the comfort we ourselves receive from God. - 2 Corinthians 1:3-4",
+            "For I know the plans I have for you, declares the Lord, plans for welfare and not for evil, to give you a future and a hope. - Jeremiah 29:11",
+            
+            /* ================= //TODO// read/edit verses to reflect positive messages relating to peace and anxiety ================== */
+            "The Lord is compassionate and gracious, slow to anger, abounding in love. - Psalm 103:8",
+            "And we have known and believed the love that God hath to us. God is love; and he that dwelleth in love dwelleth in God, and God in him. - 1 John 4:16 (KJV)",
+            "For I am not ashamed of the gospel, because it is the power of God that brings salvation to everyone who believes: first to the Jew, then to the Gentile.",
+            "For all have sinned and fall short of the glory of God.",
+            "But God demonstrates his own love for us in this: While we were still sinners, Christ died for us.",
+            "And we know that in all things God works for the good of those who love him, who have been called according to his purpose.",
+            "Therefore, there is now no condemnation for those who are in Christ Jesus.",
+            "If God is for us, who can be against us?",
+            "And we know that in all things God works for the good of those who love him, who have been called according to his purpose.",
+            "For the wages of sin is death, but the gift of God is eternal life in Christ Jesus our Lord.",
+            "Do not conform to the pattern of this world, but be transformed by the renewing of your mind.",
+            "For I am convinced that neither death nor life, neither angels nor demons, neither the present nor the future, nor any powers, neither height nor depth, nor anything else in all creation, will be able to separate us from the love of God that is in Christ Jesus our Lord.",
+            "But God commendeth his love toward us, in that, while we were yet sinners, Christ died for us.",
+            "But put on the Lord Jesus Christ, and make no provision for the flesh, to gratify its desires.",
+            "Therefore, brothers and sisters, we have an obligation—but it is not to the flesh, to live according to it.",
+            "But the fruit of the Spirit is love, joy, peace, forbearance, kindness, goodness, faithfulness, gentleness and self-control. Against such things there is no law.",
+            "May the God of hope fill you with all joy and peace as you trust in him, so that you may overflow with hope by the power of the Holy Spirit.",
+            "I appeal to you, brothers and sisters, in the name of our Lord Jesus Christ, that all of you agree with one another in what you say and that there be no divisions among you, but that you be perfectly united in mind and thought.",
+            "The mind governed by the flesh is death, but the mind governed by the Spirit is life and peace.",
+            "If you declare with your mouth, 'Jesus is Lord,' and believe in your heart that God raised him from the dead, you will be saved.",
+            "Therefore, since we have been justified through faith, we have peace with God through our Lord Jesus Christ.",
+            "Do not be conformed to this world, but be transformed by the renewal of your mind, that by testing you may discern what is the will of God, what is good and acceptable and perfect.",
+            "For the creation waits with eager longing for the revealing of the sons of God.",
+            "What then shall we say to these things? If God is for us, who can be against us?",
+            "For the law of the Spirit of life has set you free in Christ Jesus from the law of sin and death.",
+            "For those whom he foreknew he also predestined to be conformed to the image of his Son, in order that he might be the firstborn among many brothers.",
+            "For the mind that is set on the flesh is hostile to God, for it does not submit to God's law; indeed, it cannot.",
+            "But if Christ is in you, although the body is dead because of sin, the Spirit is life because of righteousness.",
+            "Likewise the Spirit helps us in our weakness. For we do not know what to pray for as we ought, but the Spirit himself intercedes for us with groanings too deep for words.",
+            "For the creation was subjected to futility, not willingly, but because of him who subjected it, in hope.",
+            "But in all these things we overwhelmingly conquer through Him who loved us.",
+            "But God, being rich in mercy, because of the great love with which he loved us, even when we were dead in our trespasses, made us alive together with Christ.",
+            "But the free gift is not like the trespass. For if many died through one man's trespass, much more have the grace of God and the free gift by the grace of that one man Jesus Christ abounded for many.",
+            "For as by the one man's disobedience the many were made sinners, so by the one man's obedience the many will be made righteous.",
+            "For if, by the trespass of the one man, death reigned through that one man, how much more will those who receive God's abundant provision of grace and of the gift of righteousness reign in life through the one man, Jesus Christ!",
+            "But where sin increased, grace increased all the more, so that, just as sin reigned in death, so also grace might reign through righteousness to bring eternal life through Jesus Christ our Lord.",
+            "I do not understand what I do. For what I want to do I do not do, but what I hate I do.",
+            "And we know that in all things God works for the good of those who love him, who have been called according to his purpose.",
+            "And those he predestined, he also called; those he called, he also justified; those he justified, he also glorified.",
+            "No, in all these things we are more than conquerors through him who loved us.",
+            "For I am convinced that neither death nor life, neither angels nor demons, neither the present nor the future, nor any powers, neither height nor depth, nor anything else in all creation, will be able to separate us from the love of God that is in Christ Jesus our Lord.",
+            "But if Christ is in you, then even though your body is subject to death because of sin, the Spirit gives life because of righteousness.",
+            "For those who are led by the Spirit of God are the children of God.",
+            "For I am convinced that neither death nor life, neither angels nor demons, neither the present nor the future, nor any powers, neither height nor depth, nor anything else in all creation, will be able to separate us from the love of God that is in Christ Jesus our Lord.",
+            "The Spirit you received does not make you slaves, so that you live in fear again; rather, the Spirit you received brought about your adoption to sonship.",
+            "For I am not ashamed of the gospel, because it is the power of God that brings salvation to everyone who believes: first to the Jew, then to the Gentile.",
+            "Love must be sincere. Hate what is evil; cling to what is good.",
+            "Rejoice with those who rejoice; mourn with those who mourn.",
+            "Do not be overcome by evil, but overcome evil with good.",
+            "Do not repay anyone evil for evil. Be careful to do what is right in the eyes of everyone.",
+            "If it is possible, as far as it depends on you, live at peace with everyone.",
+            "Do not take revenge, my dear friends, but leave room for God's wrath, for it is written: 'It is mine to avenge; I will repay,' says the Lord.",
+            "Do not be overcome by evil, but overcome evil with good.",
+            "If your enemy is hungry, feed him; if he is thirsty, give him something to drink. In doing this, you will heap burning coals on his head.",
+            "Bless those who persecute you; bless and do not curse.",
+            "Do not be wise in your own eyes; fear the Lord and shun evil.",
+            "The night is nearly over; the day is almost here. So let us put aside the deeds of darkness and put on the armor of light.",
+            "Rather, clothe yourselves with the Lord Jesus Christ, and do not think about how to gratify the desires of the flesh.",
+            "In the beginning God created the heavens and the earth. - Genesis 1:1",
+            "So God created mankind in his own image, in the image of God he created them; male and female he created them. - Genesis 1:27",
+            "The Lord God took the man and put him in the Garden of Eden to work it and take care of it. - Genesis 2:15",
+            "But for Adam no suitable helper was found. - Genesis 2:20",
+            "Noah was a righteous man, blameless among the people of his time, and he walked faithfully with God. - Genesis 6:9",
+            "So God said to Noah, 'I am going to put an end to all people, for the earth is filled with violence because of them. I am surely going to destroy both them and the earth.' - Genesis 6:13",
+            "But Noah found favor in the eyes of the Lord. - Genesis 6:8",
+            "The Lord smelled the pleasing aroma and said in his heart: 'Never again will I curse the ground because of humans, even though every inclination of the human heart is evil from childhood. And never again will I destroy all living creatures, as I have done.' - Genesis 8:21",
+            "As long as the earth endures, seedtime and harvest, cold and heat, summer and winter, day and night will never cease. - Genesis 8:22",
+            "God blessed Noah and his sons, saying to them, 'Be fruitful and increase in number and fill the earth. - Genesis 9:1",
+            "Then God said to Noah and to his sons with him: 'I now establish my covenant with you and with your descendants after you. - Genesis 9:9",
+            "But the dove could find nowhere to perch because there was water over all the surface of the earth; so it returned to Noah in the ark. He reached out his hand and took the dove and brought it back to himself in the ark. - Genesis 8:9-10",
+            "Then God said, 'Take your son, your only son, whom you love—Isaac—and go to the region of Moriah. Sacrifice him there as a burnt offering on a mountain I will show you.' - Genesis 22:2",
+            "Abraham looked up and there in a thicket he saw a ram caught by its horns. He went over and took the ram and sacrificed it as a burnt offering instead of his son. - Genesis 22:13",
+            "Then Jacob made a vow, saying, 'If God will be with me and will watch over me on this journey I am taking and will give me food to eat and clothes to wear so that I return safely to my father's household, then the Lord will be my God. - Genesis 28:20-21",
+            "And God said, 'I am with you and will watch over you wherever you go, and I will bring you back to this land. I will not leave you until I have done what I have promised you.' - Genesis 28:15",
+            "When the Lord saw that Leah was not loved, he enabled her to conceive, but Rachel remained childless. - Genesis 29:31",
+            "When the Lord saw that Leah was not loved, he enabled her to conceive, but Rachel remained childless. - Genesis 29:31",
+            "If the God of my father, the God of Abraham and the Fear of Isaac, had not been with me, you would surely have sent me away empty-handed. But God has seen my hardship and the toil of my hands, and last night he rebuked you.' - Genesis 31:42",
+            "Then Jacob was greatly afraid and distressed. He divided the people who were with him, and the flocks and herds and camels, into two companies, thinking, 'If Esau comes to the one company and attacks it, then the company that is left will escape.' - Genesis 32:7-8",
+            "The sun rose above him as he passed Peniel, and he was limping because of his hip. - Genesis 32:31",
+            "So Esau said, 'Let us start on our journey, and I will go ahead of you.' - Genesis 33:12",
+            "But his father refused and said, 'I know, my son, I know. He too will become a people, and he too will become great. Nevertheless, his younger brother will be greater than he, and his descendants will become a group of nations.' - Genesis 48:19",
+            "So Israel set out with all that was his, and when he reached Beersheba, he offered sacrifices to the God of his father Isaac. - Genesis 46:1",
+            "Joseph said to them, 'Do not be afraid, for am I in the place of God? - Genesis 50:19",
+            "But Joseph said to them, 'Don't be afraid. Am I in the place of God? You intended to harm me, but God intended it for good to accomplish what is now being done, the saving of many lives. - Genesis 50:19-20",
+            "So Israel's sons did as he had commanded them. - Genesis 50:12",
+            "Then Joseph said to his brothers, 'I am about to die. But God will surely come to your aid and take you up out of this land to the land he promised on oath to Abraham, Isaac and Jacob.' - Genesis 50:24",
+            "Then Joseph made the Israelites swear an oath and said, 'God will surely come to your aid, and then you must carry my bones up from this place.' - Genesis 50:25",
+            "The scepter will not depart from Judah, nor the ruler's staff from between his feet, until he to whom it belongs shall come and the obedience of the nations shall be his. - Genesis 49:10",
+            "And he blessed Joseph and said, 'May the God before whom my fathers Abraham and Isaac walked faithfully, the God who has been my shepherd all my life to this day, - Genesis 48:15",
+            "He called it Shibboleth, and said, 'For he said, 'I am a Hebrew.' - Genesis 42:23",
+            "And the Lord said to him: 'I have heard the prayer and plea you have made before me; I have consecrated this temple, which you have built, by putting my Name there forever. My eyes and my heart will always be there. - 1 Kings 9:3",
+            "When Solomon had finished building the temple of the Lord and the royal palace, and had achieved all he had desired to do, - 1 Kings 9:1",
+            "And the Lord said to him: 'I have heard the prayer and plea you have made before me; I have consecrated this temple, which you have built, by putting my Name there forever. My eyes and my heart will always be there. - 1 Kings 9:3",
+            "When Solomon had finished building the temple of the Lord and the royal palace, and had achieved all he had desired to do, - 1 Kings 9:1",
+            "So Hiram supplied the cedar and juniper logs and gold to Solomon as much as he desired, King Solomon gave Hiram twenty towns in the Galilee. - 1 Kings 9:11",
+            "So Hiram supplied the cedar and juniper logs and gold to Solomon as much as he desired, King Solomon gave Hiram twenty towns in the Galilee. - 1 Kings 9:11",
+            "He made the Sea of cast metal, circular in shape, measuring ten cubits from rim to rim and five cubits high. It took a line of thirty cubits to measure around it. - 1 Kings 7:23",
+            "The pots, shovels and sprinkling bowls. All these objects that Huram made for King Solomon for the temple of the Lord were of polished bronze. - 1 Kings 7:45",
+            "So King Solomon was greater in riches and wisdom than all the other kings of the earth. - 1 Kings 10:23",
+            "The king made silver as common in Jerusalem as stones, and cedar as plentiful as sycamore-fig trees in the foothills. - 1 Kings 10:27",
+            "He made the Sea of cast metal, circular in shape, measuring ten cubits from rim to rim and five cubits high. It took a line of thirty cubits to measure around it. - 1 Kings 7:23",
+            "The pots, shovels and sprinkling bowls. All these objects that Huram made for King Solomon for the temple of the Lord were of polished bronze. - 1 Kings 7:45",
+            "So King Solomon was greater in riches and wisdom than all the other kings of the earth. - 1 Kings 10:23",
+            "The king made silver as common in Jerusalem as stones, and cedar as plentiful as sycamore-fig trees in the foothills. - 1 Kings 10:27",
+            "The king made silver as common in Jerusalem as stones, and cedar as plentiful as sycamore-fig trees in the foothills. - 1 Kings 10:27",
+            "The pots, shovels and sprinkling bowls. All these objects that Huram made for King Solomon for the temple of the Lord were of polished bronze. - 1 Kings 7:45",
+            "He made the Sea of cast metal, circular in shape, measuring ten cubits from rim to rim and five cubits high. It took a line of thirty cubits to measure around it. - 1 Kings 7:23",
+            "When Solomon had finished the temple of the Lord and the royal palace, and had succeeded in carrying out all he had in mind to do in the temple of the Lord and in his own palace, - 1 Kings 7:51",
+            "He made the Sea of cast metal, circular in shape, measuring ten cubits from rim to rim and five cubits high. It took a line of thirty cubits to measure around it. - 1 Kings 7:23",
+            "The pots, shovels and sprinkling bowls. All these objects that Huram made for King Solomon for the temple of the Lord were of polished bronze. - 1 Kings 7:45",
+            "So King Solomon was greater in riches and wisdom than all the other kings of the earth. - 1 Kings 10:23",
+            "The pots, shovels and sprinkling bowls. All these objects that Huram made for King Solomon for the temple of the Lord were of polished bronze. - 1 Kings 7:45",
+            "The king made silver as common in Jerusalem as stones, and cedar as plentiful as sycamore-fig trees in the foothills. - 1 Kings 10:27",
+            "When Solomon had finished the temple of the Lord and the royal palace, and had succeeded in carrying out all he had in mind to do in the temple of the Lord and in his own palace, - 1 Kings 7:51",
+            "Exodus 20:14 - You shall not commit adultery.",
+            "Exodus 20:15 - You shall not steal.",
+            "Exodus 20:16 - You shall not give false testimony against your neighbor.",
+            "Exodus 20:17 - You shall not covet.",
+            "Exodus 23:25 - Worship the Lord your God, and his blessing will be on your food and water.",
+            "Leviticus 19:18 - Love your neighbor as yourself.",
+            "Leviticus 20:7 - Consecrate yourselves and be holy, because I am the Lord your God.",
+            "Leviticus 20:26 - You are to be holy to me because I, the Lord, am holy.",
+            "Leviticus 26:12 - I will walk among you and be your God, and you will be my people.",
+            "Leviticus 26:13 - I am the Lord your God, who brought you out of Egypt so that you would no longer be slaves to the Egyptians; I broke the bars of your yoke and enabled you to walk with heads held high.",
+            "Leviticus 26:27-28 - If in spite of this you still do not listen to me but continue to be hostile toward me, then in my anger I will be hostile toward you, and I myself will punish you for your sins seven times over.",
+            "Leviticus 26:31 - I will turn your cities into ruins and lay waste your sanctuaries, and I will take no delight in the pleasing aroma of your offerings.",
+            "Leviticus 26:45 - But for their sake I will remember the covenant with their ancestors whom I brought out of Egypt in the sight of the nations to be their God. I am the Lord.",
+            "Leviticus 26:46 - These are the decrees, the laws and the regulations that the Lord established at Mount Sinai between himself and the Israelites through Moses.",
+            "Leviticus 27:34 - These are the commands the Lord gave Moses on Mount Sinai for the Israelites.",
+            "Numbers 6:24-26 - The Lord bless you and keep you; the Lord make his face shine on you and be gracious to you; the Lord turn his face toward you and give you peace.",
+            "Numbers 14:18 - 'The Lord is slow to anger, abounding in love and forgiving sin and rebellion. Yet he does not leave the guilty unpunished; he punishes the children for the sin of the parents to the third and fourth generation.'",
+            "Numbers 23:19 - God is not human, that he should lie, not a human being, that he should change his mind. Does he speak and then not act? Does he promise and not fulfill?",
+            "Numbers 32:23 - 'But if you fail to do this, you will be sinning against the Lord; and you may be sure that your sin will find you out.'",
+            "Numbers 33:53 - Take possession of the land and settle in it, for I have given you the land to possess.",
+            "Numbers 35:18 - 'The avenger of blood shall put the murderer to death; when the avenger comes upon the murderer, the avenger shall put the murderer to death.'",
+            "Numbers 35:30 - 'Anyone who kills a person is to be put to death as a murderer only on the testimony of witnesses. But no one is to be put to death on the testimony of only one witness.'",
+            "Numbers 35:31 - 'Do not accept a ransom for the life of a murderer, who deserves to die. They are to be put to death.'",
+            "Numbers 35:33 - 'Do not pollute the land where you are. Bloodshed pollutes the land, and atonement cannot be made for the land on which blood has been shed, except by the blood of the one who shed it.'",
+            "Numbers 36:13 - These are the commands and regulations the Lord gave through Moses to the Israelites on the plains of Moab by the Jordan across from Jericho.",
+            "Deuteronomy 4:29 - But if from there you seek the Lord your God, you will find him if you seek him with all your heart and with all your soul.",
+            "Deuteronomy 4:39 - Acknowledge and take to heart this day that the Lord is God in heaven above and on the earth below. There is no other.",
+            "Deuteronomy 5:33 - Walk in obedience to all that the Lord your God has commanded you, so that you may live and prosper and prolong your days in the land that you will possess.",
+            "Deuteronomy 6:4-5 - Hear, O Israel: The Lord our God, the Lord is one. Love the Lord your God with all your heart and with all your soul and with all your strength.",
+            "Deuteronomy 7:9 - Know therefore that the Lord your God is God; he is the faithful God, keeping his covenant of love to a thousand generations of those who love him and keep his commandments.",
+            "Deuteronomy 7:21 - Do not be terrified by them, for the Lord your God, who is among you, is a great and awesome God.",
+            "Deuteronomy 10:12-13 - And now, Israel, what does the Lord your God ask of you but to fear the Lord your God, to walk in obedience to him, to love him, to serve the Lord your God with all your heart and with all your soul, and to observe the Lord’s commands and decrees that I am giving you today for your own good?",
+            "Deuteronomy 28:1-2 - If you fully obey the Lord your God and carefully follow all his commands I give you today, the Lord your God will set you high above all the nations on earth.",
+            "Deuteronomy 28:15 - However, if you do not obey the Lord your God and do not carefully follow all his commands and decrees I am giving you today, all these curses will come on you and overtake you:",
+            "Exodus 3:14 - God said to Moses, 'I am who I am.'",
+            "Exodus 14:14 - The Lord will fight for you; you need only to be still.",
+            "Exodus 20:3 - You shall have no other gods before me.",
+            "Exodus 20:12 - Honor your father and your mother.",
+            "Exodus 20:13 - You shall not murder.",
+            "Deuteronomy 30:19-20 - This day I call the heavens and the earth as witnesses against you that I have set before you life and death, blessings and curses. Now choose life, so that you and your children may live and that you may love the Lord your God, listen to his voice, and hold fast to him. For the Lord is your life, and he will give you many years in the land he swore to give to your fathers, Abraham, Isaac and Jacob.",
+            "Joshua 1:8 - Keep this Book of the Law always on your lips; meditate on it day and night, so that you may be careful to do everything written in it. Then you will be prosperous and successful.",
+            "Joshua 1:9 - Have I not commanded you? Be strong and courageous. Do not be afraid; do not be discouraged, for the Lord your God will be with you wherever you go.",
+            "Joshua 24:15 - But if serving the Lord seems undesirable to you, then choose for yourselves this day whom you will serve, whether the gods your ancestors served beyond the Euphrates, or the gods of the Amorites, in whose land you are living. But as for me and my household, we will serve the Lord.",
+            "Joshua 24:24 - And the people said to Joshua, 'We will serve the Lord our God and obey him.'",
+            "Joshua 24:26 - And Joshua recorded these things in the Book of the Law of God. Then he took a large stone and set it up there under the oak near the holy place of the Lord.",
+            "Joshua 24:31 - Israel served the Lord throughout the lifetime of Joshua and of the elders who outlived him and who had experienced everything the Lord had done for Israel.",
+            "Joshua 24:32 - And Joseph’s bones, which the Israelites had brought up from Egypt, were buried at Shechem in the tract of land that Jacob bought for a hundred pieces of silver from the sons of Hamor, the father of Shechem. This became the inheritance of Joseph’s descendants.",
+            "Joshua 24:33 - And Eleazar son of Aaron died and was buried at Gibeah, which had been allotted to his son Phinehas in the hill country of Ephraim.",
+            "Joshua 24:34 - This is what became of the bones of Joseph, which the Israelites had brought up from Egypt and buried at Shechem.",
+            "Joshua 24:29 - After these things, Joshua son of Nun, the servant of the Lord, died at the age of a hundred and ten.",
+            "Judges 6:12 - When the angel of the Lord appeared to Gideon, he said, 'The Lord is with you, mighty warrior.'",
+            "Judges 6:14 - The Lord turned to him and said, 'Go in the strength you have and save Israel out of Midian’s hand. Am I not sending you?'",
+            "Judges 6:16 - The Lord answered, 'I will be with you, and you will strike down all the Midianites, leaving none alive.'",
+            "Judges 6:23 - But the Lord said to him, 'Peace! Do not be afraid. You are not going to die.'",
+            "Judges 6:24 - So Gideon built an altar to the Lord there and called it The Lord Is Peace. To this day it stands in Ophrah of the Abiezrites.",
+            "Judges 7:2 - The Lord said to Gideon, 'You have too many men. I cannot deliver Midian into their hands, or Israel would boast against me, 'My own strength has saved me.'",
+            "Judges 7:7 - The Lord said to Gideon, 'With the three hundred men that lapped I will save you and give the Midianites into your hands. Let all the others go home.'",
+            "Judges 7:10 - If you are afraid to attack, go down to the camp with your servant Purah",
+            "Judges 8:18 - Then he said to Zebah and Zalmunna, 'What kind of men did you kill at Tabor?' 'Men like you,' they answered, 'each one with the bearing of a prince.'",
+            "Judges 8:23 - But Gideon told them, 'I will not rule over you, nor will my son rule over you. The Lord will rule over you.'",
+            "Ruth 1:16 - But Ruth replied, 'Don’t urge me to leave you or to turn back from you. Where you go I will go, and where you stay I will stay. Your people will be my people and your God my God.'",
+            "Ruth 1:17 - 'Where you die I will die, and there I will be buried. May the Lord deal with me, be it ever so severely, if even death separates you and me.'",
+            "Ruth 2:12 - 'May the Lord repay you for what you have done. May you be richly rewarded by the Lord, the God of Israel, under whose wings you have come to take refuge.'",
+            "Ruth 3:11 - 'And now, my daughter, don’t be afraid. I will do for you all you ask. All the people of my town know that you are a woman of noble character.'",
+            "Ruth 4:13 - So Boaz took Ruth and she became his wife. When he made love to her, the Lord enabled her to conceive, and she gave birth to a son.",
+            "Ruth 4:14 - The women said to Naomi: 'Praise be to the Lord, who this day has not left you without a guardian-redeemer. May he become famous throughout Israel!'",
+            "Ruth 4:15 - He will renew your life and sustain you in your old age. For your daughter-in-law, who loves you and who is better to you than seven sons, has given him birth.'",
+            "Ruth 4:16 - Then Naomi took the child in her arms and cared for him.",
+            "Ruth 4:17 - The women living there said, 'Naomi has a son!' And they named him Obed. He was the father of Jesse, the father of David.'",
+            "Ruth 4:22 - Obed was the father of Jesse, and Jesse the father of David.",
+            "1 Samuel 1:27 - I prayed for this child, and the Lord has granted me what I asked of him.",
+            "1 Samuel 2:2 - There is no one holy like the Lord; there is no one besides you; there is no Rock like our God.",
+            "1 Samuel 2:3 - 'Do not keep talking so proudly or let your mouth speak such arrogance, for the Lord is a God who knows, and by him deeds are weighed.'",
+            "1 Samuel 2:7 - The Lord sends poverty and wealth; he humbles and he exalts.",
+            "1 Samuel 2:9 - He will guard the feet of his faithful servants, but the wicked will be silenced in the place of darkness. 'It is not by strength that one prevails;'",
+            "1 Samuel 2:10 - 'those who oppose the Lord will be broken. The Most High will thunder from heaven; the Lord will judge the ends of the earth. 'He will give strength to his king and exalt the horn of his anointed.'",
+            "1 Samuel 2:30 - 'Therefore the Lord, the God of Israel, declares: 'I promised that members of your family would minister before me forever.' But now the Lord declares: 'Far be it from me! Those who honor me I will honor, but those who despise me will be disdained.'",
+            "1 Samuel 3:10 - The Lord came and stood there, calling as at the other times, 'Samuel! Samuel!' Then Samuel said, 'Speak, for your servant is listening.'",
+            "1 Samuel 7:12 - Then Samuel took a stone and set it up between Mizpah and Shen. He named it Ebenezer, saying, 'Thus far the Lord has helped us.'",
+            "1 Samuel 8:7 - And the Lord told him: 'Listen to all that the people are saying to you; it is not you they have rejected, but they have rejected me as their king.'",
+            "2 Samuel 7:22 - 'How great you are, Sovereign Lord! There is no one like you, and there is no God but you, as we have heard with our own ears.'",
+            "2 Samuel 7:28 - Sovereign Lord, you are God! Your covenant is trustworthy, and you have promised these good things to your servant.",
+            "2 Samuel 12:13 - Then David said to Nathan, 'I have sinned against the Lord.' Nathan replied, 'The Lord has taken away your sin. You are not going to die.'",
+            "2 Samuel 22:31 - 'As for God, his way is perfect: The Lord’s word is flawless; he shields all who take refuge in him.'",
+            "2 Samuel 22:32 - 'For who is God besides the Lord? And who is the Rock except our God?'",
+            "2 Samuel 22:47 - 'The Lord lives! Praise be to my Rock! Exalted be my God, the Rock, my Savior!'",
+            "2 Samuel 23:3 - 'The God of Israel spoke, the Rock of Israel said to me: 'When one rules over people in righteousness, when he rules in the fear of God,'",
+            "2 Samuel 23:4 - 'he is like the light of morning at sunrise on a cloudless morning, like the brightness after rain that brings grass from the earth.'",
+            "2 Samuel 24:25 - David built an altar to the Lord there and sacrificed burnt offerings and fellowship offerings. Then the Lord answered his prayer in behalf of the land, and the plague on Israel was stopped.",
+            "2 Samuel 22:51 - 'He gives his king great victories; he shows unfailing kindness to his anointed, to David and his descendants forever.'",
+            "1 Kings 3:9 - 'So give your servant a discerning heart to govern your people and to distinguish between right and wrong. For who is able to govern this great people of yours?'",
+            "1 Kings 3:12 - 'I will do what you have asked. I will give you a wise and discerning heart, so that there will never have been anyone like you, nor will there ever be.'",
+            "1 Kings 3:28 - When all Israel heard the verdict the king had given, they held the king in awe, because they saw that he had wisdom from God to administer justice.",
+            "1 Kings 8:56 - 'Praise be to the Lord, who has given rest to his people Israel just as he promised. Not one word has failed of all the good promises he gave through his servant Moses.'",
+            "1 Kings 8:57 - 'May the Lord our God be with us as he was with our ancestors; may he never leave us nor forsake us.'",
+            "1 Kings 9:3 - The Lord said to him: 'I have heard the prayer and plea you have made before me; I have consecrated this temple, which you have built, by putting my Name there forever. My eyes and my heart will always be there.'",
+            "1 Kings 17:14 - For this is what the Lord, the God of Israel, says: 'The jar of flour will not be used up and the jug of oil will not run dry until the day the Lord sends rain on the land.'",
+            "1 Kings 17:16 - The jar of flour was not used up and the jug of oil did not run dry, in keeping with the word of the Lord spoken by Elijah.",
+            "1 Kings 18:21 - Elijah went before the people and said, 'How long will you waver between two opinions? If the Lord is God, follow him; but if Baal is God, follow him.' But the people said nothing.",
+            "1 Kings 18:37 - Answer me, Lord, answer me, so these people will know that you, Lord, are God, and that you are turning their hearts back again.'",
+            "2 Kings 2:11 - As they were walking along and talking together, suddenly a chariot of fire and horses of fire appeared and separated the two of them, and Elijah went up to heaven in a whirlwind.",
+            "2 Kings 4:2 - Elisha replied to her, 'How can I help you? Tell me, what do you have in your house?' 'Your servant has nothing there at all,' she said, 'except a small jar of olive oil.'",
+            "2 Kings 5:14 - So he went down and dipped himself in the Jordan seven times, as the man of God had told him, and his flesh was restored and became clean like that of a young boy.",
+            "2 Kings 6:16 - 'Don’t be afraid,' the prophet answered. 'Those who are with us are more than those who are with them.'",
+            "2 Kings 10:31 - Yet Jehu was not careful to keep the law of the Lord, the God of Israel, with all his heart. He did not turn away from the sins of Jeroboam, which he had caused Israel to commit.",
+            "2 Kings 17:39 - Rather, worship the Lord your God; it is he who will deliver you from the hand of all your enemies.'",
+            "2 Kings 17:41 - Even while these people were worshiping the Lord, they were serving their idols. To this day their children and grandchildren continue to do as their ancestors did.",
+            "2 Kings 20:5 - 'Go back and tell Hezekiah, the ruler of my people, 'This is what the Lord, the God of your father David, says: I have heard your prayer and seen your tears; I will heal you. On the third day from now you will go up to the temple of the Lord.'",
+            "2 Kings 20:6 - I will add fifteen years to your life. And I will deliver you and this city from the hand of the king of Assyria. I will defend this city for my sake and for the sake of my servant David.'",
+            "But the Lord said to Samuel, “Do not look at his appearance or at his physical stature… For man looks at the outward appearance, but the Lord looks at the heart.” — 1 Samuel 16:7"
+        ];
+
+        const COMFORT_VERSES = [
+                "Cast all your anxiety on him because he cares for you. — 1 Peter 5:7",
+                "Do not be anxious about anything... — Philippians 4:6",
+                "The Lord is close to the brokenhearted... — Psalm 34:18",
+                "The Lord will fight for you; you need only to be still. — Exodus 14:14",
+                "Peace I leave with you; my peace I give you... — John 14:27",
+                "Be still, and know that I am God. — Psalm 46:10",
+                "Come to me, all you who are weary... — Matthew 11:28",
+                "When I am afraid, I put my trust in you. — Psalm 56:3",
+                "So do not fear, for I am with you... — Isaiah 41:10",
+                "The Lord is good, a refuge in times of trouble. — Nahum 1:7",
+            ];
+
+    /* =================================== end of verse quotes =================================== */
+
+    function pickRandom(arr) {
+        return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    // ---------------------------
+    // UI
+    // ---------------------------
+    const quoteEl = document.getElementById("quote");
+    const generateBtn = document.getElementById("generateBtn");
+    const copyBtn = document.getElementById("copyBtn");
+    const comfortSwitch = document.getElementById("comfortSwitch");
+
+    function getComfortOnly() {
+        const raw = localStorage.getItem(STORAGE.comfortOnly);
+        // default ON for anxiety mode
+        if (raw === null) return true;
+        return raw === "1";
+    }
+
+    function setComfortOnly(on) {
+        localStorage.setItem(STORAGE.comfortOnly, on ? "1" : "0");
+    }
+
+    function getActivePool() {
+        return getComfortOnly() ? COMFORT_VERSES : ALL_VERSES;
+    }
+
+    function generateQuote() {
+        const verse = pickRandom(getActivePool());
+        quoteEl.textContent = verse;
+        localStorage.setItem(STORAGE.lastVerse, verse);
+    }
+
+    async function copyQuote() {
+        const text = quoteEl.textContent.trim();
+        try {
+            await navigator.clipboard.writeText(text);
+            copyBtn.textContent = "✅ Copied!";
+            setTimeout(() => (copyBtn.textContent = "📋 Copy"), 900);
+        } catch {
+            // fallback for older browsers
+            const ta = document.createElement("textarea");
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand("copy");
+            ta.remove();
+            copyBtn.textContent = "✅ Copied!";
+            setTimeout(() => (copyBtn.textContent = "📋 Copy"), 900);
+        }
+    }
+
+    generateBtn.addEventListener("click", generateQuote);
+    copyBtn.addEventListener("click", copyQuote);
+
+    // Restore last verse if available, otherwise generate
+    const last = localStorage.getItem(STORAGE.lastVerse);
+    if (last) quoteEl.textContent = last;
+    else generateQuote();
+
+    // ---------------------------
+        // Toggle (single switch only)
+        // ---------------------------
+        function updateSwitchUI(on) {
+            if (!comfortSwitch) return;
+
+            comfortSwitch.setAttribute("aria-checked", on ? "true" : "false");
+            comfortSwitch.dataset.on = on ? "1" : "0";
+
+            const comfortState = document.getElementById("comfortState");
+            if (comfortState) comfortState.textContent = on ? "ON" : "OFF";
+        }
+
+        updateSwitchUI(getComfortOnly());
+
+        if (!comfortSwitch) {
+            console.warn("comfortSwitch not found (#comfortSwitch). Toggle disabled.");
+        } else {
+            comfortSwitch.addEventListener("click", (e) => {
+                e.preventDefault();
+                const next = !getComfortOnly(); // source of truth
+                setComfortOnly(next);
+                updateSwitchUI(next);
+                generateQuote();
+            });
+
+            comfortSwitch.addEventListener("keydown", (e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    const next = !getComfortOnly();
+                    setComfortOnly(next);
+                    updateSwitchUI(next);
+                    generateQuote();
+                }
+            });
+        }
+
+        // ---------------------------
+        // Toggle (switch + BOTH pills)
+        // ---------------------------
+        const modeComfortBtn = document.getElementById("modeComfort");
+        const modeAllBtn = document.getElementById("modeAll");
+
+        function updateModeUI(on) {
+            // Switch UI
+            if (comfortSwitch) {
+                comfortSwitch.setAttribute("aria-checked", on ? "true" : "false");
+                comfortSwitch.dataset.on = on ? "1" : "0";
+            }
+
+            // Pills UI (this is what you were missing)
+            if (modeComfortBtn) {
+                modeComfortBtn.classList.toggle("is-active", on);
+                modeComfortBtn.setAttribute("aria-pressed", on ? "true" : "false");
+            }
+            if (modeAllBtn) {
+                modeAllBtn.classList.toggle("is-active", !on);
+                modeAllBtn.setAttribute("aria-pressed", on ? "false" : "true");
+            }
+        }
+
+        function setMode(on) {
+            setComfortOnly(on);     // source of truth
+            updateModeUI(on);       // visuals
+            generateQuote();        // show a verse from the right pool
+        }
+
+        // init UI from saved state
+        updateModeUI(getComfortOnly());
+
+        // Switch click
+        if (comfortSwitch) {
+            comfortSwitch.addEventListener("click", (e) => {
+                e.preventDefault();
+                setMode(!getComfortOnly());
+            });
+
+            // Keyboard accessibility (Enter/Space)
+            comfortSwitch.addEventListener("keydown", (e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setMode(!getComfortOnly());
+                }
+            });
+        }
+
+        // Pills click
+        if (modeComfortBtn) {
+            modeComfortBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                setMode(true);
+            });
+        }
+        if (modeAllBtn) {
+            modeAllBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                setMode(false);
+            });
+        }
+
+    // ---------------------------
+    // Optional Firebase theme listen (if Firebase loaded)
+    // ---------------------------
+    if (auth && db && onAuthStateChanged && doc && onSnapshot) {
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                applyThemeClass(localStorage.getItem("themeClass:last") || "theme-original");
+                return;
+            }
+            const ref = doc(db, "users", user.uid);
+            onSnapshot(ref, (snap) => {
+                const data = snap.data() || {};
+                applyThemeClass(data.themeClass || "theme-original");
+            });
+        });
+    } else {
+        applyThemeClass(localStorage.getItem("themeClass:last") || "theme-original");
+    }
+    </script>
+
+</body>
+
+</html>

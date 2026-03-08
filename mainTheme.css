@@ -62,6 +62,7 @@ body {
 
 /* ================== Core Themes (yours) ================== */
 .theme-original {
+
     --bg-color: #eaf3ff;
     --text-color: #111111c3;
     --accent-color: #6095aa;
@@ -303,3 +304,24 @@ h2 {
 .theme-section h2 {
     background: inherit !important;
 }
+
+/* -- theme for index title --- */
+.theme-original{
+    --title-color: #2fa4b5;
+        /* teal */  }
+
+                .theme-main {
+                    --bg-color: #d2dae4;
+                    --text-color: #0f0d0f; /* title color */
+                    --accent-color: #6095aa;
+                    --title-color: #000;
+                    /* start black */
+                }
+
+                                :root {
+                                    --page-bg:
+                                        linear-gradient(135deg,
+                                            rgba(205, 177, 227, .676) 0%,
+                                            rgb(42, 164, 195) 45%,
+                                            rgba(255, 198, 224, .24) 100%);
+                                }

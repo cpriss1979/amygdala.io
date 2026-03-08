@@ -1257,92 +1257,64 @@ h3{
   font-weight: 600;
 }
 
-/* ================= RELAXING HOME BUTTON ================= */
 
-.top-home-wrap{
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  padding: calc(env(safe-area-inset-top, 0px) + 8px) 12px 4px;
-  position: relative;
-  z-index: 5;
+/* =================== accessability (from systemSettings.html) =================== */
+/*------------ accesability increase font size --------------- */
+/* Default fallbacks in case gs_prefs hasn't been set yet */
+:root {
+  --text-size: 1rem;
+  --motion-scale: 1;
 }
 
-.pet-home-btn{
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
+/* Base text uses the variable from gs_prefs */
+body {
+  font-size: var(--text-size, 1rem);
+}
 
-  padding: 10px 18px;
-  min-height: 44px;
-  border-radius: 999px;
+/* Let most things inherit body size, instead of hardcoding rems */
+p,
+input[type="text"],
+textarea,
+.toolkit-item span,
+.button,
+.button-purple,
+.idea-item,
+#toolkitList .idea-text {
+  font-size: 1em; /* 1em = whatever body is (1rem or 1.1rem, etc.) */
+}
 
-  text-decoration: none;
-  font-family: 'Quicksand', 'Open Sans', system-ui, sans-serif;
-  font-size: 1rem;
-  font-weight: 700;
-  letter-spacing: 0.2px;
+/* Scale headings relative to --text-size so they grow/shrink too */
+h1.three-d-title,
+h1.three-d-title-two {
+  font-size: calc(var(--text-size, 1rem) * 1.7);
+}
 
-  color: #11443f;
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(255, 255, 255, 0.55);
+/* ------ text inside the top of the teal container ------ */
+h3,
+.dreamy-box h3 {
+  font-size: calc(var(--text-size, 1rem) * 1.25);
+}
 
-  box-shadow:
-    0 8px 24px rgba(10, 77, 72, 0.16),
-    inset 0 1px 0 rgba(255, 255, 255, 0.7);
-
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-
+/* ----------------------- reduce motion ----------*/
+/* Use --motion-scale to tone down motion on this page */
+.icon-button,
+.button,
+.toolkit-entry button,
+.dropdown-icon-btn {
   transition:
-    transform 0.18s ease,
-    box-shadow 0.18s ease,
-    background 0.18s ease,
-    color 0.18s ease;
+    transform calc(150ms * var(--motion-scale, 1)),
+    background-color 0.3s ease,
+    box-shadow calc(150ms * var(--motion-scale, 1));
 }
 
-.pet-home-btn:hover,
-.pet-home-btn:focus-visible{
-  background: rgba(255, 255, 255, 0.86);
-  color: #0a4d48;
-  box-shadow:
-    0 10px 28px rgba(10, 77, 72, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.78);
-  transform: translateY(-1px);
-  outline: none;
+/* When motion-scale is 0, this becomes scale(1) (no “pop” on hover) */
+.icon-button:hover,
+.button:hover,
+.toolkit-entry button:hover,
+.dropdown-icon-btn:hover {
+  transform: scale(calc(1 + (0.03 * var(--motion-scale, 1))));
 }
 
-.pet-home-btn:active{
-  transform: translateY(1px);
-  box-shadow:
-    0 5px 14px rgba(10, 77, 72, 0.16),
-    inset 0 1px 0 rgba(255, 255, 255, 0.65);
-}
-
-/* Optional tiny glow so it feels magical on this page */
-.pet-home-btn::before{
-  content: "";
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0) 75%);
-  box-shadow: 0 0 10px rgba(255,255,255,0.75);
-  flex: 0 0 auto;
-}
-
-/* smaller on narrow phones */
-@media (max-width: 430px){
-  .top-home-wrap{
-    justify-content: flex-start;
-    padding: calc(env(safe-area-inset-top, 0px) + 8px) 12px 4px;
-  }
-
-  .pet-home-btn{
-    font-size: 0.96rem;
-    padding: 9px 16px;
-  }
-}
 </style>
 
 </head>
@@ -1351,10 +1323,6 @@ h3{
 
   <div class="full-page-sparkle-wrapper" id="sparkleWrapper"></div>
   
-  <div class="top-home-wrap">
-    <a class="pet-home-btn" href="./index.html">🏠 Home</a>
-    </div>
-
   <!-- START: brown hero strip -->
   <section class="hero-brown full-bleed">
   

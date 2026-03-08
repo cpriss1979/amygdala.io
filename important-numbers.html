@@ -1,6 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-ready="0" class="theme-original">
+
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Amygdala — IMPORTANT SUPPORT NUMBERS</title>
+
   <!-- prefs bootstrap: put in <head> of every page -->
   <script>
     (function () {
@@ -11,7 +16,8 @@
       document.documentElement.style.setProperty('--text-size', p.largerText ? '1.1rem' : '1rem');
     })();
   </script>
-  
+
+  <!-- Session bump logout (safe on public pages too) -->
   <script type="module">
     import { auth, db } from './firebase-init.js';
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -31,1045 +37,1037 @@
       });
     });
   </script>
-  
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Three Sides — IMPORTANT SUPPORT NUMBERS</title>
-  <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
-  <!-- Absolute (good for GitHub Pages) -->
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700;800;900&family=Patrick+Hand&display=swap"
+    rel="stylesheet">
+
+  <!-- PWA -->
   <link rel="manifest" href="manifest.webmanifest">
-  
-  <!-- Favicons -->
-  <link rel="icon" type="image/svg+xml" sizes="any" href="/3-sides-planner.io/favicon.svg">
-  <link rel="icon" type="image/png" sizes="32x32" href="/3-sides-planner.io/favicon-32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/3-sides-planner.io/favicon-16.png">
-  <link rel="apple-touch-icon" href="/3-sides-planner.io/icon-192.png"> <!-- iOS Home screen -->
-  
-  <!-- (Optional Safari pinned tab) -->
-  <link rel="mask-icon" href="/3-sides-planner.io/favicon-pinned.svg" color="#6a5acd">
-  
+  <meta name="theme-color" content="#EEF6FB">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+  <link rel="icon" type="image/svg+xml" sizes="any" href="favicon.svg">
 
-  <script src="sw-register.js"></script>
-
-  <!-- At the top of delete-account.html <body> or in <head> -->
-  <script type="module">
-    import './firebase-init.js'; // ensures app/auth/db are initialized
-  </script>
-    
-  <script>
-    (function () {
-      try {
-        var r = document.documentElement;
-        var t = localStorage.getItem("themeClass")
-          || localStorage.getItem("themeClass:last")
-          || "theme-original";
-        (r.className.match(/\btheme-[^\s]+/g) || []).forEach(c => r.classList.remove(c));
-        r.classList.add(t);
-      } catch { }
-    })();
-  </script>
-    
-    <!-- prefs bootstrap: put in <head> of every page -->
-    <script>
-      (function () {
-        const PREFS_KEY = 'gs_prefs';
-        let p = {};
-        try { p = JSON.parse(localStorage.getItem(PREFS_KEY) || '{}'); } catch { }
-        document.documentElement.style.setProperty('--motion-scale', p.reducedMotion ? '0' : '1');
-        document.documentElement.style.setProperty('--text-size', p.largerText ? '1.1rem' : '1rem');
-      })();
-    </script>
-      
-  <!-- Prevent flash of wrong theme -->
-  <style>
-    html {
-      visibility: hidden
-    }
-  </style>
-  <noscript>
-    <style>
-      html {
-        visibility: visible
-      }
-    </style>
-  </noscript>
-
+  <script src="sw-register.js" defer></script>
   <script type="module" src="auth.js"></script>
 
+  <!-- Prevent flash until we apply theme -->
   <style>
-    html {
-      visibility: hidden
+    html:not([data-ready="1"]) {
+      visibility: hidden;
     }
-  
-    /* Base layout & theming trims (kept from your page) */
-    body {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      padding-bottom: 5rem;
-      margin: 0;
-      font-family: 'Open Sans', sans-serif;
-      background: rgb(3, 3, 82)
-    }
-  
-    .three-d-title {
-      font-family: 'Patrick Hand', cursive;
-      font-size: 2rem;
-      font-weight: bold;
-      text-align: center;
-      text-shadow: 2px 2px rgba(0, 0, 0, .2);
-      color: green;
-      margin: .7rem 0 0
-    }
-  
-    .container {
-      padding: 1rem;
-      margin: 0 auto;
-      width: 95vw;
-      max-width: 600px;
-      box-sizing: border-box
-    }
-  
-    ul {
-      list-style: none;
-      padding: 0;
-      margin: 0
-    }
-  
-    li {
-      font-size: 1.15rem;
-      padding: .9rem .8rem;
-      margin: .3rem;
-      border: 4px solid green;
-      background: rgb(162, 242, 162);
-      line-height: 1.4
-    }
-  
-    .bottom-nav {
-      position: fixed;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: #fafafa;
-      border-top: 1px solid rgba(69, 111, 179, .9);
-      display: flex;
-      justify-content: space-around;
-      padding: .8rem 0;
-      z-index: 1000
-    }
-  
-    .nav-icon {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-decoration: none;
-      color: rgba(69, 111, 179, .9);
-      font-size: 1.3rem
-    }
-  
-    .nav-icon span {
-      font-size: .75rem;
-      margin-top: .2rem
-    }
-  
-    .footer-quote {
-      color: #fff;
-      text-align: center;
-      font-size: 1.3rem;
-      margin: 2rem 0
-    }
-  
-    /* Personal list editor (only shown when logged in) */
-    #editor {
-      display: none;
-      margin-top: 1rem;
-      background: #fff;
-      color: #222;
-      border-radius: 12px;
-      padding: 12px
-    }
-  
-    #editor .row {
-      display: flex;
-      gap: .5rem;
-      margin: .4rem 0
-    }
-  
-    #editor input {
-      flex: 1;
-      padding: .55rem .65rem;
-      border: 1px solid #ccc;
-      border-radius: 8px
-    }
-  
-    #editor button {
-      padding: .55rem .8rem;
-      border-radius: 8px;
-      border: 1px solid #2a922a;
-      background: #2a922a;
-      color: #fff;
-      cursor: pointer
-    }
-  
-    #status {
-      font-size: .9rem;
-      opacity: .8;
-      margin-top: .25rem
-    }
-  
-    #loginHint {
-      display: none;
-      margin: .75rem 0;
-      color: #fff;
-      opacity: .9
-    }
-  
-    /* Prevent FOUC when JS disabled */
-    @media (prefers-reduced-motion:no-preference) {
-  
-      html,
-      body {
-        scroll-behavior: smooth
-      }
-    }
-  
-    /* Inline SVG divider color (green with white edge) */
-    .divider-bg {
-      background: url("data:image/svg+xml;utf8,%3Csvg viewBox='0 0 1440 150' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%232a922a' stroke='%23ffffff' stroke-width='3' d='M0,40 Q80,90 160,40 T320,40 T480,40 T640,40 T800,40 T960,40 T1120,40 T1280,40 T1440,40 L1440,0 L0,0 Z'/%3E%3C/svg%3E") no-repeat center;
-      background-size: cover
+
+    noscript+style {
+      visibility: visible;
     }
   </style>
-  <noscript>
-    <style>
-      html {
-        visibility: visible
-      }
-    </style>
-  </noscript>  
 
 <style>
-  /* -------------------- BASE PAGE LAYOUT -------------------- */
-.three-d-title {
-  font-family: 'Patrick Hand', cursive;
-  font-size: 2.2rem !important;
-  font-weight: bold;
-  text-align: center;
-  text-shadow: 2px 2px rgba(0, 0, 0, 0.2);
-  color: green !important;
-}
+  :root {
+    --max: 620px;
+    --pad: 14px;
 
-/* -------------------- NAV ICON CONSISTENCY -------------------- */
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background: #fafafa;
-  border-top: 1px solid rgba(69, 111, 179, 0.903);
-  display: flex;
-  justify-content: space-around;
-  padding: 0.8rem 0;
-  z-index: 1000;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
-}
+    /* bottom nav */
+    --gs-nav-h: 64px;
+    --gs-nav-fs: 12px;
+    --gs-nav-ico: 20px;
+    --gs-nav-bg: #fafafa;
+    --gs-nav-border: rgba(69, 111, 179, .25);
+    --gs-nav-text: rgba(69, 111, 179, 1);
+    --gs-nav-active: #0b6cc4;
 
-.bottom-nav {
-  overflow-x: auto; /* makes sure it scrolls rather than overflows */
-  max-width: 100vw;
-  box-sizing: border-box;
-}
+    /* fallbacks (themes can override) */
+    --text-color: rgba(10, 20, 35, .92);
 
-.nav-icon {
-  text-decoration: none;
-  color: rgba(69, 111, 179, 0.903);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.3rem;
-  transition: color 0.3s ease;
-}
+    /* surfaces */
+    --panel: rgba(255, 255, 255, .22);
+    --panelBorder: rgba(255, 255, 255, .45);
+    --shadow: 0 18px 45px rgba(0, 0, 0, .12);
 
-.nav-icon span {
-  font-size: 0.75rem;
-  margin-top: 0.2rem;
-  color: rgba(69, 111, 179, 0.903);
-}
+    --row: rgba(255, 255, 255, .70);
+    --rowBorder: rgba(10, 20, 35, .10);
+    --rowShadow: 0 10px 22px rgba(0, 0, 0, .09);
 
-.nav-icon:hover,
-.nav-icon:focus {
-  color: #72aadf;
-  outline: none;
-}
-
-textarea, button, input, .icon-button {
-  max-width: 100%;
-  box-sizing: border-box;
-}
-
-body {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding-bottom: 5rem; /* height of the nav */
-}
-
-    html, body {
-  scroll-behavior: smooth;
-  overscroll-behavior-y: contain; /* or 'none' if needed */
-}
-
-html, body {
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden; /* ✅ prevents horizontal scroll */
-  box-sizing: border-box;
-}
-
-    html, body {
-  margin: 10;
-  padding: 0;
-  min-height: 100vh;
-  box-sizing: border-box;
-    width: 100%;
-  padding-bottom: 4rem; /* for footer space */
-}
-
-*, *::before, *::after {
-  box-sizing: border-box;
-}
-
-/* --------------------------Theme Customization ------------------ */
-:root {
-  --bg-color: #ffffff;
-  --text-color: rgb(3, 3, 82);
-  --accent-color: #87ceeb; /* default blue */
-}
-
-body {
-  background-color: var(--bg-color);
-  color: var(--text-color);
-}
-
-.button, .popup {
-  background-color: var(--accent-color);
-  color: var(--text-color);
-}
-
-.theme-gallery {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  padding: 1rem;
-}
-
-.theme-card {
-  border: 2px solid #ccc;
-  padding: 1rem;
-  width: 200px;
-  border-radius: 10px;
-  background-color: #f7f7f7;
-  text-align: center;
-  box-shadow: 0 0 5px rgba(0,0,0,0.1);
-}
-
-.theme-card.locked {
-  opacity: 0.5;
-  pointer-events: none;
-}
-
-.theme-original {
-  --bg-color: #ffffff;
-  --text-color: purple;
-  --accent-color: #6095aa;
-}
-
-.theme-pinklight {
-  --bg-color: #e59fb6;
-  --text-color: #880e4f;
-  --accent-color: #f48fb1;
-}
-
-.theme-purple {
-  --bg-color: #a836b9;
-  --text-color: #4a148c;
-  --accent-color: #ce93d8;
-}
-
-.theme-greenmed {
-  --bg-color: #6fca8c;
-  --text-color: #131413;
-  --accent-color: #26a69a;
-}
-
-.theme-pinkmed {
-  --bg-color: #e03fa8;       /* rich berry-pink backdrop */
-  --text-color: #621547;     /* soft pastel pink for contrast */
-  --accent-color: #d81b60;   /* bold raspberry pink for buttons */
-}
-
-.theme-darkblue {
-  --bg-color: #1e2a38;      /* deep navy */
-  --text-color: #3f8cb5;     /* soft white */
-  --accent-color: #3f51b5;   /* indigo */
-}
-
-.theme-darkgreen {
-  --bg-color: #1c611c;       /* earthy dark green */
-  --text-color: #43a043;     /* light pastel green */
-  --accent-color: #81c784;   /* medium green */
-}
-
-.theme-darkrose {
-  --bg-color: #4b0e1e;       /* deep romantic rose */
-  --text-color: #823549;     /* soft light rose */
-  --accent-color: #c2185b;   /* vibrant lipstick pink */
-}
-
-.theme-blue {
-  --bg-color: #aad7f6;
-  --text-color: #131413;
-  --accent-color: #42a5f5;
-}
-
-.theme-greenmed {
-  --bg-color: #6fca8c;
-  --text-color: #004d40;
-  --accent-color: #26a69a;
-}
-
-.theme-bingo {
-  --bg-color: #e6f640;
-  --text-color: #767931;
-  --accent-color: #0a0a0a;
-}
-
-.theme-bumblebee {
-  --bg-color: #d0c65d;
-  --text-color: #3e3e3e;
-  --accent-color: #f9c80e;
-}
-
-.theme-dolphin {
-  --bg-color: #1e557d;         /* deep ocean blue */
-  --text-color: #cc6ca0;       /* soft, warm pink – still readable */
-  --accent-color: #73c2fb;     /* playful dolphin splash blue */
-}
-
-.theme-bubby-bear {
-  --bg-color: #6e4f34;     /* warm, soft teddy brown */
-  --text-color: #f9e8d9;   /* creamy vanilla */
-  --accent-color: #a77b4f; /* honey caramel highlight */
-}
-
-.theme-shortcake {
-  --bg-color: #fddde6;      /* soft strawberry milk pink */
-  --text-color: #a84863;    /* berry rose */
-  --accent-color: #ffc1cc;  /* frosted pink topping */
-}
-
-.theme-arcade {
-  --bg-color: #C8102E;
-    /* classic Santa Fe red */
-    --text-color: #FFE3E7;
-    /* soft light */
-    --accent-color: #6b0010;
-    /* deep maroon */
-}
-
-.theme-peach {
-  --bg-color: #F9C5A0;      /* warm peachy background */
-  --text-color: #5A3E36;    /* cocoa brown for beautiful contrast */
-  --accent-color: #FFE5B4;  /* soft peachy cream for highlights */
-}
-
-.theme-brady {
-  --bg-color: #B0C4DE;
-  --text-color: #2F4F4F;
-  --accent-color: #E6EEF5;
-}
-
-.theme-moonlight {
-  --bg-color: #082042;       /* midnight sky */
-  --text-color: #64a4e4;     /* pale moon */
-  --accent-color: #9dcfff;   /* shimmering accent */
-}
-
-.top-journal-section,
-.gradient-section-box,
-.bottom-wrapper,
-.full-journal-box 
-{
-  background: var(--bg-color); /* or a themed gradient if you're fancy */
-  color: var(--text-color);
-}
-
-.theme-colored-text {
-  color: var(--text-color) !important;
-  font-weight: bold;
-  font-size: 1.05rem;
-}
-
-#authControls {
-  margin-bottom: 0;
-  padding-bottom: 0;
-}
-
-#authControls p {
-  margin: 0;
-  padding: 0;
-}
-
-.page-header {
-  margin-top: 0;
-  padding-top: 0;
-}
-
-body {
-  margin-top: 0;
-}
-
-ul {
-  list-style: none;
-  padding: 0;
-  font-size: .5rem;
-  line-height: .9;
-}
-
-html, body {
-  margin: 0;
-  padding: 0;
-  min-height: 100vh;
-  background-color: #3bb5b3;
-  background-size: cover;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-bottom: 6rem;
-  box-sizing: border-box;
-  font-family: 'Open Sans', sans-serif !important;
-  color: black!important;
-  overflow-x: hidden;
-}
-
-strong {
-  color: black !important;
-}
-
-/* Responsive styles for important-numbers */
-@media (max-width: 600px) {
-  h2 {
-    font-size: 1.3rem;
+    --ink: var(--text-color);
+    --muted: rgba(10, 20, 35, .70);
+    --link: rgba(49, 64, 162, .95);
   }
 
-  li {
-    font-size: 1.9rem;
-    padding: 0.8rem;
-  }
-}
-
-.section-container {
-  padding: 1rem;
-  max-width: 1000px;
-  margin: auto;
-}
-
-@media (max-width: 600px) {
-  body {
-    padding: 0 1rem;
+  * {
     box-sizing: border-box;
   }
-}
 
-li {
-  font-size: 1.15rem !important;
-  padding: 0.9rem 0.8rem !important; /* vertical padding reduced */
-  margin: .3rem !important;  /* tighter space between items */
-  border: 1.7px solid #6c3763c6!important;
-  border-radius: 25px;
-  background-color: #ffff !important;
-  line-height: 1.4; /* 💫 try 1.5–1.8 depending on what looks best */
-
-}
-
-.three-d-title {
-  font-family: 'Patrick Hand', cursive;
-  font-size: 2rem !important;
-  font-weight: bold;
-  text-align: center;
-  text-shadow: 2px 2px rgba(0, 0, 0, 0.2);
-  color: rgb(16, 18, 16) !important;
-    margin-top: 0.7rem !important;  /* <-- pull it tight to the top divider */
-  margin-bottom: 0rem !important; /* <-- pull it tight to the bottom divider */
-}
-
-.footer-quote {
-  color: rgb(69, 24, 65); /* or #fefefe, or any color you want */
-  text-align: center;
-  font-size: 1.3rem;
-  margin-top: 2rem;
-  background-color: #f584b7;  /*------ top text - message ---*/
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
-  border-top-right-radius: 25px;
-  border-bottom-left-radius: 25px;
-  padding: 1.5%;
-}
-
-/* --------------------- Mobile-safe media query -------------------- */
-@media (max-width: 600px) {
-  .image-text-box {
-    width: 100%;
-    max-width: 100%;
-    margin-left: 0;
-    margin-right: 0;
-    border-radius: 0;
-    padding: 1rem 0.75rem;
-    text-align: left; /* optional: center if you prefer */
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+    font-family: "Open Sans", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    overflow-x: hidden;
+    font-size: var(--text-size, 1rem);
+    color: var(--ink);
   }
 
-  .hero-image {
-    width: 100%;
-    height: auto;
-    display: block;
+  body.gs-has-nav {
+    padding-bottom: calc(var(--gs-nav-h) + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* background matches your other pages */
+  body {
+    background:
+      radial-gradient(1200px 700px at 10% 0%, rgba(186, 147, 255, .35), transparent 55%),
+      radial-gradient(900px 600px at 90% 10%, rgba(120, 205, 255, .30), transparent 55%),
+      linear-gradient(180deg,
+        rgba(238, 246, 251, 1) 0%,
+        rgba(141, 201, 223, .55) 45%,
+        rgba(120, 170, 210, .50) 100%);
+    background-attachment: fixed;
+  }
+
+  main.page {
+    width: min(var(--max), 97vw);
     margin: 0 auto;
+    padding:
+      calc(env(safe-area-inset-top, 0px) + 10px) var(--pad) calc(var(--gs-nav-h) + env(safe-area-inset-bottom, 0px) + 16px) var(--pad);
   }
 
-  .hero-caption,
-  .image-text-box p {
-    font-size: 1rem;
-    line-height: 1.4;
+  .topbar {
+    display: flex;
+    justify-content: flex-start;
+    margin: 0 0 10px;
   }
-}
 
-.container {
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    text-decoration: none;
+    background: rgba(255, 255, 255, .78);
+    border: 1px solid rgba(10, 20, 35, .12);
+    box-shadow: 0 10px 22px rgba(0, 0, 0, .08);
+    color: rgba(10, 20, 35, .92);
+    font-weight: 900;
+    line-height: 1;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform calc(150ms * var(--motion-scale, 1));
+  }
 
-  margin: 0 auto;
-  width: 95vw;
-  max-width: 600px;
-  box-sizing: border-box;
-}
+  .pill:active {
+    transform: translateY(1px);
+  }
 
-body {
-  overflow-x: hidden;
-}
+  .top-shell {
+    background: var(--panel);
+    border: 1px solid var(--panelBorder);
+    border-radius: 22px;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 14px;
+    margin-top: 8px;
+  }
 
-.support-box {
-  width: 100%;
-  margin: 0 auto;
-  border-radius: 0;
-}
-
-/* =============== overrides ================= */
-.torn-paper-divider {
-  width: 100%;
-  height: 40px;
-  margin: 0 auto;
-  display: block;
-  background: url("data:image/svg+xml;utf8,%3Csvg viewBox='0 0 1440 150' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='rgb(255, 198, 224) ' d='M0,40 Q80,90 160,40 T320,40 T480,40 T640,40 T800,40 T960,40 T1120,40 T1280,40 T1440,40 L1440,0 L0,0 Z'/%3E%3C/svg%3E") no-repeat center;
-  background-size: cover;
-  transform: rotate(180deg);
-}
-
-.torn-paper-divider { 
-  filter: none !important; 
-}
-
-/* ================= register css add ons ================ */
-/* ADDED: tiny legal footer style for the Privacy link */
-/* Privacy link at the bottom: make it match the accent */
-.legal-footer a { color: #C9BBFF !important; }              /* link color */
-.legal-footer a:hover { text-decoration: underline; filter: brightness(1.12); }
-  
-  .legal-footer {
-    color: black !important;
+  .three-d-title {
+    font-family: "Patrick Hand", cursive;
+    font-size: 2rem;
+    font-weight: 900;
     text-align: center;
+    margin: 2px 0 6px;
+    text-shadow: 2px 2px rgba(0, 0, 0, .10);
+    letter-spacing: 1px;
+    color: rgba(10, 20, 35, .92);
   }
 
-  .legal-footer a {
-    color: rgb(49, 64, 162) !important;
-  }
-
-/* ================= navbar overrides ============= */
-/* === Glow Standard Bottom Nav (namespaced) === */
-:root{
-  --gs-nav-h: 64px;
-  --gs-nav-fs: 12px;   /* label */
-  --gs-nav-ico: 20px;  /* emoji */
-  --gs-nav-bg: #fafafa;
-  --gs-nav-border: rgba(69,111,179,.25);
-  --gs-nav-text: rgba(69,111,179,1);
-  --gs-nav-active: #0b6cc4;
-}
-
-/* Reserve space for the fixed bar (opt-in via body.gs-has-nav) */
-body.gs-has-nav{
-  padding-bottom: calc(var(--gs-nav-h) + env(safe-area-inset-bottom, 0px));
-}
-
-/* The fixed bar */
-footer.gs-nav{
-  position: fixed;
-  left: 0; right: 0; bottom: 0;
-  height: var(--gs-nav-h);
-  background: var(--gs-nav-bg);
-  border-top: 1px solid var(--gs-nav-border);
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  padding: 0 env(safe-area-inset-left,8px) 0 env(safe-area-inset-right,8px);
-  z-index: 1000;
-  overflow: hidden;
-  box-sizing: border-box;
-  /* normalize inheritance so pages can’t change it */
-  font-size: 0; line-height: 1; font-family: inherit;
-}
-
-/* Items are equal columns */
-.gs-nav__item{
-  flex: 1 1 0;
-  min-width: 0;
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  text-decoration: none;
-  color: var(--gs-nav-text);
-  white-space: nowrap;
-  padding: 0; margin: 0;
-  box-sizing: border-box;
-}
-
-/* Explicit sizes (prevents page font from changing the bar) */
-.gs-nav__item .ico { font-size: var(--gs-nav-ico); display:block; line-height:1; }
-.gs-nav__item span { font-size: var(--gs-nav-fs); display:block; line-height:1; }
-
-/* Active + hover */
-.gs-nav__item[aria-current="page"]{ color: var(--gs-nav-active); font-weight: 700; }
-.gs-nav__item:hover{ color:#72aadf; }
-
-/* --------------------------  updates  -------------- */
- .footer-quote {
-    color: rgb(69, 24, 65);
+  .subnote {
     text-align: center;
-    font-size: 1.1rem;          /* a tiny bit smaller for readability */
-    margin-top: 0.5rem;
-    margin-bottom: 0.75rem;     /* tighter so it hugs the first heading */
-    background-color: #f584b7;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
-    border-top-right-radius: 25px;
-    border-bottom-left-radius: 25px;
-    padding: 0.75rem 1rem;
+    font-weight: 800;
+    color: rgba(10, 20, 35, .78);
+    margin: 0;
+    padding: 10px 12px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, .62);
+    border: 1px solid rgba(10, 20, 35, .10);
+    box-shadow: 0 10px 22px rgba(0, 0, 0, .08);
+  }
+
+  /* Section card */
+  .section {
+    background: var(--panel);
+    border: 1px solid var(--panelBorder);
+    border-radius: 22px;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 14px;
+    margin-top: 12px;
   }
 
   .support-heading {
+    margin: 2px 2px 10px;
     font-size: 1.05rem;
-    margin: 1rem 0 0.35rem;     /* space above each section, small space below */
-    color: #064e3b;             /* deep green for contrast */
-    font-weight: 700;
-  }
-
-  .support-list li {
-    display: flex;
-    flex-direction: column;
-    gap: .25rem;
-  }
-
-  .support-list a {
-    display: inline-block;
-    margin-top: 0.1rem;
-    font-weight: 600;
-    text-decoration: underline;
+    font-weight: 900;
+    color: rgba(10, 20, 35, .88);
   }
 
   .support-heading::after {
     content: "";
     display: block;
     height: 2px;
-    width: 40%;
-    margin-top: 0.15rem;
+    width: 46%;
+    margin-top: 6px;
     border-radius: 999px;
-    background: rgba(108, 55, 99, 0.6); /* matches your card border color */
+    background: rgba(108, 55, 99, 0.40);
   }
 
+  /* ROW LIST — calm + consistent */
+  .support-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 10px;
+  }
 
-/* =================== accessability (from systemSettings.html) =================== */
-/*------------ accesability increase font size --------------- */
-/* Default fallbacks in case gs_prefs hasn't been set yet */
+  .support-item {
+    background: var(--row);
+    border: 1px solid var(--rowBorder);
+    border-radius: 18px;
+    box-shadow: var(--rowShadow);
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .support-left {
+    min-width: 0;
+  }
+
+  .support-title {
+    font-weight: 900;
+    color: rgba(10, 20, 35, .92);
+    line-height: 1.1;
+  }
+
+  .support-meta {
+    margin-top: 3px;
+    font-size: .92rem;
+    font-weight: 700;
+    color: var(--muted);
+    line-height: 1.15;
+  }
+
+  .btn-pill {
+    flex: 0 0 auto;
+    text-decoration: none;
+    font-weight: 900;
+    border-radius: 999px;
+    padding: 8px 12px;
+    border: 1px solid rgba(10, 20, 35, .14);
+    background: rgba(255, 255, 255, .78);
+    color: var(--link);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, .08);
+    white-space: nowrap;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform calc(150ms * var(--motion-scale, 1));
+  }
+
+  .btn-pill:active {
+    transform: translateY(1px);
+  }
+
+  .legal-footer {
+    text-align: center;
+    margin: 14px 0 0;
+    color: rgba(10, 20, 35, .72);
+    font-weight: 700;
+  }
+
+  .legal-footer a {
+    color: var(--link);
+    font-weight: 900;
+    text-decoration: underline;
+  }
+
+  /* Bottom Nav */
+  footer.gs-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: var(--gs-nav-h);
+    background: var(--gs-nav-bg);
+    border-top: 1px solid var(--gs-nav-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 env(safe-area-inset-left, 8px) 0 env(safe-area-inset-right, 8px);
+    z-index: 1000;
+    overflow: hidden;
+    box-sizing: border-box;
+    font-size: 0;
+    line-height: 1;
+    font-family: inherit;
+  }
+
+  .gs-nav__item {
+    flex: 1 1 0;
+    min-width: 0;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    text-decoration: none;
+    color: var(--gs-nav-text);
+    white-space: nowrap;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .gs-nav__item .ico {
+    font-size: var(--gs-nav-ico);
+    display: block;
+    line-height: 1;
+  }
+
+  .gs-nav__item span {
+    font-size: var(--gs-nav-fs);
+    display: block;
+    line-height: 1;
+  }
+
+  .gs-nav__item[aria-current="page"] {
+    color: var(--gs-nav-active);
+    font-weight: 900;
+  }
+
+  .gs-nav__item:hover {
+    color: #72aadf;
+  }
+
+  .gs-nav__item.is-locked {
+    opacity: .55;
+  }
+
+  @media (max-width: 420px) {
+    .three-d-title {
+      font-size: 1.9rem;
+    }
+
+    .btn-pill {
+      padding: 7px 10px;
+    }
+  }
+
+  /* ===== Top header tightening ===== */
+  .top-shell {
+    padding: 12px 12px 10px;
+    /* was 14px */
+    margin-top: 6px;
+    /* was 8px */
+  }
+
+  .three-d-title {
+    margin: 2px 0 4px;
+    /* less vertical space */
+    font-size: 1.85rem;
+    /* slightly smaller */
+  }
+
+  /* calmer subnote: still a pill, but less “boxy” */
+  .subnote {
+    padding: 8px 10px;
+    /* was 10px 12px */
+    border-radius: 14px;
+    /* was 18px */
+    background: rgba(255, 255, 255, .48);
+    /* was .62 */
+    box-shadow: 0 8px 18px rgba(0, 0, 0, .06);
+    /* softer */
+    border: 1px solid rgba(10, 20, 35, .08);
+    /* softer */
+  }
+
+  /* =========================
+ IMPORTANT NUMBERS — DE-CROWD POLISH (override)
+ Paste at END of CSS
+ ========================= */
+
+  /* Give the page a little more breathing room */
+  main.page {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 14px);
+  }
+
+  /* Slightly soften big glass cards (less “stacked”) */
+  .top-shell,
+  .section {
+    box-shadow: 0 14px 34px rgba(0, 0, 0, .10);
+    /* softer than 0 18px 45px */
+  }
+
+  /* Section spacing */
+  .section {
+    margin-top: 14px;
+    /* was 12px */
+    padding: 14px 14px 16px;
+  }
+
+  /* List spacing: give it air */
+  .support-list {
+    gap: 12px;
+    /* was 10px */
+  }
+
+  /* Reduce text density slightly */
+  .support-title {
+    line-height: 1.15;
+    /* was 1.1 */
+  }
+
+  .support-meta {
+    margin-top: 4px;
+    /* was 3px */
+    font-size: .90rem;
+    /* was .92rem */
+    line-height: 1.2;
+  }
+
+  /* Call button: keep it clear but calmer */
+  .btn-pill {
+    padding: 7px 11px;
+    /* slightly tighter */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, .07);
+    /* softer */
+    border: 1px solid rgba(10, 20, 35, .12);
+  }
+
+  /* Heading underline: shorten a bit so it’s less “busy” */
+  .support-heading::after {
+    width: 38%;
+    /* was 46% */
+    opacity: .70;
+  }
+
+  /* Optional: give headings a touch more spacing */
+  .support-heading {
+    margin-bottom: 12px;
+    /* was 10px */
+  }
+
+  /* =========================
+ IMPORTANT NUMBERS — SOFTEN COLOR SYSTEM
+ ========================= */
+
+  /* Section card = main surface */
+  .section {
+    background: rgba(255, 255, 255, .26);
+    /* was more opaque */
+    border: 1px solid rgba(255, 255, 255, .38);
+  }
+
+  .support-item {
+    background: transparent;
+    /* remove inner card */
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+    padding: 8px 4px;
+    /* slightly lighter spacing */
+  }
+
+  .support-item+.support-item {
+    border-top: 1px solid rgba(10, 20, 35, .08);
+    padding-top: 10px;
+    margin-top: 6px;
+  }
+
+  /* Button should NOT be bright white */
+  .btn-pill {
+    background: rgba(230, 240, 255, .65);
+    /* gentle blue tint */
+    color: #2c4c8a;
+    border: 1px solid rgba(60, 100, 170, .22);
+  }
+
+  /* Reduce heavy ink contrast */
+  .support-title {
+    color: rgba(10, 20, 35, .88);
+    /* slightly softer */
+  }
+
+  .support-meta {
+    color: rgba(10, 20, 35, .62);
+    /* calmer */
+  }
+
+  /* Subnote tone down */
+  .subnote {
+    background: rgba(255, 255, 255, .42);
+  }
+
+  /* ---- you're not alone .... container override ---*/
+  .subnote {
+    background: linear-gradient(180deg,
+        rgba(210, 225, 255, .55),
+        rgba(210, 225, 255, .35));
+    border: 1px solid rgba(120, 150, 200, .22);
+    box-shadow: 0 8px 18px rgba(80, 120, 180, .08);
+  }
+
+  .top-shell {
+    padding: 14px 14px 10px;
+    margin: 8px 0 12px;
+    border-radius: 20px;
+
+    /* not white, not glass slab — just atmosphere */
+    background: linear-gradient(180deg,
+        rgba(200, 225, 255, .28),
+        rgba(200, 225, 255, .16));
+
+    border: 1px solid rgba(120, 150, 200, .18);
+    box-shadow: 0 12px 28px rgba(40, 80, 130, .08);
+  }
+
+  .subnote {
+    margin: 6px auto 0;
+    padding: 8px 10px;
+    border-radius: 14px;
+    font-weight: 800;
+
+    background: rgba(255, 255, 255, .42);
+    border: 1px solid rgba(10, 20, 35, .08);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, .05);
+  }
+
+  /* ===============================
+ HOME BUTTON — MATCH TOOLKIT/JOURNAL
+ =============================== */
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: .75rem;
+    margin-bottom: .75rem;
+  }
+
+  .topbar .pill {
+    text-decoration: none !important;
+    font-weight: 800 !important;
+    padding: .5rem .8rem !important;
+    border-radius: 12px !important;
+
+    background: rgba(255, 255, 255, .78) !important;
+    /* ⭐ LIGHTER */
+    border: 1px solid rgba(0, 0, 0, .12) !important;
+    color: rgba(10, 20, 35, .92) !important;
+    /* ⭐ CRISP TEXT */
+
+    box-shadow: 0 8px 20px rgba(0, 0, 0, .06) !important;
+    line-height: 1 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: .4rem !important;
+
+    transform: none !important;
+  }
+
+  /*====================================
+===================
+===================================*/
+  /* ===============================
+ TOP HOME PILL — FORCE LIGHT LOOK
+ (paste at VERY END of CSS)
+ =============================== */
+  .topbar .pill {
+    background: rgba(255, 255, 255, .78) !important;
+    border: 1px solid rgba(10, 20, 35, .12) !important;
+    color: rgba(10, 20, 35, .92) !important;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, .08) !important;
+    font-weight: 900 !important;
+    text-decoration: none !important;
+  }
+
+  .topbar .pill:visited {
+    color: rgba(10, 20, 35, .92) !important;
+  }
+
+  .topbar .pill:hover {
+    background: rgba(255, 255, 255, .86) !important;
+  }
+
+  .topbar .pill:active {
+    transform: translateY(1px) !important;
+  }
+
+  .home-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    text-decoration: none;
+
+    background: rgba(255, 255, 255, .78);
+    border: 1px solid rgba(10, 20, 35, .12);
+    color: rgba(10, 20, 35, .92);
+    box-shadow: 0 10px 22px rgba(0, 0, 0, .08);
+
+    font-weight: 900;
+    line-height: 1;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .home-pill:visited {
+    color: rgba(10, 20, 35, .92);
+  }
+
+  .home-pill:active {
+    transform: translateY(1px);
+  }
+
+  /* ✅ TOP HOME BUTTON — FINAL OVERRIDE (important-numbers.html) */
+  .topbar a.home-pill {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+
+    padding: 8px 12px !important;
+    border-radius: 999px !important;
+    text-decoration: none !important;
+
+    background: rgba(255, 255, 255, .78) !important;
+    border: 1px solid rgba(10, 20, 35, .12) !important;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, .08) !important;
+
+    color: rgba(10, 20, 35, .92) !important;
+    font-weight: 900 !important;
+    line-height: 1 !important;
+
+    -webkit-tap-highlight-color: transparent !important;
+  }
+
+  .topbar a.home-pill:visited {
+    color: rgba(10, 20, 35, .92) !important;
+  }
+
+  .topbar a.home-pill:hover {
+    background: rgba(255, 255, 255, .86) !important;
+  }
+
+  .topbar a.home-pill:active {
+    transform: translateY(1px) !important;
+  } 
+
+  
+body.gs-has-nav {
+background:
+radial-gradient(1200px 700px at 20% 0%, rgba(255,255,255,.45) 0%, rgba(255,255,255,0) 55%),
+radial-gradient(900px 650px at 80% 0%, rgba(170,210,255,.40) 0%, rgba(170,210,255,0) 55%),
+linear-gradient(180deg, rgba(120,205,220,.55) 0%, rgba(120,170,255,.30) 100%) !important;
+}
+
+body.gs-has-nav{
+background: linear-gradient(180deg, #e9f6fb 0%, #dff1ff 100%) !important;
+}
+
+
+html,
+body.gs-has-nav{
+  height: 100%;
+      font-family: "Open Sans", sans-serif;
+      color: var(--ink);
+      background: linear-gradient(135deg,
+          rgba(205, 177, 227, 0.68) 0%,
+          rgb(42, 164, 195) 45%,
+          rgba(255, 198, 224, .24) 100%) !important;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    /* ===============================
+   LEARN.HTML GLASS COLORS — OVERRIDE
+   Paste at VERY END of important-numbers.html <style>
+   =============================== */
+
+:root{
+  --ink: rgba(10, 25, 30, .90);
+  --muted: rgba(10, 25, 30, .62);
+
+  /* match Learn */
+  --glass: rgba(255, 255, 255, .72);
+  --glass2: rgba(255, 255, 255, .62);
+  --border: rgba(0, 0, 0, .10);
+  --shadow: 0 14px 40px rgba(0, 0, 0, .10);
+}
+
+/* Big containers (top + sections) */
+.top-shell,
+.section{
+  background: var(--glass) !important;
+  border: 1px solid rgba(255,255,255,.55) !important;
+  box-shadow: var(--shadow) !important;
+  backdrop-filter: blur(10px) saturate(1.1) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(1.1) !important;
+}
+
+/* The inner “YOU’RE NOT ALONE…” pill */
+.subnote{
+  background: rgba(255,255,255,.55) !important;
+  border: 1px solid rgba(0,0,0,.08) !important;
+  box-shadow: 0 10px 22px rgba(0,0,0,.08) !important;
+  color: var(--ink) !important;
+}
+
+/* List items inside sections */
+.support-item{
+  background: var(--glass2) !important;
+  border: 1px solid rgba(0,0,0,.08) !important;
+  box-shadow: 0 10px 22px rgba(0,0,0,.09) !important;
+  border-radius: 18px !important;
+  padding: 10px 12px !important;
+}
+
+/* Kill the “transparent + divider” style you added later */
+.support-item + .support-item{
+  border-top: none !important;
+  margin-top: 0 !important;
+  padding-top: 10px !important;
+}
+
+/* Buttons: same soft white pill feel */
+.btn-pill{
+  background: rgba(255, 255, 255, .65) !important;
+  border: 1px solid rgba(0,0,0,.10) !important;
+  box-shadow: 0 10px 20px rgba(0,0,0,.06) !important;
+  color: rgba(10, 25, 30, .90) !important;
+}
+
+/* Text tones */
+.support-title,
+.support-heading,
+.three-d-title{
+  color: var(--ink) !important;
+}
+
+.support-meta,
+.legal-footer{
+  color: var(--muted) !important;
+}
+
+/* ===============================
+   IMPORTANT NUMBERS — FINAL GLASS (Learn-like)
+   + darker bottom containers
+   Paste at VERY END of <style>
+   =============================== */
+
+:root{
+  --ink: rgba(10, 25, 30, .90);
+  --muted: rgba(10, 25, 30, .62);
+
+  /* Learn baseline */
+  --border: rgba(0, 0, 0, .10);
+  --shadow: 0 14px 40px rgba(0, 0, 0, .10);
+}
+
+/* Top container (keep it Learn-bright) */
+.top-shell{
+  background: rgb(255 255 255 / .72) !important;
+  border: 1px solid rgb(255 255 255 / .55) !important;
+  box-shadow: var(--shadow) !important;
+  backdrop-filter: blur(10px) saturate(1.1) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(1.1) !important;
+}
+
+/* ✅ Bottom containers = a bit DARKER (more background shows through) */
+.section{
+  background: rgb(255 255 255 / .58) !important;        /* darker than Learn cards */
+  border: 1px solid rgb(255 255 255 / .50) !important;
+  box-shadow: 0 12px 34px rgba(0,0,0,.10) !important;
+  backdrop-filter: blur(10px) saturate(1.08) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(1.08) !important;
+}
+
+/* Inner “YOU’RE NOT ALONE…” pill (Learn style) */
+.subnote{
+  background: rgb(255 255 255 / .55) !important;
+  border: 1px solid rgba(0,0,0,.08) !important;
+  box-shadow: 0 10px 22px rgba(0,0,0,.08) !important;
+  color: var(--ink) !important;
+}
+
+/* List items inside sections (darker than Learn list rows) */
+.support-item{
+  background: rgb(255 255 255 / .62) !important;        /* darker, still soft */
+  border: 1px solid rgba(0,0,0,.08) !important;
+  box-shadow: 0 10px 22px rgba(0,0,0,.09) !important;
+  border-radius: 18px !important;
+  padding: 10px 12px !important;
+}
+
+/* Kill the old transparent/divider style completely */
+.support-item + .support-item{
+  border-top: none !important;
+  margin-top: 0 !important;
+  padding-top: 10px !important;
+}
+
+/* Buttons match Learn pill feel */
+.btn-pill{
+  background: rgb(255 255 255 / .65) !important;
+  border: 1px solid rgba(0,0,0,.10) !important;
+  box-shadow: 0 10px 20px rgba(0,0,0,.06) !important;
+  color: rgba(10, 25, 30, .90) !important;
+}
+
+/* Text tones */
+.support-title,
+.support-heading,
+.three-d-title{
+  color: var(--ink) !important;
+}
+
+.support-meta,
+.legal-footer{
+  color: var(--muted) !important;
+}
+
 :root {
-  --text-size: 1rem;
-  --motion-scale: 1;
-}
+      --ink: rgba(10, 25, 30, .90);
+      --muted: rgba(10, 25, 30, .62);
 
-/* Base text uses the variable from gs_prefs */
-body {
-  font-size: var(--text-size, 1rem);
-}
+      --glass: rgba(255, 255, 255, .72);
+      --glass2: rgba(255, 255, 255, .62);
+      --border: rgba(0, 0, 0, .10);
+      --shadow: 0 14px 40px rgba(0, 0, 0, .10);
 
-/* Let most things inherit body size, instead of hardcoding rems */
-p,
-input[type="text"],
-textarea,
-.toolkit-item span,
-.button,
-.button-purple,
-.idea-item,
-#toolkitList .idea-text {
-  font-size: 1em; /* 1em = whatever body is (1rem or 1.1rem, etc.) */
-}
+      --radius: 20px;
+      --radius-sm: 14px;
 
-/* Scale headings relative to --text-size so they grow/shrink too */
-h1.three-d-title,
-h1.three-d-title-two {
-  font-size: calc(var(--text-size, 1rem) * 1.7);
-}
+      --accent: var(--accent-color, #6a5acd);
+    }
 
-/* ------ text inside the top of the teal container ------ */
-h3,
-.dreamy-box h3 {
-  font-size: calc(var(--text-size, 1rem) * 1.25);
-}
-
-/* ----------------------- reduce motion ----------*/
-/* Use --motion-scale to tone down motion on this page */
-.icon-button,
-.button,
-.toolkit-entry button,
-.dropdown-icon-btn {
-  transition:
-    transform calc(150ms * var(--motion-scale, 1)),
-    background-color 0.3s ease,
-    box-shadow calc(150ms * var(--motion-scale, 1));
-}
-
-/* When motion-scale is 0, this becomes scale(1) (no “pop” on hover) */
-.icon-button:hover,
-.button:hover,
-.toolkit-entry button:hover,
-.dropdown-icon-btn:hover {
-  transform: scale(calc(1 + (0.03 * var(--motion-scale, 1))));
-}
-
-  </style>
+</style>
 </head>
-<body>
 
-  <div class="container">
+<body class="gs-has-nav">
 
-    <footer class="footer-quote">ʏᴏᴜ'ʀᴇ ɴᴏᴛ ᴀʟᴏɴᴇ 💜 ʜᴇʟᴘ ɪꜱ ᴊᴜꜱᴛ ᴀ ᴄᴀʟʟ ᴀᴡᴀʏ...</footer>
-  
-<!-- Crisis & emergency support -->
-<h3 class="support-heading">🚨 Crisis &amp; Emergency Support</h3>
-<ul class="support-list">
-  <li>
-    <strong>🚑 Emergency Services (Police / Fire / Ambulance)</strong>
-    <a href="tel:911">📞 911</a>
-  </li>
-  <li>
-    <strong>💗 Suicide &amp; Crisis Lifeline (24/7)</strong>
-    <a href="tel:988">📞 988</a>
-  </li>
-  <li>
-    <strong>💬 Crisis Text Line (24/7 text)</strong>
-    <a href="sms:741741?body=HOME">📱 Text "HOME" to 741741</a>
-  </li>
-  <li>
-    <strong>🎖 Veterans Crisis Line</strong>
-    <a href="tel:1-800-273-8255">📞 (Press 1) 1-800-273-TALK (8255)</a>
-  </li>
-  <li>
-    <strong>🌪 Disaster Distress Helpline</strong>
-    <a href="tel:1-800-985-5990">📞 1-800-985-5990</a>
-  </li>
-</ul>
+  <main class="page">
 
-<!-- Mental health & substance support -->
-<h3 class="support-heading">💚 Mental Health &amp; Substance Support</h3>
-<ul class="support-list">
-  <li>
-    <strong>🧠 NAMI HelpLine (info &amp; support)</strong>
-    <a href="tel:1-800-950-6264">📞 1-800-950-NAMI (6264)</a>
-  </li>
-  <li>
-    <strong>📞 SAMHSA National Helpline</strong>
-    <a href="tel:1-800-662-4357">📞 1-800-662-HELP (4357)</a>
-  </li>
-  <li>
-    <strong>🤱 Postpartum Support International</strong>
-    <a href="tel:1-800-944-4773">📞 1-800-944-4773</a>
-  </li>
-  <li>
-    <strong>🎧 Teen Line (for teens)</strong>
-    <a href="tel:1-800-852-8336">📞 1-800-852-8336</a>
-  </li>
-  <li>
-    <strong>🏳️‍🌈 The Trevor Project (LGBTQ+ support)</strong>
-    <a href="tel:1-866-488-7386">📞 1-866-488-7386</a>
-  </li>
-</ul>
+    <div class="topbar">
+      <a class="pill" href="index.html">🏠 Home</a>
+    </div>
+    
+    <div class="top-shell">
+      <section class="card hero">
+        <h1 class="three-d-title">Important Support Numbers</h1>
+        <p class="subnote">YOU'RE NOT ALONE 💜 HELP IS JUST A CALL AWAY…</p>
+      </section>
+      </div>
 
-<!-- Safety, abuse & violence -->
-<h3 class="support-heading">🛡️ Safety, Abuse &amp; Violence</h3>
-<ul class="support-list">
-  <li>
-    <strong>💜 National Domestic Violence Hotline</strong>
-    <a href="tel:1-800-799-7233">📞 1-800-799-SAFE (7233)</a>
-  </li>
-  <li>
-    <strong>💙 National Sexual Assault Hotline (RAINN)</strong>
-    <a href="tel:1-800-656-4673">📞 1-800-656-HOPE (4673)</a>
-  </li>
-  <li>
-    <strong>🧒 Childhelp National Child Abuse Hotline</strong>
-    <a href="tel:1-800-422-4453">📞 1-800-4-A-CHILD (422-4453)</a>
-  </li>
-  <li>
-    <strong>🏃 National Runaway Safeline</strong>
-    <a href="tel:1-800-786-2929">📞 1-800-RUNAWAY (786-2929)</a>
-  </li>
-</ul>
+    <!-- Crisis & emergency -->
+    <section class="section">
+      <h3 class="support-heading">🚨 Crisis &amp; Emergency Support</h3>
+      <ul class="support-list">
 
-<!-- Kids, teens & families -->
-<h3 class="support-heading">👨‍👩‍👧 Kids, Teens &amp; Families</h3>
-<ul class="support-list">
-  <li>
-    <strong>🧸 Missing &amp; Exploited Children (NCMEC)</strong>
-    <a href="tel:1-800-843-5678">📞 1-800-THE-LOST (843-5678)</a>
-  </li>
-</ul>
+        <li class="support-item">
+          <div class="support-left">
+            <div class="support-title">🚑 Emergency Services</div>
+            <div class="support-meta">Police / Fire / Ambulance</div>
+          </div>
+          <a class="btn-pill" href="tel:911">Call 911</a>
+        </li>
 
-<!-- Medical & poison emergencies -->
-<h3 class="support-heading">⚕️ Medical &amp; Poison Emergencies</h3>
-<ul class="support-list">
-  <li>
-    <strong>☠️ Poison Control</strong>
-    <a href="tel:1-800-222-1222">📞 1-800-222-1222</a>
-  </li>
-</ul>
+        <li class="support-item">
+          <div class="support-left">
+            <div class="support-title">💗 Suicide &amp; Crisis Lifeline</div>
+            <div class="support-meta">24/7</div>
+          </div>
+          <a class="btn-pill" href="tel:988">Call 988</a>
+        </li>
 
-  </div>
+        <li class="support-item">
+          <div class="support-left">
+            <div class="support-title">💬 Crisis Text Line</div>
+            <div class="support-meta">Text 24/7</div>
+          </div>
+          <a class="btn-pill" href="sms:741741?body=HOME">Text HOME</a>
+        </li>
 
-  <div class="legal-footer">
-    View our
-    <a href="privacy.html" rel="noopener">Privacy Policy</a>
-    and
-    <a href="terms.html" rel="noopener">Terms of Use</a>.
-  </div>
+        <li class="support-item">
+          <div class="support-left">
+            <div class="support-title">🎖 Veterans Crisis Line</div>
+            <div class="support-meta">Press 1</div>
+          </div>
+          <a class="btn-pill" href="tel:1-800-273-8255">Call</a>
+        </li>
 
-  <!-- ========== IDENTICAL NAV HTML (copy this exact block to every page) ========== -->
-  <!-- Standard Bottom Nav (use on every page) -->
-  <footer class="gs-nav">
-    <a href="index.html" class="gs-nav__item"><span class="ico">🏠</span><span>Home</span></a>
-    <a href="toolkit-hub.html" class="gs-nav__item" data-auth="true"><span class="ico">🧰</span><span>Toolkit</span></a>
-    <a href="wellness.html" class="gs-nav__item" data-auth="true"><span class="ico">💖</span><span>Wellness</span></a>
-    <a href="pet.html" class="gs-nav__item" data-auth="true"><span class="ico">🐾</span><span>Pet</span></a>
-    <a href="important-numbers.html" class="gs-nav__item"><span class="ico">🆘</span><span>Help</span></a>
-    <a href="systemSettings.html" class="gs-nav__item" data-auth="true"><span
-        class="ico">☸</span><span>Settings</span></a>
-  </footer>
-  
+        <li class="support-item">
+          <div class="support-left">
+            <div class="support-title">🌪 Disaster Distress Helpline</div>
+            <div class="support-meta">Emotional distress after disasters</div>
+          </div>
+          <a class="btn-pill" href="tel:1-800-985-5990">Call</a>
+        </li>
+
+      </ul>
+    </section>
+
+    <!-- Mental health -->
+    <section class="section">
+      <h3 class="support-heading">💚 Mental Health &amp; Substance Support</h3>
+      <ul class="support-list">
+
+        <li class="support-item">
+          <div class="support-left">
+            <div class="support-title">🧠 NAMI HelpLine</div>
+            <div class="support-meta">Info &amp; support</div>
+          </div>
+          <a class="btn-pill" href="tel:1-800-950-6264">Call</a>
+        </li>
+
+        <li class="support-item">
+          <div class="support-left">
+            <div class="support-title">📞 SAMHSA National Helpline</div>
+            <div class="support-meta">Substance use &amp; mental health</div>
+          </div>
+          <a class="btn-pill" href="tel:1-800-662-4357">Call</a>
+        </li>
+
+        <li class="support-item">
+          <div class="support-left">
+            <div class="support-title">🤱 Postpartum Support International</div>
+            <div class="support-meta">Perinatal mood support</div>
+          </div>
+          <a class="btn-pill" href="tel:1-800-944-4773">Call</a>
+        </li>
+
+        <li class="support-item">
+          <div class="support-left">
+            <div class="support-title">🎧 Teen Line</div>
+            <div class="support-meta">For teens</div>
+          </div>
+          <a class="btn-pill" href="tel:1-800-852-8336">Call</a>
+        </li>
+
+        <li class="support-item">
+          <div class="support-left">
+            <div class="support-title">🏳️‍🌈 The Trevor Project</div>
+            <div class="support-meta">LGBTQ+ support</div>
+          </div>
+          <a class="btn-pill" href="tel:1-866-488-7386">Call</a>
+        </li>
+
+      </ul>
+    </section>
+
+    <!-- Safety -->
+    <section class="section">
+      <h3 class="support-heading">🛡️ Safety, Abuse &amp; Violence</h3>
+      <ul class="support-list">
+
+        <li class="support-item">
+          <div class="support-left">
+            <div class="support-title">💜 Domestic Violence Hotline</div>
+            <div class="support-meta">24/7</div>
+          </div>
+          <a class="btn-pill" href="tel:1-800-799-7233">Call</a>
+        </li>
+
+        <li class="support-item">
+          <div class="support-left">
+            <div class="support-title">💙 Sexual Assault Hotline (RAINN)</div>
+            <div class="support-meta">Confidential support</div>
+          </div>
+          <a class="btn-pill" href="tel:1-800-656-4673">Call</a>
+        </li>
+
+        <li class="support-item">
+          <div class="support-left">
+            <div class="support-title">🧒 Childhelp Child Abuse Hotline</div>
+            <div class="support-meta">24/7</div>
+          </div>
+          <a class="btn-pill" href="tel:1-800-422-4453">Call</a>
+        </li>
+
+        <li class="support-item">
+          <div class="support-left">
+            <div class="support-title">🏃 National Runaway Safeline</div>
+            <div class="support-meta">Support for youth &amp; families</div>
+          </div>
+          <a class="btn-pill" href="tel:1-800-786-2929">Call</a>
+        </li>
+
+      </ul>
+    </section>
+
+    <!-- Kids -->
+    <section class="section">
+      <h3 class="support-heading">👨‍👩‍👧 Kids, Teens &amp; Families</h3>
+      <ul class="support-list">
+        <li class="support-item">
+          <div class="support-left">
+            <div class="support-title">🧸 Missing &amp; Exploited Children (NCMEC)</div>
+            <div class="support-meta">Help &amp; reporting</div>
+          </div>
+          <a class="btn-pill" href="tel:1-800-843-5678">Call</a>
+        </li>
+      </ul>
+    </section>
+
+    <!-- Medical -->
+    <section class="section">
+      <h3 class="support-heading">⚕️ Medical &amp; Poison Emergencies</h3>
+      <ul class="support-list">
+        <li class="support-item">
+          <div class="support-left">
+            <div class="support-title">☠️ Poison Control</div>
+            <div class="support-meta">24/7</div>
+          </div>
+          <a class="btn-pill" href="tel:1-800-222-1222">Call</a>
+        </li>
+      </ul>
+    </section>
+
+    <div class="legal-footer">
+      View our <a href="privacy.html" rel="noopener">Privacy Policy</a> and <a href="terms.html" rel="noopener">Terms of
+        Use</a>.
+    </div>
+
+  </main>
+
   <script type="module">
     import { auth, db } from "./firebase-init.js";
     import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { doc, getDoc, getDocFromCache } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    // --- fast reveal (public page) ---
-    const reveal = () => (document.documentElement.style.visibility = "visible");
-    const failsafe = setTimeout(reveal, 1200);
-    window.addEventListener("load", () => setTimeout(reveal, 200));
-
-    // Tiny DOM helpers + null guards (editor is optional)
-    const $ = (id) => document.getElementById(id);
-    const els = {
-      list: $("list"),
-      editor: $("editor"),
-      status: $("status"),
-      name: $("name"),
-      phone: $("phone"),
-      addBtn: $("addBtn"),
-      saveBtn: $("saveBtn"),
-      loginHint: $("loginHint"),
+    const reveal = () => {
+      document.documentElement.style.visibility = "visible";
+      document.documentElement.setAttribute("data-ready", "1");
     };
+    const failsafe = setTimeout(reveal, 1200);
+    window.addEventListener("load", () => setTimeout(reveal, 50));
 
-    // Default placeholders (used only if you add the editor UI)
-    let items = [
-      { name: "Mom", phone: "" },
-      { name: "Rick", phone: "" },
-      { name: "Primary Care", phone: "" },
-      { name: "Therapist", phone: "" },
-    ];
-
-    let ref = null;
-
-    // Renders the simple name/phone rows (only if #list exists)
-    function render() {
-      if (!els.list) return;
-      els.list.innerHTML = "";
-      items.forEach((it, idx) => {
-        const row = document.createElement("div");
-        row.className = "row";
-        const n = document.createElement("input");
-        const p = document.createElement("input");
-        n.value = it.name || "";
-        p.value = it.phone || "";
-        n.placeholder = "Name"; p.placeholder = "Phone";
-        n.addEventListener("input", () => (items[idx].name = n.value));
-        p.addEventListener("input", () => (items[idx].phone = p.value));
-        const del = document.createElement("button");
-        del.textContent = "Delete";
-        del.addEventListener("click", () => { items.splice(idx, 1); render(); markDirty(); });
-        row.append(n, p, del);
-        els.list.appendChild(row);
-      });
-    }
-    const markDirty = (m = "Unsaved changes…") => { if (els.status) els.status.textContent = m; };
-
-    // Add/save handlers (only if those buttons exist)
-    els.addBtn?.addEventListener("click", () => {
-      const name = (els.name?.value || "").trim();
-      const phone = (els.phone?.value || "").trim();
-      if (!name && !phone) return;
-      items.push({ name, phone });
-      if (els.name) els.name.value = "";
-      if (els.phone) els.phone.value = "";
-      render(); markDirty();
-    });
-
-    els.saveBtn?.addEventListener("click", save);
-
-    async function load() {
-      if (!ref) return;
-      els.status && (els.status.textContent = "Loading…");
+    async function applyThemeFromUser(uid) {
       try {
-        const s = await getDoc(ref);
-        if (s.exists() && Array.isArray(s.data().items)) items = s.data().items;
-        render();
-        els.status && (els.status.textContent = "Loaded");
-      } catch (e) {
-        console.error("Load failed:", e);
-        els.status && (els.status.textContent = "Load error");
-      }
-    }
+        const uref = doc(db, "users", uid);
+        const cached = await getDocFromCache(uref).catch(() => null);
+        const snap = cached?.exists() ? cached : await getDoc(uref);
+        const cls = snap?.exists() ? (snap.data().themeClass || "theme-original") : "theme-original";
 
-    async function save() {
-      if (!ref) return;
-      els.status && (els.status.textContent = "Saving…");
-      try {
-        await setDoc(ref, { items, updatedAt: serverTimestamp() }, { merge: true });
-        els.status && (els.status.textContent = "Saved ✓");
-      } catch (e) {
-        console.error("Save failed:", e);
-        els.status && (els.status.textContent = "Save error");
-      }
-    }
-
-    // Theme upgrade if signed in (no gate — page remains public)
-    async function applyThemeFor(uid) {
-      try {
-        const s = await getDoc(doc(db, "users", uid));
-        const cls = s.exists() ? (s.data().themeClass || "theme-original") : "theme-original";
         const root = document.documentElement;
         [...root.classList].forEach(c => c.startsWith("theme-") && root.classList.remove(c));
         root.classList.add(cls);
@@ -1077,57 +1075,51 @@ h3,
       } catch { }
     }
 
-    // Auth wiring — stays public when logged out
+    function markActiveTab() {
+      const here = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
+      document.querySelectorAll('footer.gs-nav .gs-nav__item').forEach(a => {
+        const href = (a.getAttribute('href') || '').toLowerCase();
+        if (href === here) a.setAttribute('aria-current', 'page');
+        else a.removeAttribute('aria-current');
+      });
+    }
+
+    function gateAuthedLinks(isAuthed) {
+      document.querySelectorAll('footer.gs-nav .gs-nav__item[data-auth="true"]').forEach(a => {
+        a.classList.toggle('is-locked', !isAuthed);
+        a.onclick = null;
+        if (isAuthed) return;
+        a.addEventListener('click', (e) => {
+          e.preventDefault();
+          const dest = a.getAttribute('href') || 'index.html';
+          location.href = `login.html?next=${encodeURIComponent(dest)}`;
+        }, { once: true });
+      });
+    }
+
+    markActiveTab();
+
     onAuthStateChanged(auth, async (user) => {
       try {
         if (user) {
-          ref = doc(db, "users", user.uid, "settings", "importantNumbers");
-          if (els.loginHint) els.loginHint.style.display = "none";
-          if (els.editor) els.editor.style.display = "block";
-          await applyThemeFor(user.uid);
-          await load();
+          await applyThemeFromUser(user.uid);
+          gateAuthedLinks(true);
         } else {
-          ref = null;
-          if (els.editor) els.editor.style.display = "none";
-          if (els.loginHint) els.loginHint.style.display = "block";
-
-          // Progressive theme for guests
           const cached = localStorage.getItem("themeClass");
           if (cached) {
             const root = document.documentElement;
             [...root.classList].forEach(c => c.startsWith("theme-") && root.classList.remove(c));
             root.classList.add(cached);
           }
-          render(); // does nothing unless you added the editor
+          gateAuthedLinks(false);
         }
       } finally {
-        reveal(); clearTimeout(failsafe);
+        reveal();
+        clearTimeout(failsafe);
       }
     });
   </script>
-   
-   <script>
-    /* ========== GLOBAL NAV SCRIPT (tiny, repeat on every page) ========== */
-    (function () {
-      // 1) Mark current tab active
-      const here = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
-      document.querySelectorAll('.bottom-nav .nav-icon').forEach(a => {
-        const href = (a.getAttribute('href') || '').toLowerCase();
-        if (href === here) a.setAttribute('aria-current', 'page');
-      });
 
-      // 2) Gate authed links (replace with your real auth check if needed)
-      const isAuthed = !!localStorage.getItem('currentUser');
-      document.querySelectorAll('.bottom-nav [data-auth="true"]').forEach(a => {
-        if (isAuthed) return;
-        a.addEventListener('click', (e) => {
-          e.preventDefault();
-          const dest = a.getAttribute('href') || 'index.html';
-          location.href = `login.html?next=${encodeURIComponent(dest)}`;
-        });
-      });
-    })();
-  </script>
-  </body>
-  
-  </html>
+</body>
+
+</html>
