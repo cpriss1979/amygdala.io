@@ -190,10 +190,10 @@
     }
 
     .topbar {
-      margin: 0 0 10px;
-      display: flex;
-      justify-content: flex-start;
-    }
+  margin: 0 0 10px;
+  display: flex;
+  justify-content: flex-end;
+}
 
     .pill {
       display: inline-flex;
@@ -270,16 +270,6 @@
     #journalEntry:focus {
       border-color: rgba(10, 35, 81, .35);
       box-shadow: 0 0 0 4px rgba(10, 35, 81, .10), 0 10px 22px rgba(0, 0, 0, .10);
-    }
-
-    #petUnlockedMsg {
-      display: none;
-      margin-top: 10px;
-      padding: 10px 12px;
-      border-radius: 14px;
-      background: rgba(10, 35, 81, .08);
-      border: 1px solid rgba(10, 35, 81, .12);
-      font-weight: 900;
     }
 
     .btn {
@@ -423,55 +413,263 @@
       margin-top: 14px;
     }
 
-/* ===== JOURNAL PAGE — remove purple bottom ===== */
-body.journal-page {
-background:
-radial-gradient(1200px 700px at 20% 0%, rgba(255,255,255,.45) 0%, rgba(255,255,255,0) 55%),
-radial-gradient(900px 650px at 80% 0%, rgba(170,210,255,.40) 0%, rgba(170,210,255,0) 55%),
-linear-gradient(180deg, rgba(120,205,220,.55) 0%, rgba(120,170,255,.30) 100%) !important;
-}
-body.journal-page {
-background: linear-gradient(180deg, #e9f6fb 0%, #dff1ff 100%) !important;
+    /* ===== JOURNAL PAGE — remove purple bottom ===== */
+    body.journal-page {
+      background:
+        radial-gradient(1200px 700px at 20% 0%, rgba(255, 255, 255, .45) 0%, rgba(255, 255, 255, 0) 55%),
+        radial-gradient(900px 650px at 80% 0%, rgba(170, 210, 255, .40) 0%, rgba(170, 210, 255, 0) 55%),
+        linear-gradient(180deg, rgba(120, 205, 220, .55) 0%, rgba(120, 170, 255, .30) 100%) !important;
+    }
+
+    body.journal-page {
+      background: linear-gradient(180deg, #e9f6fb 0%, #dff1ff 100%) !important;
+    }
+
+    /* ===== JOURNAL PAGE — match LETTER background (no purple bottom) ===== */
+
+    /* Make BOTH html + body use the same background so nothing “peeks through” */
+    html,
+    body,
+    body.journal-page {
+      background: linear-gradient(180deg, #e9f6fb 0%, #dff1ff 55%, #cfefff 100%) !important;
+      background-attachment: fixed;
+    }
+
+    /* Safety: ensure the page always fills the viewport */
+    html,
+    body {
+      min-height: 100%;
+    }
+
+    .topbar {
+  margin: 0 0 10px;
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 2px;
 }
 
-/* ===== JOURNAL PAGE — match LETTER background (no purple bottom) ===== */
-
-/* Make BOTH html + body use the same background so nothing “peeks through” */
-html,
-body,
-body.journal-page {
-  background: linear-gradient(180deg, #e9f6fb 0%, #dff1ff 55%, #cfefff 100%) !important;
-  background-attachment: fixed;
+.app {
+  width: min(640px, 92vw);
+  margin: 0 auto;
+  min-height: 100svh;
+  padding-bottom: calc(var(--gs-nav-h, 64px) + env(safe-area-inset-bottom, 0px) + 16px);
+  box-sizing: border-box;
 }
 
-/* Safety: ensure the page always fills the viewport */
-html,
-body {
-  min-height: 100%;
+.appbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  padding: env(safe-area-inset-top, 0px) 12px 0;
+  margin: 0 -12px 12px;
+
+  backdrop-filter: blur(12px) saturate(1.1);
+  -webkit-backdrop-filter: blur(12px) saturate(1.1);
+
+  background: linear-gradient(
+    to bottom,
+    rgba(255,255,255,.60),
+    rgba(255,255,255,.18)
+  );
+
+  border-bottom: 1px solid rgba(0,0,0,.08);
+}
+
+.appbar-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+}
+
+.app-title {
+  display: grid;
+  line-height: 1.05;
+}
+
+.app-title .kicker {
+  font-weight: 900;
+  letter-spacing: .4px;
+  font-size: .9rem;
+  opacity: .75;
+}
+
+.app-title .title {
+  font-weight: 900;
+  letter-spacing: .3px;
+  font-size: 1.15rem;
+}
+
+.pillrow {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.appbar .pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: .4rem !important;
+
+  padding: .55rem .85rem !important;
+  border-radius: 999px !important;
+
+  background: rgba(255,255,255,.55) !important;
+  border: 1px solid rgba(0,0,0,.10) !important;
+  box-shadow: 0 10px 20px rgba(0,0,0,.06) !important;
+
+  text-decoration: none !important;
+  color: inherit !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+}
+
+.appbar .pill:active {
+  transform: translateY(1px);
+}
+
+main.gs-page {
+  width: 100%;
+  margin: 0;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+/* =====================================================
+   HOME BUTTON — MATCH TOOLKIT FAVORITE
+   Paste at the VERY BOTTOM of each page's <style>
+   ===================================================== */
+
+.topbar,
+.pillrow {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+}
+
+a.pill,
+a.home-pill,
+.topbar a,
+.pillrow a {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.4rem !important;
+
+  padding: 0.55rem 0.85rem !important;
+  border-radius: 999px !important;
+
+  background: rgba(255, 255, 255, 0.78) !important;
+  border: 1px solid rgba(0, 0, 0, 0.10) !important;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.06) !important;
+
+  color: rgba(10, 25, 30, 0.90) !important;
+  font-size: 0.95rem !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  text-decoration: none !important;
+}
+
+a.pill:active,
+a.home-pill:active,
+.topbar a:active,
+.pillrow a:active {
+  transform: translateY(1px) !important;
+}
+
+/* TOOLKIT SAVE BUTTON - MATCH JOURNAL */
+#addIdeaBtn{
+  width: 100%;
+  margin-top: 10px;
+
+  background: linear-gradient(
+    135deg,
+    rgba(153, 229, 234, 0.95),
+    rgba(190, 210, 255, 0.95)
+  ) !important;
+
+  border: 1px solid rgba(135, 170, 255, 0.45) !important;
+  border-radius: 14px !important;
+
+  color: #2f3b4d !important;
+  font-weight: 700;
+  font-size: .95rem;
+
+  box-shadow:
+    0 6px 16px rgba(130,170,220,.18);
+
+  transition: all .2s ease;
+}
+
+#addIdeaBtn:hover{
+  background: linear-gradient(
+    135deg,
+    rgba(170, 236, 240, 1),
+    rgba(205, 220, 255, 1)
+  ) !important;
+
+  transform: translateY(-1px);
+}
+
+#addIdeaBtn:active{
+  transform: translateY(0);
+}
+
+/* ==========================
+   PROFESSIONAL LEGAL FOOTER
+   ========================== */
+
+.legal-footer{
+    text-align:center;
+    margin-top:20px;
+    padding:10px 0;
+    font-size:.85rem;
+    color:#6f8594;
+}
+
+.legal-footer a{
+    color:#5f7f94;
+    text-decoration:none;
+    font-weight:600;
+    transition:.2s ease;
+}
+
+.legal-footer a:hover{
+    color:#3f6f8f;
+    text-decoration:underline;
+}
+
+.legal-footer .separator{
+    margin:0 8px;
+    opacity:.5;
 }
   </style>
 </head>
 
-<body class="journal-page gs-has-nav">
-  <main class="gs-page">
-    <div class="topbar">
-      <a class="pill" href="index.html">🏠 Home</a>
+<div class="app">
+  <header class="appbar">
+    <div class="appbar-row">
+      <div class="app-title">
+        <div class="kicker">Amygdala</div>
+        <div class="title">Journal</div>
+      </div>
+
+      <div class="pillrow">
+        <a class="pill" href="./index.html">🏠 Home</a>
+      </div>
     </div>
+  </header>
+
+  <main class="gs-page">
 
     <h1 class="three-d-title">Journal</h1>
-
-    <section class="card hero">
-      <p>Write it out. Save it. Then take care of your pet when you’re ready 🐾</p>
-    </section>
 
     <section class="card">
       <textarea id="journalEntry" placeholder="Write your thoughts here..."></textarea>
 
-      <div id="petUnlockedMsg">Nice journaling! You can feed your pet today 🐾</div>
-
       <div class="action-stack">
         <button id="saveBtn" class="btn btn--primary" type="button">💾 Save Entry</button>
-        <a id="petBtn" class="btn btn--soft" href="pet.html">🐾 Go Care For Your Pet</a>
       </div>
     </section>
 
@@ -479,10 +677,14 @@ body {
     <div id="entryList"></div>
 
     <div class="legal-footer">
-      <a class="pill" href="privacy.html">View our Privacy Policy</a>
+      View our
+      <a href="privacy.html" rel="noopener">Privacy Policy</a>
+      and
+      <a href="terms.html" rel="noopener">Terms of Use</a>.
     </div>
-  </main>
 
+  </main>
+  </div>
   <!-- Firebase-only auth gate, fast theme, live journal + STREAK BADGES -->
   <script type="module">
     import { auth, db } from "./firebase-init.js";
@@ -549,17 +751,16 @@ body {
     const txt = document.getElementById("journalEntry");
     const list = document.getElementById("entryList");
     const saveBtn = document.getElementById("saveBtn");
-    const banner = document.getElementById("petUnlockedMsg");
     // Hook up buttons (you removed the old onclick somewhere)
-      saveBtn?.addEventListener("click", (e) => {
-        e.preventDefault();
-        saveJournalEntry();
-      });
+    saveBtn?.addEventListener("click", (e) => {
+      e.preventDefault();
+      saveJournalEntry();
+    });
 
-      // Optional: Ctrl/Cmd+Enter to save
-      txt?.addEventListener("keydown", (e) => {
-        if ((e.ctrlKey || e.metaKey) && e.key === "Enter") saveJournalEntry();
-      });
+    // Optional: Ctrl/Cmd+Enter to save
+    txt?.addEventListener("keydown", (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") saveJournalEntry();
+    });
 
     const esc = (s = "") => s
       .replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")
@@ -567,33 +768,14 @@ body {
 
     let uid = null, unsubTheme = null, unsubEntries = null;
 
-    // ---------- BADGES / PET FLAGS ----------
-    async function ensureBadge(userId, id, label, emoji) {
+    // ---------- BADGES FLAGS ----------
+    async function ensureBadges(userId, id, label, emoji) {
       const bRef = doc(db, "users", userId, "badges", id);
       if (!(await getDoc(bRef)).exists()) {
         await setDoc(bRef, { key: id, label, emoji, earnedAt: serverTimestamp() });
       }
     }
-
-    async function flagCanFeedToday(userId) {
-      const petRef = doc(db, "users", userId, "pet", "state");
-      const today = ymdLocal();
-
-      const snap = await getDoc(petRef);
-      const d = snap.exists() ? snap.data() : {};
-
-      if ((d.lastFedYMD || "") === today) return false;
-      if ((d.canFeedYMD || "") === today) return false;
-
-      await setDoc(petRef, { canFeedYMD: today, journalCount: increment(1) }, { merge: true });
-
-      try {
-        await ensureBadge(userId, "firstJournal", "First Journal", "📝");
-        await Badges.award("firstJournal"); // idempotent
-      } catch { }
-      return true;
-    }
-
+      
     // ---------- STREAK HELPERS ----------
     function ymdFromDateLocal(date) {
       const d = new Date(date);
@@ -635,6 +817,20 @@ body {
       }
       return streak;
     }
+
+    async function getJournalEntryCount(userId) {
+        const snap = await getDocs(collection(db, "users", userId, "journal"));
+        return snap.size;
+      }
+
+      async function awardJournalCountBadges(userId) {
+        const count = await getJournalEntryCount(userId);
+
+        if (count >= 5) {
+          await ensureBadges(userId, "journal5", "5 Journal Entries", "📝");
+          await Badges.award("journal5");
+        }
+      }
 
     let _lastStreakCheck = 0;
     async function awardStreakBadgesIfNeeded() {
@@ -709,6 +905,7 @@ body {
         text: item.text,
         createdAt: serverTimestamp()
       });
+      await awardJournalCountBadges(uid);
       try {
         const unlocked = await flagCanFeedToday(uid);
         if (unlocked && banner) {
@@ -759,6 +956,7 @@ body {
       if (navigator.onLine) {
         try {
           await addDoc(collection(db, "users", uid, "journal"), { text, createdAt: serverTimestamp() });
+          await awardJournalCountBadges(uid);
           txt.value = "";
           let unlockedNow = false;
           try { unlockedNow = await flagCanFeedToday(uid); } catch (e) { console.warn("flagCanFeedToday:", e); }

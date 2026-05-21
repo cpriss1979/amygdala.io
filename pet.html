@@ -438,19 +438,19 @@
       color: #123e24
     }
 
-    .badge-grid {
+    .badges-grid {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 14px
     }
 
     @media (max-width:460px) {
-      .badge-grid {
+      .badges-grid {
         grid-template-columns: repeat(3, minmax(0, 1fr))
       }
     }
 
-    .badge {
+    .badges {
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -468,7 +468,7 @@
   transition: transform .12s ease, filter .2s ease, opacity .2s ease;
 }
 
-    .badge.locked .icon {
+    .badges.locked .icon {
       filter: grayscale(1);
       opacity: .5;
       background: linear-gradient(135deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, .03));
@@ -483,7 +483,7 @@
       max-width: 112px
     }
 
-    .badge.locked .label {
+    .badges.locked .label {
       color: black
     }
 
@@ -492,27 +492,27 @@
 }
 
 /* Force 4 per row everywhere */
-#petBadgeWall .badge-grid { 
+#petBadgesWall .badges-grid { 
   grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
   gap: 10px !important;
   padding: 0 6px;
 }
 
 /* Smaller, square tiles */
-#petBadgeWall .icon{
+#petBadgesWall .icon{
   width: 80px; height: 80px; border-radius: 16px;
   font-size: 32px;
 }
 
 /* Tighter labels */
-#petBadgeWall .label{
+#petBadgesWall .label{
   font-size: .78rem; 
   max-width: 88px;
 }
 
 /* Make sure no media query forces 3 per row */
 @media (max-width: 460px){
-  #petBadgeWall .badge-grid { grid-template-columns: repeat(4, minmax(0,1fr)) !important; }
+  #petBadgesWall .badges-grid { grid-template-columns: repeat(4, minmax(0,1fr)) !important; }
 }
 
 /* Base paint pinned to PET blue so nothing green flashes */
@@ -654,7 +654,7 @@ body { display: block!important; }
 }
 
 /* Badge grid can't force a min-content width */
-#petBadgeWall .badge-grid { min-width: 0!important; }
+#petBadgesWall .badges-grid { min-width: 0!important; }
 
 /* Torn divider can’t push width */
 .torn-paper-divider { max-width: 100vw; overflow: hidden!important; }

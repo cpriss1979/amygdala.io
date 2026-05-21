@@ -428,6 +428,34 @@ select{
   #sparkleLayer{ display:none !important; }
 }
 
+/* ==========================
+   PROFESSIONAL LEGAL FOOTER
+   ========================== */
+
+.legal-footer{
+    text-align:center;
+    margin-top:20px;
+    padding:10px 0;
+    font-size:.85rem;
+    color:#6f8594;
+}
+
+.legal-footer a{
+    color:#5f7f94;
+    text-decoration:none;
+    font-weight:600;
+    transition:.2s ease;
+}
+
+.legal-footer a:hover{
+    color:#3f6f8f;
+    text-decoration:underline;
+}
+
+.legal-footer .separator{
+    margin:0 8px;
+    opacity:.5;
+}
 </style>
 
 
@@ -486,7 +514,13 @@ select{
             </div>
         </main>
     </div>
-
+    <!-- Privacy (like letter.html) -->
+    <div class="legal-footer">
+      View our
+      <a href="privacy.html" rel="noopener">Privacy Policy</a>
+      and
+      <a href="terms.html" rel="noopener">Terms of Use</a>.
+    </div>
     <script>
         // ===== calm sparkles (inline) =====
         (function makeSparkles() {
@@ -532,234 +566,312 @@ select{
         })();
     </script>
 
-    <script>
-        // ====== Breath pattern (seconds) ======
-        const PATTERN = [
-            { label: "Inhale…", seconds: 4, scale: 1.00 },
-            { label: "Hold…", seconds: 2, scale: 1.00 },
-            { label: "Exhale…", seconds: 6, scale: 0.78 },
-        ];
+<script type="module">
+  import { auth, db } from "./firebase-init.js";
+  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import {
+    collection,
+    addDoc,
+    getDocs,
+    doc,
+    setDoc,
+    updateDoc,
+    getDoc,
+    serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        const orb = document.getElementById("orb");
-        const stageText = document.getElementById("stageText");
-        const hintText = document.getElementById("hintText");
-        const timerText = document.getElementById("timerText");
-        const statusPill = document.getElementById("statusPill");
+  // ====== Breath pattern (seconds) ======
+  const PATTERN = [
+    { label: "Inhale…", seconds: 4, scale: 1.00 },
+    { label: "Hold…", seconds: 2, scale: 1.00 },
+    { label: "Exhale…", seconds: 6, scale: 0.78 },
+  ];
 
-        const startBtn = document.getElementById("startBtn");
-        const pauseBtn = document.getElementById("pauseBtn");
-        const resetBtn = document.getElementById("resetBtn");
-        const doneBtn = document.getElementById("doneBtn");
+  const orb = document.getElementById("orb");
+  const stageText = document.getElementById("stageText");
+  const hintText = document.getElementById("hintText");
+  const timerText = document.getElementById("timerText");
+  const statusPill = document.getElementById("statusPill");
 
-        const soundBtn = document.getElementById("soundBtn");
-        const durationSel = document.getElementById("durationSel");
+  const startBtn = document.getElementById("startBtn");
+  const pauseBtn = document.getElementById("pauseBtn");
+  const resetBtn = document.getElementById("resetBtn");
+  const doneBtn = document.getElementById("doneBtn");
 
-        let running = false;
-        let paused = false;
+  const soundBtn = document.getElementById("soundBtn");
+  const durationSel = document.getElementById("durationSel");
 
-        let patternIndex = 0;
-        let stepRemaining = PATTERN[0].seconds;
+  let currentUser = null;
 
-        let durationTotal = 60;
-        let durationLeft = 60;
+  let running = false;
+  let paused = false;
+  let sessionCompleted = false;
 
-        let tickInterval = null;
+  let patternIndex = 0;
+  let stepRemaining = PATTERN[0].seconds;
 
-        // ====== Soft chime (WebAudio) ======
-        let soundOn = false;
-        let audioCtx = null;
+  let durationTotal = 60;
+  let durationLeft = 60;
 
-        function chime() {
-            if (!soundOn) return;
+  let tickInterval = null;
 
-            try {
-                audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+  // ====== Auth ======
+  onAuthStateChanged(auth, (user) => {
+    currentUser = user || null;
+  });
 
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
+  // ====== Soft chime (WebAudio) ======
+  let soundOn = false;
+  let audioCtx = null;
 
-                osc.type = "triangle";
-                osc.frequency.value = 220;
-                gain.gain.value = 0.0001;
+  function chime() {
+    if (!soundOn) return;
 
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
+    try {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
 
-                const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
 
-                gain.gain.exponentialRampToValueAtTime(0.035, now + 0.4);
-                gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.6);
+      osc.type = "triangle";
+      osc.frequency.value = 220;
+      gain.gain.value = 0.0001;
 
-                osc.start(now);
-                osc.stop(now + 1.8);
-            } catch (e) { }
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      const now = audioCtx.currentTime;
+
+      gain.gain.exponentialRampToValueAtTime(0.035, now + 0.4);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.6);
+
+      osc.start(now);
+      osc.stop(now + 1.8);
+    } catch (e) {
+      console.error("Chime error:", e);
+    }
+  }
+
+  function setStatus(text) {
+    statusPill.textContent = "● " + text;
+  }
+
+  function fmtTime(s) {
+    s = Math.max(0, s);
+    const m = Math.floor(s / 60);
+    const r = s % 60;
+    return `${m}:${String(r).padStart(2, "0")}`;
+  }
+
+  function updateTimerUI() {
+    timerText.textContent = `Time: ${fmtTime(durationLeft)}`;
+  }
+
+  function applyOrb(scale, seconds) {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    orb.style.transition = reduce ? "none" : `transform ${seconds}s ease-in-out`;
+    orb.style.transform = `scale(${scale})`;
+  }
+
+  function resetState() {
+    running = false;
+    paused = false;
+    sessionCompleted = false;
+
+    patternIndex = 0;
+    stepRemaining = PATTERN[0].seconds;
+
+    durationTotal = parseInt(durationSel.value, 10) || 60;
+    durationLeft = durationTotal;
+
+    stageText.textContent = "Whenever you’re ready";
+    hintText.textContent = "Just follow the circle. No need to do it perfectly.";
+    setStatus("ready");
+
+    startBtn.disabled = false;
+    pauseBtn.disabled = true;
+    pauseBtn.textContent = "⏸ Pause";
+
+    clearInterval(tickInterval);
+    tickInterval = null;
+
+    applyOrb(0.78, 0.2);
+    updateTimerUI();
+  }
+
+  function beginStep() {
+    const step = PATTERN[patternIndex];
+    stageText.textContent = step.label;
+    stepRemaining = step.seconds;
+    applyOrb(step.scale, step.seconds);
+    chime();
+  }
+
+  function nextStep() {
+    patternIndex = (patternIndex + 1) % PATTERN.length;
+    beginStep();
+  }
+
+  async function saveCalmCompletion() {
+    if (!currentUser) return;
+
+    try {
+      // Save a completed session entry
+      await addDoc(collection(db, "users", currentUser.uid, "calm"), {
+        duration: durationTotal,
+        completedAt: serverTimestamp(),
+        completed: true
+      });
+
+      // Count total calm completions
+      const calmSnap = await getDocs(collection(db, "users", currentUser.uid, "calm"));
+      const calmCount = calmSnap.size;
+
+      console.log("Calm sessions completed:", calmCount);
+
+      // Unlock badge at 5 completions
+      if (calmCount >= 5) {
+        const badgeRef = doc(db, "users", currentUser.uid, "badges", "calm5");
+        const badgeSnap = await getDoc(badgeRef);
+
+        if (!badgeSnap.exists()) {
+          await setDoc(badgeRef, {
+            id: "calm5",
+            label: "5 Calm Sessions",
+            emoji: "🫧",
+            unlocked: true,
+            unlockedAt: serverTimestamp()
+          });
+
+          console.log("Unlocked badge: calm5");
+        } else {
+          await updateDoc(badgeRef, {
+            unlocked: true
+          });
         }
+      }
+    } catch (error) {
+      console.error("Error saving calm completion:", error);
+    }
+  }
 
-        function setStatus(text) {
-            statusPill.textContent = "● " + text;
-        }
+  async function finishSession() {
+    clearInterval(tickInterval);
+    tickInterval = null;
+    running = false;
+    paused = false;
 
-        function fmtTime(s) {
-            s = Math.max(0, s);
-            const m = Math.floor(s / 60);
-            const r = s % 60;
-            return `${m}:${String(r).padStart(2, "0")}`;
-        }
+    stageText.textContent = "Nice job.";
+    hintText.textContent = "Stay here as long as you want, or head back when you’re ready.";
+    setStatus("complete");
 
-        function updateTimerUI() {
-            timerText.textContent = `Time: ${fmtTime(durationLeft)}`;
-        }
+    startBtn.disabled = false;
+    pauseBtn.disabled = true;
+    pauseBtn.textContent = "⏸ Pause";
 
-        function applyOrb(scale, seconds) {
-            const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-            orb.style.transition = reduce ? "none" : `transform ${seconds}s ease-in-out`;
-            orb.style.transform = `scale(${scale})`;
-        }
+    applyOrb(0.78, 0.6);
+    timerText.textContent = "Time: done ✅";
 
-        function resetState() {
-            running = false;
-            paused = false;
+    if (!sessionCompleted) {
+      sessionCompleted = true;
+      await saveCalmCompletion();
+    }
+  }
 
-            patternIndex = 0;
-            stepRemaining = PATTERN[0].seconds;
+  function tick() {
+    if (!running || paused) return;
 
-            durationTotal = parseInt(durationSel.value, 10) || 60;
-            durationLeft = durationTotal;
+    durationLeft = Math.max(0, durationLeft - 1);
+    updateTimerUI();
 
-            stageText.textContent = "Whenever you’re ready";
-            hintText.textContent = "Just follow the circle. No need to do it perfectly.";
-            setStatus("ready");
+    if (durationLeft === 0) {
+      finishSession();
+      return;
+    }
 
-            startBtn.disabled = false;
-            pauseBtn.disabled = true;
-            pauseBtn.textContent = "⏸ Pause";
+    stepRemaining -= 1;
+    if (stepRemaining <= 0) nextStep();
+  }
 
-            clearInterval(tickInterval);
-            tickInterval = null;
+  function start() {
+    if (running && paused) {
+      paused = false;
+      setStatus("running");
+      pauseBtn.textContent = "⏸ Pause";
+      return;
+    }
 
-            applyOrb(0.78, 0.2);
-            updateTimerUI();
-        }
+    if (running) return;
 
-        function beginStep() {
-            const step = PATTERN[patternIndex];
-            stageText.textContent = step.label;
-            stepRemaining = step.seconds;
-            applyOrb(step.scale, step.seconds);
-            chime();
-        }
+    durationTotal = parseInt(durationSel.value, 10) || 60;
+    durationLeft = durationTotal;
+    sessionCompleted = false;
 
-        function nextStep() {
-            patternIndex = (patternIndex + 1) % PATTERN.length;
-            beginStep();
-        }
+    running = true;
+    paused = false;
 
-        function finishSession() {
-            clearInterval(tickInterval);
-            tickInterval = null;
-            running = false;
-            paused = false;
+    startBtn.disabled = true;
+    pauseBtn.disabled = false;
 
-            stageText.textContent = "Nice job.";
-            hintText.textContent = "Stay here as long as you want, or head back when you’re ready.";
-            setStatus("complete");
+    setStatus("running");
+    updateTimerUI();
 
-            startBtn.disabled = false;
-            pauseBtn.disabled = true;
-            pauseBtn.textContent = "⏸ Pause";
+    patternIndex = 0;
+    beginStep();
 
-            applyOrb(0.78, 0.6);
-            timerText.textContent = "Time: done ✅";
-        }
+    clearInterval(tickInterval);
+    tickInterval = setInterval(tick, 1000);
+  }
 
-        function tick() {
-            if (!running || paused) return;
+  function pause() {
+    if (!running) return;
 
-            durationLeft = Math.max(0, durationLeft - 1);
-            updateTimerUI();
+    paused = !paused;
 
-            if (durationLeft === 0) {
-                finishSession();
-                return;
-            }
+    if (paused) {
+      setStatus("paused");
+      pauseBtn.textContent = "▶️ Resume";
+      orb.style.transition = "none";
+    } else {
+      setStatus("running");
+      pauseBtn.textContent = "⏸ Pause";
+      const step = PATTERN[patternIndex];
+      applyOrb(step.scale, Math.max(0.6, stepRemaining));
+    }
+  }
 
-            stepRemaining -= 1;
-            if (stepRemaining <= 0) nextStep();
-        }
+  startBtn.addEventListener("click", start);
+  pauseBtn.addEventListener("click", pause);
+  resetBtn.addEventListener("click", resetState);
 
-        function start() {
-            if (running && paused) {
-                paused = false;
-                setStatus("running");
-                pauseBtn.textContent = "⏸ Pause";
-                return;
-            }
-            if (running) return;
+  doneBtn.addEventListener("click", () => {
+    location.href = "./index.html";
+  });
 
-            durationTotal = parseInt(durationSel.value, 10) || 60;
-            durationLeft = durationTotal;
+  soundBtn.addEventListener("click", async () => {
+    soundOn = !soundOn;
+    soundBtn.setAttribute("aria-pressed", soundOn ? "true" : "false");
+    soundBtn.textContent = soundOn ? "🔔 Sound: On" : "🔕 Sound: Off";
 
-            running = true;
-            paused = false;
+    if (soundOn) {
+      try {
+        audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+        await audioCtx.resume();
+        chime();
+      } catch (e) {
+        console.error("Audio resume error:", e);
+      }
+    }
+  });
 
-            startBtn.disabled = true;
-            pauseBtn.disabled = false;
+  durationSel.addEventListener("change", () => {
+    if (running) return;
+    resetState();
+  });
 
-            setStatus("running");
-            updateTimerUI();
+  resetState();
+</script>
 
-            patternIndex = 0;
-            beginStep();
-
-            clearInterval(tickInterval);
-            tickInterval = setInterval(tick, 1000);
-        }
-
-        function pause() {
-            if (!running) return;
-            paused = !paused;
-
-            if (paused) {
-                setStatus("paused");
-                pauseBtn.textContent = "▶️ Resume";
-                orb.style.transition = "none";
-            } else {
-                setStatus("running");
-                pauseBtn.textContent = "⏸ Pause";
-                const step = PATTERN[patternIndex];
-                applyOrb(step.scale, Math.max(0.6, stepRemaining));
-            }
-        }
-
-        startBtn.addEventListener("click", start);
-        pauseBtn.addEventListener("click", pause);
-        resetBtn.addEventListener("click", resetState);
-
-        doneBtn.addEventListener("click", () => {
-            location.href = "./index.html";
-        });
-
-        soundBtn.addEventListener("click", async () => {
-            soundOn = !soundOn;
-            soundBtn.setAttribute("aria-pressed", soundOn ? "true" : "false");
-            soundBtn.textContent = soundOn ? "🔔 Sound: On" : "🔕 Sound: Off";
-
-            if (soundOn) {
-                try {
-                    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
-                    await audioCtx.resume();
-                    chime();
-                } catch (e) { }
-            }
-        });
-
-        durationSel.addEventListener("change", () => {
-            if (running) return;
-            resetState();
-        });
-
-        resetState();
-    </script>
 </body>
 
 </html>

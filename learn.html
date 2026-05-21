@@ -8,18 +8,29 @@
   <meta name="description" content="Gentle learning in plain language. Tap a topic for a calm, simple explanation." />
 
   <!-- PWA -->
-  <meta name="theme-color" content="#6a5acd" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="format-detection" content="telephone=no" />
-
-  <!-- Fonts -->
+  <link rel="manifest" href="./manifest.webmanifest">
+  <meta name="theme-color" content="#6a5acd">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="apple-mobile-web-app-title" content="Amygdala">
+  
+  <!-- Icons -->
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+  <link rel="icon" type="image/svg+xml" sizes="any" href="favicon.svg">
+  
+  <!-- Fonts + CSS -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Quicksand:wght@600;700&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Quicksand&family=Open+Sans:wght@400;600;700&family=Patrick+Hand&display=swap"
     rel="stylesheet">
-
+  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="./mainTheme.css" />
+  
   <!-- Your existing CSS -->
   <link rel="stylesheet" href="./style.css" />
   <link rel="stylesheet" href="./mainTheme.css" />
@@ -405,7 +416,75 @@ body {
   display: block;
   height: calc(1.75rem + env(safe-area-inset-bottom));
 }
+  /* ===============================
+     LEARN.HTML — FULL SCROLL FIX
+     Paste at VERY END of <style>
+     =============================== */
 
+  html {
+    height: auto !important;
+    min-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  body {
+    height: auto !important;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    margin: 0;
+    padding: 0;
+  }
+
+  .app {
+    min-height: auto !important;
+    height: auto !important;
+    padding-bottom: calc(8rem + env(safe-area-inset-bottom)) !important;
+  }
+
+  .list {
+    margin-bottom: 3rem !important;
+  }
+
+  .app::after {
+    content: "";
+    display: block;
+    height: 5rem;
+  }
+
+  .legal-footer{
+    text-align: center;
+  }
+
+  /* ==========================
+   PROFESSIONAL LEGAL FOOTER
+   ========================== */
+
+.legal-footer{
+    text-align:center;
+    margin-top:20px;
+    padding:10px 0;
+    font-size:.85rem;
+    color:#6f8594;
+}
+
+.legal-footer a{
+    color:#5f7f94;
+    text-decoration:none;
+    font-weight:600;
+    transition:.2s ease;
+}
+
+.legal-footer a:hover{
+    color:#3f6f8f;
+    text-decoration:underline;
+}
+
+.legal-footer .separator{
+    margin:0 8px;
+    opacity:.5;
+}
   </style>
   </head>
 
@@ -518,6 +597,14 @@ body {
       </button>
     </section>
 
+    <div class="legal-footer">
+      View our
+      <a href="privacy.html" rel="noopener">Privacy Policy</a>
+      and
+      <a href="terms.html" rel="noopener">Terms of Use</a>.
+    </div>
+    </div>
+
     <!-- Bottom sheet -->
     <dialog id="sheet">
       <div class="sheet">
@@ -540,10 +627,6 @@ body {
     const sheetBody = document.getElementById("sheetBody");
     const sheetMini = document.getElementById("sheetMini");
     const sheetClose = document.getElementById("sheetClose");
-    const authPill = document.getElementById("authPill");
-
-    
-    
 
     // Open sheet when tapping a topic row
     document.querySelectorAll(".rowbtn").forEach(btn => {

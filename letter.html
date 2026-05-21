@@ -92,7 +92,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700;800;900&family=Patrick+Hand&display=swap"
     rel="stylesheet">
 
- 
+
   <!-- Early Theme Boot (same pattern as journal) -->
   <script>
     (function () {
@@ -387,169 +387,512 @@
    LEARN.html HOME BUTTON MATCH
    (ONLY affects top-left Home pill)
    =============================== */
-.topbar{
-  display:flex;
-  align-items:center;
-  justify-content:flex-start;
-  gap:.75rem;
-  margin-bottom:.75rem;
-}
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: .75rem;
+      margin-bottom: .75rem;
+    }
 
-.topbar .btn-pill{
-  text-decoration:none !important;
-  font-weight:800 !important;
-  padding:.5rem .8rem !important;
-  border-radius:12px !important;
+    .topbar .btn-pill {
+      text-decoration: none !important;
+      font-weight: 800 !important;
+      padding: .5rem .8rem !important;
+      border-radius: 12px !important;
 
-  background: rgba(255,255,255,.45) !important;
-  border: 1px solid rgba(0,0,0,.12) !important;
-  color: inherit !important;
+      background: rgba(255, 255, 255, .45) !important;
+      border: 1px solid rgba(0, 0, 0, .12) !important;
+      color: inherit !important;
 
-  box-shadow: 0 8px 20px rgba(0,0,0,.06) !important;
-  line-height: 1 !important;
-  display:inline-flex !important;
-  align-items:center !important;
-  gap:.4rem !important;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, .06) !important;
+      line-height: 1 !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: .4rem !important;
 
-  transform:none !important;
-}
+      transform: none !important;
+    }
 
-/* =========================
+    /* =========================
    GLOBAL HOME PILL — SOURCE OF TRUTH
    (mirrors learn.html)
    ========================= */
 
-.topbar{
-  display:flex !important;
-  justify-content:flex-start!important;
-  margin: 0 0 10px!important;
-}
+    .topbar {
+      display: flex !important;
+      justify-content: flex-start !important;
+      margin: 0 0 10px !important;
+    }
 
-/* THE pill */
-.btn-pill{
-  display:inline-flex!important;
-  align-items:center!important;
-  gap:8px!important;
+    /* THE pill */
+    .btn-pill {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 8px !important;
 
-  padding:8px 12px!important;
-  border-radius:999px!important;
-  text-decoration:none!important;
+      padding: 8px 12px !important;
+      border-radius: 999px !important;
+      text-decoration: none !important;
 
-  background:rgba(255,255,255,.78)!important;
-  border:1px solid rgba(10,20,35,.12)!important;
-  box-shadow:0 10px 22px rgba(0,0,0,.08)!important;
+      background: rgba(255, 255, 255, .78) !important;
+      border: 1px solid rgba(10, 20, 35, .12) !important;
+      box-shadow: 0 10px 22px rgba(0, 0, 0, .08) !important;
 
-  color:rgba(10,20,35,.92)!important;
-  font-weight:900!important;
-  line-height:1!important;
+      color: rgba(10, 20, 35, .92) !important;
+      font-weight: 900 !important;
+      line-height: 1 !important;
 
-  -webkit-tap-highlight-color:transparent!important;
-  transition:transform calc(150ms * var(--motion-scale,1))!important;
-}
+      -webkit-tap-highlight-color: transparent !important;
+      transition: transform calc(150ms * var(--motion-scale, 1)) !important;
+    }
 
-.btn-pill:active{
-  transform:translateY(1px)!important;
-}
+    .btn-pill:active {
+      transform: translateY(1px) !important;
+    }
 
-/* ===============================
+    /* ===============================
    LEARN.html HOME BUTTON MATCH
    (ONLY affects top-left Home pill)
    =============================== */
-.topbar{
-  display:flex;
-  align-items:center;
-  justify-content:flex-start;
-  gap:.75rem;
-  margin-bottom:.75rem;
-}
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: .75rem;
+      margin-bottom: .75rem;
+    }
 
-.topbar .btn-pill{
-  text-decoration:none !important;
-  font-weight:800 !important;
-  padding:.5rem .8rem !important;
-  border-radius:12px !important;
+    .topbar .btn-pill {
+      text-decoration: none !important;
+      font-weight: 800 !important;
+      padding: .5rem .8rem !important;
+      border-radius: 12px !important;
 
-  background: rgba(255,255,255,.45) !important;
-  border: 1px solid rgba(0,0,0,.12) !important;
-  color: inherit !important;
+      background: rgba(255, 255, 255, .45) !important;
+      border: 1px solid rgba(0, 0, 0, .12) !important;
+      color: inherit !important;
 
-  box-shadow: 0 8px 20px rgba(0,0,0,.06) !important;
-  line-height: 1 !important;
-  display:inline-flex !important;
-  align-items:center !important;
-  gap:.4rem !important;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, .06) !important;
+      line-height: 1 !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: .4rem !important;
 
-  transform:none !important;
-}
+      transform: none !important;
+    }
 
-/* Make BOTH html + body use the same background so nothing “peeks through” */
-html,
-body,
-body.journal-page {
-  background: linear-gradient(180deg, #e9f6fb 0%, #dff1ff 55%, #cfefff 100%) !important;
-  background-attachment: fixed;
-}
+    /* Make BOTH html + body use the same background so nothing “peeks through” */
+    html,
+    body,
+    body.journal-page {
+      background: linear-gradient(180deg, #e9f6fb 0%, #dff1ff 55%, #cfefff 100%) !important;
+      background-attachment: fixed;
+    }
 
-/* Safety: ensure the page always fills the viewport */
+    /* Safety: ensure the page always fills the viewport */
+    html,
+    body {
+      min-height: 100%;
+    }
+
+    .app {
+      width: min(640px, 92vw);
+      margin: 0 auto;
+      min-height: 100svh;
+      padding-bottom: calc(var(--gs-nav-h, 64px) + env(safe-area-inset-bottom, 0px) + 16px);
+      box-sizing: border-box;
+    }
+
+    .appbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      padding: env(safe-area-inset-top, 0px) 12px 0;
+      margin: 0 -12px 12px;
+
+      backdrop-filter: blur(12px) saturate(1.1);
+      -webkit-backdrop-filter: blur(12px) saturate(1.1);
+
+      background: linear-gradient(to bottom,
+          rgba(255, 255, 255, .60),
+          rgba(255, 255, 255, .18));
+
+      border-bottom: 1px solid rgba(0, 0, 0, .08);
+    }
+
+    .appbar-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 0;
+    }
+
+    .app-title {
+      display: grid;
+      line-height: 1.05;
+    }
+
+    .app-title .kicker {
+      font-weight: 900;
+      letter-spacing: .4px;
+      font-size: .9rem;
+      opacity: .75;
+    }
+
+    .app-title .title {
+      font-weight: 900;
+      letter-spacing: .3px;
+      font-size: 1.15rem;
+    }
+
+    .pillrow {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .appbar .pill {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: .4rem !important;
+
+      padding: .55rem .85rem !important;
+      border-radius: 999px !important;
+
+      background: rgba(255, 255, 255, .55) !important;
+      border: 1px solid rgba(0, 0, 0, .10) !important;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, .06) !important;
+
+      text-decoration: none !important;
+      color: inherit !important;
+      font-weight: 800 !important;
+      line-height: 1 !important;
+    }
+
+    .appbar .pill:active {
+      transform: translateY(1px);
+    }
+
+    main.page {
+      width: 100%;
+      margin: 0;
+      padding-left: 12px;
+      padding-right: 12px;
+    }
+
+    /* ===== LETTER — SOFTER JOURNAL-LIKE LOOK ===== */
+
+    html,
+    body {
+      background: linear-gradient(180deg, #eef9ff 0%, #dff3ff 55%, #d3f0ff 100%) !important;
+      background-attachment: fixed !important;
+    }
+
+    .three-d-title {
+      color: #2b8fbd !important;
+      text-shadow: 1px 2px 3px rgba(20, 80, 110, .18) !important;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, .32) !important;
+      border: 1px solid rgba(255, 255, 255, .58) !important;
+      box-shadow: 0 14px 32px rgba(70, 120, 150, .12) !important;
+    }
+
+    .hero p {
+      color: rgba(35, 60, 80, .72) !important;
+    }
+
+    details {
+      background: rgba(255, 255, 255, .62) !important;
+      border: 1px solid rgba(80, 140, 170, .14) !important;
+      box-shadow: 0 8px 18px rgba(70, 120, 150, .08) !important;
+    }
+
+    textarea {
+      background: rgba(255, 255, 255, .94) !important;
+      border: 1px solid rgba(80, 140, 170, .16) !important;
+      box-shadow: 0 8px 18px rgba(70, 120, 150, .08) !important;
+    }
+
+    .btn--primary {
+      background: linear-gradient(180deg, #b8eef5 0%, #b9dfff 100%) !important;
+      border: 1px solid rgba(80, 140, 170, .20) !important;
+      box-shadow: 0 8px 18px rgba(70, 120, 150, .10) !important;
+    }
+
+    .statusline {
+      color: rgba(35, 60, 80, .55) !important;
+    }
+
+    .appbar {
+      background: linear-gradient(to bottom,
+          rgba(255, 255, 255, .68),
+          rgba(255, 255, 255, .25)) !important;
+      border-bottom: 1px solid rgba(80, 140, 170, .10) !important;
+    }
+
+    .appbar .pill,
+    .legal-footer .pill {
+      background: rgba(255, 255, 255, .72) !important;
+      border: 1px solid rgba(80, 140, 170, .14) !important;
+      box-shadow: 0 8px 18px rgba(70, 120, 150, .08) !important;
+      color: rgba(20, 40, 55, .90) !important;
+    }
+
+    /* ==================================================
+   LETTER CALM FINAL OVERRIDE
+   Paste at VERY BOTTOM of letter.html CSS
+   ================================================== */
+
 html,
 body {
-  min-height: 100%;
+  background:
+    linear-gradient(
+      180deg,
+      #eef7fb 0%,
+      #dceef5 48%,
+      #d8edf3 100%
+    ) !important;
+  background-attachment: fixed !important;
 }
-  </style>
+
+/* Softer title */
+.three-d-title {
+  color: #3686bc !important;
+  font-size: 1.75rem !important;
+  font-weight: 600 !important;
+  letter-spacing: .3px !important;
+  text-shadow: none !important;
+  margin: 16px 0 12px !important;
+}
+
+/* Calm cards */
+.card {
+  background: rgba(255, 255, 255, 0.48) !important;
+  border: 1px solid rgba(255, 255, 255, 0.58) !important;
+  border-radius: 22px !important;
+  box-shadow: 0 12px 28px rgba(70, 120, 145, 0.10) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+}
+
+/* Prompt box softer */
+details {
+  background: rgba(255, 255, 255, 0.62) !important;
+  border: 1px solid rgba(90, 130, 150, 0.18) !important;
+  box-shadow: 0 8px 18px rgba(70, 120, 145, 0.08) !important;
+}
+
+/* Textarea calmer */
+textarea {
+  background: rgba(255, 255, 255, 0.78) !important;
+  border: 1px solid rgba(90, 130, 150, 0.22) !important;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,.04) !important;
+}
+
+/* Save button like journal/toolkit */
+.btn--primary {
+  background: linear-gradient(
+    135deg,
+    rgba(153, 229, 234, 0.95),
+    rgba(190, 210, 255, 0.95)
+  ) !important;
+  border: 1px solid rgba(135, 170, 255, 0.45) !important;
+  color: #2f3b4d !important;
+  box-shadow: 0 6px 16px rgba(130,170,220,.18) !important;
+}
+
+/* Softer divider/status */
+.statusline {
+  color: rgba(50, 90, 110, 0.45) !important;
+}
+
+/* Privacy button softer */
+.legal-footer .pill {
+  background: rgba(255,255,255,.72) !important;
+  color: #2f4b5a !important;
+}
+
+/* =========================================
+   LIGHTER HEADER + PROMPTS BOX
+   ========================================= */
+
+/* Header */
+.appbar{
+    background: rgba(255,255,255,.78) !important;
+    border-bottom: 1px solid rgba(255,255,255,.75) !important;
+    box-shadow: 0 6px 18px rgba(120,160,190,.06) !important;
+}
+
+/* Home button */
+.appbar .pill{
+    background: rgba(255,255,255,.88) !important;
+    border: 1px solid rgba(255,255,255,.80) !important;
+}
+
+/* Inspiration prompt box */
+details{
+    background: rgba(255,255,255,.82) !important;
+    border: 1px solid rgba(220,235,245,.9) !important;
+    box-shadow: 0 4px 12px rgba(120,160,190,.05) !important;
+}
+
+/* Prompt heading */
+summary{
+    color: #4d7085 !important;
+    font-weight: 700 !important;
+}
+
+/* Prompt list */
+details ul{
+    color: #58798c !important;
+}
+
+details{
+    background: rgba(255,255,255,.65) !important;
+}
+
+.three-d-title{
+    color:#3d8bbb !important;
+    font-weight:600 !important;
+    text-shadow:none !important;
+}
+
+/* =====================================
+   SOFTEN HEADER TEXT
+   ===================================== */
+
+.app-title .kicker{
+    color: rgba(70, 100, 120, .65) !important;
+    font-weight: 700 !important;
+    letter-spacing: .3px !important;
+}
+
+.app-title .title{
+    color: rgba(55, 85, 105, .78) !important;
+    font-weight: 700 !important;
+    text-shadow: none !important;
+}
+
+.appbar .pill{
+    color: rgba(55, 85, 105, .78) !important;
+    font-weight: 700 !important;
+
+    background: rgba(255,255,255,.85) !important;
+    border: 1px solid rgba(220,235,245,.8) !important;
+
+    box-shadow:
+      0 4px 10px rgba(120,160,190,.05) !important;
+}
+
+.appbar{
+    background: rgba(255,255,255,.50) !important;
+    backdrop-filter: blur(12px) !important;
+    border-bottom: 1px solid rgba(255,255,255,.6) !important;
+}
+
+/* ==========================
+   PROFESSIONAL LEGAL FOOTER
+   ========================== */
+
+.legal-footer{
+    text-align:center;
+    margin-top:20px;
+    padding:10px 0;
+    font-size:.85rem;
+    color:#6f8594;
+}
+
+.legal-footer a{
+    color:#5f7f94;
+    text-decoration:none;
+    font-weight:600;
+    transition:.2s ease;
+}
+
+.legal-footer a:hover{
+    color:#3f6f8f;
+    text-decoration:underline;
+}
+
+.legal-footer .separator{
+    margin:0 8px;
+    opacity:.5;
+}
+</style>
 </head>
 
 <body class="gs-has-nav">
-  <main class="page">
-    <div class="topbar">
-      <a class="btn-pill" href="index.html">🏠 Home</a>
-    </div>
+  <div class="app">
+    <header class="appbar">
+      <div class="appbar-row">
+        <div class="app-title">
+          <div class="kicker">Amygdala</div>
+          <div class="title">Letter</div>
+        </div>
 
-    <h1 class="three-d-title">💌 Letter to Future Me</h1>
+        <div class="pillrow">
+          <a class="pill" href="./index.html">🏠 Home</a>
+        </div>
+      </div>
+    </header>
 
-    <section class="card hero">
-      <p>Write something comforting or motivational for your future self.</p>
+    <main class="page">
 
-      <details>
-        <summary>🌈 Need inspiration? Try these prompts</summary>
-        <ul>
-          <li>✨ What has helped you feel stable lately?</li>
-          <li>💪 What are you proud of yourself for?</li>
-          <li>🛠️ What coping tools do you want to remember?</li>
-          <li>💖 What would you want someone you love to hear if they felt this way?</li>
-          <li>🫶 What would future you want to remember on a hard day?</li>
-        </ul>
-      </details>
-    </section>
+      <h1 class="three-d-title">💌 Letter to Future Me</h1>
 
-    <section class="card">
-      <textarea id="letterInput" placeholder="Type your letter..."></textarea>
+      <section class="card hero">
+        <p>Write something comforting or motivational for your future self.</p>
 
-      <div class="action-stack">
-        <button type="button" class="btn btn--primary" id="saveBtn">💾 Save</button>
+        <details>
+          <summary>🌈 Need inspiration? Try these prompts</summary>
+          <ul>
+            <li>✨ What has helped you feel stable lately?</li>
+            <li>💪 What are you proud of yourself for?</li>
+            <li>🛠️ What coping tools do you want to remember?</li>
+            <li>💖 What would you want someone you love to hear if they felt this way?</li>
+            <li>🫶 What would future you want to remember on a hard day?</li>
+          </ul>
+        </details>
+      </section>
+
+      <section class="card">
+        <textarea id="letterInput" placeholder="Type your letter..."></textarea>
+
+        <div class="action-stack">
+          <button type="button" class="btn btn--primary" id="saveBtn">💾 Save</button>
+        </div>
+
+        <div id="state" class="statusline">—</div>
+      </section>
+
+      <section class="card" id="letterDisplayContainer" style="display:none; margin-top:12px;">
+        <h2 class="three-d-title" style="font-size:1.2rem; margin:0 0 8px;">📝 Letter to Yourself</h2>
+
+        <div class="letter-box">
+          <div id="letterDisplay"></div>
+        </div>
+
+        <div id="updated" class="timestamp"></div>
+
+        <div class="action-stack" style="margin-top:10px;">
+          <button type="button" class="btn btn--danger" id="deleteBtn">🗑️ Delete</button>
+        </div>
+      </section>
+
+      <!-- Privacy (like letter.html) -->
+      <div class="legal-footer">
+        View our
+        <a href="privacy.html" rel="noopener">Privacy Policy</a>
+        and
+        <a href="terms.html" rel="noopener">Terms of Use</a>.
       </div>
 
-      <div id="state" class="statusline">—</div>
-    </section>
-
-    <section class="card" id="letterDisplayContainer" style="display:none; margin-top:12px;">
-      <h2 class="three-d-title" style="font-size:1.2rem; margin:0 0 8px;">📝 Letter to Yourself</h2>
-
-      <div class="letter-box">
-        <div id="letterDisplay"></div>
-      </div>
-
-      <div id="updated" class="timestamp"></div>
-
-      <div class="action-stack" style="margin-top:10px;">
-        <button type="button" class="btn btn--danger" id="deleteBtn">🗑️ Delete</button>
-      </div>
-    </section>
-
-    <div class="legal-footer">
-      <a class="pill" href="privacy.html">View our Privacy Policy</a>
-    </div>
-  </main>
-
+    </main>
+  </div>
   <!-- =========================
        LETTER LOGIC (your code)
        ========================= -->
@@ -869,4 +1212,4 @@ body {
   </script>
 </body>
 
-</html> 
+</html>

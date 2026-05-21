@@ -1,0 +1,67 @@
+<script>
+   
+
+
+    document.addEventListener("DOMContentLoaded", () => {
+        wireIndexButtons();
+        markActiveNav();
+    });
+
+    let unsubTheme = null;
+
+    onAuthStateChanged(auth, (user) => {
+        if (unsubTheme) {
+            unsubTheme();
+            unsubTheme = null;
+        }
+
+        if (!user) {
+            try {
+                localStorage.removeItem("currentUser");
+                localStorage.setItem("themeClass:last", "theme-original");
+            } catch { }
+
+            applyThemeClass("theme-main");
+            renderLoggedOutUI();
+            guardLinks(false);
+            showOnce();
+            return;
+        }
+
+        try {
+            localStorage.setItem("currentUser", user.uid);
+        } catch { }
+
+        renderLoggedInUI(user);
+
+        try {
+            if (window.Badges?.award) {
+                window.Badges.award("login");
+            }
+        } catch (e) {
+            console.warn("[index] login badge failed:", e);
+        }
+
+        guardLinks(true);
+
+        let firstPaint = true;
+        unsubTheme = onSnapshot(
+            doc(db, "users", user.uid),
+            (snap) => {
+                const t = snap.exists() ? snap.data()?.themeClass : "";
+                if (t) applyThemeClass(t);
+                else applyThemeClass("theme-main");
+
+                if (firstPaint) {
+                    showOnce();
+                    firstPaint = false;
+                }
+            },
+            (err) => {
+                console.error("[index] theme snapshot error:", err);
+                applyThemeClass("theme-main");
+                showOnce();
+            }
+        );
+    });
+</script>

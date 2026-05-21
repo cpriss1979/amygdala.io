@@ -1,3 +1,4 @@
+<!-- ===== where the badges system interface lives ========== -->
 <!DOCTYPE html>
 <html lang="en" data-ready="0">
 
@@ -6,38 +7,38 @@
   <script type="module">
     import './firebase-init.js'; // ensures app/auth/db are initialized
   </script>
-
-<script type="module">
-  import { auth, db } from './firebase-init.js';
-  import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-  const LOCAL_MARK = 'gs_session_ack_ts';
-  onAuthStateChanged(auth, (user) => {
-    if (!user) return;
-    const uref = doc(db, 'users', user.uid);
-    onSnapshot(uref, async (snap) => {
-      const bump = snap?.data()?.sessionBumpedAt?.toMillis?.() || 0;
-      const seen = parseInt(localStorage.getItem(LOCAL_MARK) || '0', 10);
-      if (bump > seen) {
-        localStorage.setItem(LOCAL_MARK, String(bump));
-        try { await signOut(auth); } finally { location.replace('login.html'); }
-      }
-    });
-  });
-</script>
-    
-<!-- prefs bootstrap: put in <head> of every page -->
-<script>
-  (function () {
-    const PREFS_KEY = 'gs_prefs';
-    let p = {};
-    try { p = JSON.parse(localStorage.getItem(PREFS_KEY) || '{}'); } catch { }
-    document.documentElement.style.setProperty('--motion-scale', p.reducedMotion ? '0' : '1');
-    document.documentElement.style.setProperty('--text-size', p.largerText ? '1.1rem' : '1rem');
-  })();
-</script>
   
+  <script type="module">
+    import { auth, db } from './firebase-init.js';
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const LOCAL_MARK = 'gs_session_ack_ts';
+    onAuthStateChanged(auth, (user) => {
+      if (!user) return;
+      const uref = doc(db, 'users', user.uid);
+      onSnapshot(uref, async (snap) => {
+        const bump = snap?.data()?.sessionBumpedAt?.toMillis?.() || 0;
+        const seen = parseInt(localStorage.getItem(LOCAL_MARK) || '0', 10);
+        if (bump > seen) {
+          localStorage.setItem(LOCAL_MARK, String(bump));
+          try { await signOut(auth); } finally { location.replace('login.html'); }
+        }
+      });
+    });
+  </script>
+  
+  <!-- prefs bootstrap: put in <head> of every page -->
+  <script>
+    (function () {
+      const PREFS_KEY = 'gs_prefs';
+      let p = {};
+      try { p = JSON.parse(localStorage.getItem(PREFS_KEY) || '{}'); } catch { }
+      document.documentElement.style.setProperty('--motion-scale', p.reducedMotion ? '0' : '1');
+      document.documentElement.style.setProperty('--text-size', p.largerText ? '1.1rem' : '1rem');
+    })();
+  </script>
+    
   <!-- 1) FOUC guard -->
   <style>
     html:not([data-ready="1"]) {
@@ -131,20 +132,23 @@
 
   <!-- Page-local styles -->
   <style>
-    body {
-      font-family: 'Quicksand', sans-serif;
-      margin: 0;
-      padding: 2rem;
-      background: #0a0d2b;
-      color: #fff
-    }
-
+  
+  body {
+  font-family: 'Quicksand', sans-serif;
+  margin: 0;
+  padding: 0;              /* <-- IMPORTANT */
+  background: #0a0d2b;
+  color: #fff;
+}
+.page-pad {
+  padding: 18px 18px 0;
+}
     h1 {
       margin: 0 0 1rem;
       text-align: center
     }
 
-    .badge-grid {
+    .badges-grid {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 14px;
@@ -153,16 +157,9 @@
     }
 
     @media (max-width:460px) {
-      .badge-grid {
+      .badges-grid {
         grid-template-columns: repeat(3, minmax(0, 1fr))
       }
-    }
-
-    .badge {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: .45rem
     }
 
     .icon {
@@ -180,34 +177,10 @@
       transition: transform .12s ease, filter .2s ease, opacity .2s ease;
     }
 
-    .badge.locked .icon {
-      filter: grayscale(1);
-      opacity: .5;
-      background: linear-gradient(135deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, .03));
-      border-color: rgba(255, 255, 255, .35)
-    }
-
-    .badge .label {
-      font-size: .85rem;
-      opacity: .95;
-      text-align: center;
-      max-width: 112px
-    }
-
-    .badge:not(.locked) .label {
-      color: #fff
-    }
-
-    .badge.locked .label {
-      color: rgba(255, 255, 255, .7)
-    }
-
     .icon:hover {
       transform: translateY(-2px) scale(1.03)
     }
-
-
-
+  
 /* ================= navbar overrides ============= */
 /* === Glow Standard Bottom Nav (namespaced) === */
 :root{
@@ -219,6 +192,7 @@
   --gs-nav-text: rgba(69,111,179,1);
   --gs-nav-active: #0b6cc4;
 }
+
 
 /* Reserve space for the fixed bar (opt-in via body.gs-has-nav) */
 body.gs-has-nav{
@@ -242,6 +216,7 @@ footer.gs-nav{
   /* normalize inheritance so pages can’t change it */
   font-size: 0; line-height: 1; font-family: inherit;
 }
+
 
 /* Items are equal columns */
 .gs-nav__item{
@@ -267,95 +242,280 @@ footer.gs-nav{
 .gs-nav__item[aria-current="page"]{ color: var(--gs-nav-active); font-weight: 700; }
 .gs-nav__item:hover{ color:#72aadf; }
 
+.topbar .pill {
+            margin-left: auto;
+            padding: 10px 14px;
+            border-radius: 999px;
+            border: 1px solid rgba(0, 0, 0, .12);
+            background: rgba(255, 255, 255, .55);
+            font-weight: 900;
+            color: rgba(0, 0, 0, .75);
+            text-align: center;
+        }
+
+        .btn-home {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            border-radius: 999px;
+            border: 1px solid rgba(0, 0, 0, .12);
+            background: rgba(255, 255, 255, .75);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, .06);
+            color: #000;
+            text-decoration: none;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform calc(120ms * var(--motion-scale, 1)), filter .2s ease;
+        }
+
+        .btn-home:hover {
+            filter: brightness(.98);
+        }
+
+        .btn-home:active {
+            transform: translateY(1px);
+        }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            padding-top: calc(10px + env(safe-area-inset-top, 0px));
+            padding-bottom: 10px;
+            padding-left: max(12px, env(safe-area-inset-left, 0px));
+            padding-right: max(12px, env(safe-area-inset-right, 0px));
+
+            background: rgba(255, 255, 255, .35);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 0, 0, .08);
+        }
+
+        .topbar{
+  width: 100%;
+  box-sizing: border-box;
+}
+
+header.topbar{
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  /* 🔥 THIS is what makes it span full screen */
+  width: 100vw;
+  left: 0;
+  right: 0;
+
+  padding-top: calc(10px + env(safe-area-inset-top, 0px));
+  padding-bottom: 10px;
+  padding-left: max(12px, env(safe-area-inset-left, 0px));
+  padding-right: max(12px, env(safe-area-inset-right, 0px));
+
+  background: rgba(255, 255, 255, .35);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0, 0, 0, .08);
+  box-sizing: border-box;
+}
+
+.badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .45rem;
+}
+
+.badge.locked .icon {
+  filter: grayscale(1);
+  opacity: .5;
+  background: linear-gradient(135deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, .03));
+  border-color: rgba(255, 255, 255, .35);
+}
+
+.badge .label {
+  font-size: .85rem;
+  opacity: .95;
+  text-align: center;
+  max-width: 112px;
+}
+
+.badge:not(.locked) .label {
+  color: #fff;
+}
+
+.badge.locked .label {
+  color: rgba(255, 255, 255, .7);
+}
   </style>
 </head>
 
-<body>
-  
-  <h1>🏅 My Badges</h1>
-  <div id="badgeGrid" class="badge-grid"></div>
+<body class="gs-has-nav">
+
+  <!-- FULL WIDTH TOPBAR -->
+  <header class="topbar">
+    <a class="btn-home" href="./index.html" aria-label="Back to Home">
+      🏠 <span>Home</span>
+    </a>
+    <div class="pill">Badges</div>
+  </header>
+
+  <!-- PAGE CONTENT (padded area) -->
+  <div class="page-pad">
+    <h1>🏅 My Badges</h1>
+    <div id="badgesGrid" class="badges-grid"></div>
+  </div>
 
   <script type="module">
     import { auth, db } from "./firebase-init.js";
     import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import {
-      doc, getDoc, setDoc, updateDoc, arrayUnion, onSnapshot, collection,
-      enableIndexedDbPersistence
+      doc,
+      getDoc,
+      setDoc,
+      updateDoc,
+      arrayUnion,
+      onSnapshot,
+      collection
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    // Optional offline (ignore multi-tab errors)
-    try { await enableIndexedDbPersistence(db); } catch { }
-
-    // ---- catalog: ALL badges you want visible here ----
+    // ---- catalog: ALL badges visible on badge wall ----
     const CATALOG = [
-      // app-wide
       { id: "login", label: "First Login", emoji: "🔑", hue: 200 },
-      { id: "themeChange", label: "Changed Theme", emoji: "🎨", hue: 280 },
       { id: "feelgood1", label: "1 Feel-Good Idea", emoji: "💡", hue: 50 },
-      { id: "firstJournal", label: "First Journal", emoji: "📝", hue: 300 },
+      { id: "journal5", label: "5 Journal Entries", emoji: "📝", hue: 300 },
       { id: "letter1", label: "Letter to Future Me", emoji: "💌", hue: 340 },
+      { id: "verses5", label: "5 Verses", emoji: "📖", hue: 85 },
+      { id: "distraction5", label: "5 Distractions", emoji: "🎮", hue: 180 },
+      { id: "calm5", label: "5 Calm Sessions", emoji: "🫧", hue: 260 },
 
-      // pet-care streaks
-      { id: "pawprint", label: "First Pet Care", emoji: "🐾", hue: 120 },
-      { id: "flower", label: "1 Week", emoji: "🌸", hue: 330 },
-      { id: "gem", label: "1 Month", emoji: "💎", hue: 200 },
-      { id: "crown", label: "3 Months", emoji: "👑", hue: 45 },
-      { id: "halfyear", label: "6 Months", emoji: "🏆", hue: 15 },
+      // Login streak badges
+      { id: "streak3", label: "3 Day Streak", emoji: "🔥", hue: 10 },
+      { id: "streak7", label: "7 Day Streak", emoji: "🌟", hue: 45 },
+      { id: "streak30", label: "30 Day Streak", emoji: "🏆", hue: 50 },
+      { id: "streak90", label: "90 Day Streak", emoji: "💎", hue: 190 },
+      { id: "streak180", label: "6 Month Streak", emoji: "👑", hue: 270 },
+      { id: "streak270", label: "9 Month Streak", emoji: "🌙", hue: 230 },
+      { id: "streak365", label: "1 Year Streak", emoji: "🎉", hue: 320 }
     ];
 
-    // build the wall
-    const grid = document.getElementById("badgeGrid");
-    function renderCatalog() {
-      grid.innerHTML = CATALOG.map(b => `
-        <div class="badge locked" data-badge="${b.id}">
-          <div class="icon" style="--h:${b.hue}">${b.emoji}</div>
-          <div class="label">${b.label}</div>
-        </div>
-      `).join("");
-    }
-    renderCatalog();
+    const grid = document.getElementById("badgesGrid");
 
-    // apply unlocked visuals
-    function updateUnlocked(ids) {
-      const set = new Set(ids);
-      grid.querySelectorAll(".badge").forEach(el => {
-        el.classList.toggle("locked", !set.has(el.dataset.badge));
-      });
-    }
-
-    // helper to award from console if you want: award('login')
-    async function award(uid, id) {
-      const ref = doc(db, "users", uid);
-      try { await updateDoc(ref, { badges: arrayUnion(id) }); }
-      catch { await setDoc(ref, { badges: [id] }, { merge: true }); }
-    }
-    window.award = (id) => auth.currentUser && award(auth.currentUser.uid, id);
-
-    // combine root array + subcollection {users/{uid}/badges}
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) { location.replace("login.html?next=" + encodeURIComponent("badges.html")); return; }
-
-      const userRef = doc(db, "users", user.uid);
-      try { const s = await getDoc(userRef); if (!s.exists()) await setDoc(userRef, { badges: [] }, { merge: true }); } catch { }
-
-      let rootEarned = new Set(), subEarned = new Set();
-      const apply = () => updateUnlocked(new Set([...rootEarned, ...subEarned]));
-
-      onSnapshot(userRef, snap => {
-        const arr = Array.isArray(snap.data()?.badges) ? snap.data().badges : [];
-        rootEarned = new Set(arr);
-        apply();
-      });
-
-      onSnapshot(collection(db, "users", user.uid, "badges"), qs => {
-        subEarned = new Set();
-        qs.forEach(docSnap => subEarned.add(docSnap.id));
-        apply();
-      });
-
-      // reveal page
+    function revealPage() {
       document.documentElement.setAttribute("data-ready", "1");
       document.documentElement.style.visibility = "visible";
+    }
+
+    function renderCatalog() {
+      if (!grid) return;
+
+      grid.innerHTML = CATALOG.map(b => `
+          <div class="badge locked" data-badge="${b.id}">
+            <div class="icon" style="--h:${b.hue}">${b.emoji}</div>
+            <div class="label">${b.label}</div>
+          </div>
+        `).join("");
+    }
+
+    function updateUnlocked(ids) {
+      const earned = new Set(Array.from(ids || []));
+
+      grid.querySelectorAll(".badge").forEach(el => {
+        const badgeId = el.dataset.badge;
+        const isUnlocked = earned.has(badgeId);
+        el.classList.toggle("locked", !isUnlocked);
+        el.setAttribute("aria-label", isUnlocked ? `${badgeId} unlocked` : `${badgeId} locked`);
+      });
+    }
+
+    async function ensureUserBadgeDoc(uid) {
+      if (!uid) return;
+
+      const userRef = doc(db, "users", uid);
+      try {
+        const snap = await getDoc(userRef);
+        if (!snap.exists()) {
+          await setDoc(userRef, { badges: [] }, { merge: true });
+        }
+      } catch (err) {
+        console.warn("[badges] could not ensure user badge doc:", err);
+      }
+    }
+
+    async function award(uid, id) {
+      if (!uid || !id) return;
+
+      const userRef = doc(db, "users", uid);
+
+      try {
+        await updateDoc(userRef, {
+          badges: arrayUnion(id)
+        });
+      } catch {
+        await setDoc(userRef, {
+          badges: [id]
+        }, { merge: true });
+      }
+    }
+
+    renderCatalog();
+
+    window.award = (id) => {
+      if (!auth.currentUser) {
+        console.warn("[badges] No logged-in user.");
+        return;
+      }
+
+      return award(auth.currentUser.uid, id);
+    };
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        location.replace("login.html?next=" + encodeURIComponent("badges.html"));
+        return;
+      }
+
+      await ensureUserBadgeDoc(user.uid);
+
+      const userRef = doc(db, "users", user.uid);
+
+      let rootEarned = new Set();
+      let subEarned = new Set();
+
+      function apply() {
+        updateUnlocked(new Set([...rootEarned, ...subEarned]));
+      }
+
+      onSnapshot(userRef, (snap) => {
+        const data = snap.data() || {};
+        const arr = Array.isArray(data.badges) ? data.badges : [];
+
+        rootEarned = new Set(arr);
+        apply();
+        revealPage();
+      }, (err) => {
+        console.error("[badges] root badge listener error:", err);
+        revealPage();
+      });
+
+      onSnapshot(collection(db, "users", user.uid, "badges"), (qs) => {
+        subEarned = new Set();
+
+        qs.forEach(docSnap => {
+          subEarned.add(docSnap.id);
+        });
+
+        apply();
+        revealPage();
+      }, (err) => {
+        console.error("[badges] sub badge listener error:", err);
+        revealPage();
+      });
     });
   </script>
 </body>

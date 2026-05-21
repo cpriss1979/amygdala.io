@@ -71,7 +71,17 @@
     --max: 620px;
     --pad: 14px;
 
-    /* bottom nav */
+    --ink: rgba(20, 35, 45, 0.88);
+    --muted: rgba(20, 35, 45, 0.62);
+
+    --glass: rgba(255, 255, 255, 0.62);
+    --glass-soft: rgba(255, 255, 255, 0.48);
+    --border: rgba(255, 255, 255, 0.58);
+    --shadow: 0 14px 34px rgba(70, 110, 140, 0.12);
+
+    --button-bg: rgba(255, 255, 255, 0.72);
+    --button-border: rgba(70, 110, 140, 0.16);
+
     --gs-nav-h: 64px;
     --gs-nav-fs: 12px;
     --gs-nav-ico: 20px;
@@ -79,22 +89,6 @@
     --gs-nav-border: rgba(69, 111, 179, .25);
     --gs-nav-text: rgba(69, 111, 179, 1);
     --gs-nav-active: #0b6cc4;
-
-    /* fallbacks (themes can override) */
-    --text-color: rgba(10, 20, 35, .92);
-
-    /* surfaces */
-    --panel: rgba(255, 255, 255, .22);
-    --panelBorder: rgba(255, 255, 255, .45);
-    --shadow: 0 18px 45px rgba(0, 0, 0, .12);
-
-    --row: rgba(255, 255, 255, .70);
-    --rowBorder: rgba(10, 20, 35, .10);
-    --rowShadow: 0 10px 22px rgba(0, 0, 0, .09);
-
-    --ink: var(--text-color);
-    --muted: rgba(10, 20, 35, .70);
-    --link: rgba(49, 64, 162, .95);
   }
 
   * {
@@ -106,144 +100,139 @@
     margin: 0;
     padding: 0;
     min-height: 100%;
-    font-family: "Open Sans", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    font-family: "Open Sans", system-ui, sans-serif;
     overflow-x: hidden;
-    font-size: var(--text-size, 1rem);
     color: var(--ink);
+    font-size: var(--text-size, 1rem);
+  }
+
+  html:not([data-ready="1"]) {
+    visibility: hidden;
   }
 
   body.gs-has-nav {
     padding-bottom: calc(var(--gs-nav-h) + env(safe-area-inset-bottom, 0px));
-  }
-
-  /* background matches your other pages */
-  body {
     background:
-      radial-gradient(1200px 700px at 10% 0%, rgba(186, 147, 255, .35), transparent 55%),
-      radial-gradient(900px 600px at 90% 10%, rgba(120, 205, 255, .30), transparent 55%),
-      linear-gradient(180deg,
-        rgba(238, 246, 251, 1) 0%,
-        rgba(141, 201, 223, .55) 45%,
-        rgba(120, 170, 210, .50) 100%);
+      radial-gradient(circle at 20% 0%, rgba(255, 255, 255, 0.65), transparent 34%),
+      radial-gradient(circle at 90% 10%, rgba(190, 225, 255, 0.58), transparent 38%),
+      linear-gradient(180deg, #eef9ff 0%, #d9f0fb 48%, #cfe9f4 100%);
     background-attachment: fixed;
   }
 
   main.page {
-    width: min(var(--max), 97vw);
+    width: min(var(--max), 96vw);
     margin: 0 auto;
     padding:
-      calc(env(safe-area-inset-top, 0px) + 10px) var(--pad) calc(var(--gs-nav-h) + env(safe-area-inset-bottom, 0px) + 16px) var(--pad);
+      calc(env(safe-area-inset-top, 0px) + 12px) var(--pad) calc(var(--gs-nav-h) + env(safe-area-inset-bottom, 0px) + 20px) var(--pad);
   }
 
   .topbar {
     display: flex;
-    justify-content: flex-start;
-    margin: 0 0 10px;
-  }
+    justify-content: flex-end;
+    margin-bottom: 12px;
+}
 
-  .pill {
+  .pill,
+  .home-pill {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 8px 12px;
+    gap: 7px;
+    padding: 8px 13px;
     border-radius: 999px;
     text-decoration: none;
-    background: rgba(255, 255, 255, .78);
-    border: 1px solid rgba(10, 20, 35, .12);
-    box-shadow: 0 10px 22px rgba(0, 0, 0, .08);
-    color: rgba(10, 20, 35, .92);
+    background: rgba(255, 255, 255, 0.78);
+    border: 1px solid rgba(70, 110, 140, 0.14);
+    color: var(--ink);
     font-weight: 900;
-    line-height: 1;
-    -webkit-tap-highlight-color: transparent;
-    transition: transform calc(150ms * var(--motion-scale, 1));
+    box-shadow: 0 8px 18px rgba(70, 110, 140, 0.10);
   }
 
-  .pill:active {
-    transform: translateY(1px);
-  }
-
-  .top-shell {
-    background: var(--panel);
-    border: 1px solid var(--panelBorder);
-    border-radius: 22px;
+  .top-shell,
+  .section {
+    background: var(--glass);
+    border: 1px solid var(--border);
+    border-radius: 24px;
     box-shadow: var(--shadow);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    padding: 14px;
-    margin-top: 8px;
+  }
+
+  .top-shell {
+    padding: 16px 14px;
+    margin-bottom: 14px;
+  }
+
+  .section {
+    padding: 15px;
+    margin-top: 14px;
+  }
+
+  .card.hero {
+    margin: 0;
   }
 
   .three-d-title {
     font-family: "Patrick Hand", cursive;
     font-size: 2rem;
-    font-weight: 900;
+    line-height: 1.05;
     text-align: center;
-    margin: 2px 0 6px;
-    text-shadow: 2px 2px rgba(0, 0, 0, .10);
-    letter-spacing: 1px;
-    color: rgba(10, 20, 35, .92);
+    margin: 0 0 10px;
+    color: rgba(28, 72, 94, 0.92);
+    letter-spacing: 0.5px;
+    text-shadow: 1px 2px rgba(255, 255, 255, 0.8);
   }
 
   .subnote {
-    text-align: center;
-    font-weight: 800;
-    color: rgba(10, 20, 35, .78);
-    margin: 0;
-    padding: 10px 12px;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 10px 14px;
     border-radius: 18px;
-    background: rgba(255, 255, 255, .62);
-    border: 1px solid rgba(10, 20, 35, .10);
-    box-shadow: 0 10px 22px rgba(0, 0, 0, .08);
-  }
-
-  /* Section card */
-  .section {
-    background: var(--panel);
-    border: 1px solid var(--panelBorder);
-    border-radius: 22px;
-    box-shadow: var(--shadow);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    padding: 14px;
-    margin-top: 12px;
+    text-align: center;
+    font-size: 0.92rem;
+    line-height: 1.25;
+    font-weight: 900;
+    color: rgba(30, 48, 58, 0.82);
+    background: rgba(255, 255, 255, 0.52);
+    border: 1px solid rgba(70, 110, 140, 0.10);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
   }
 
   .support-heading {
-    margin: 2px 2px 10px;
-    font-size: 1.05rem;
+    margin: 0 0 12px;
+    font-size: 1rem;
+    line-height: 1.25;
     font-weight: 900;
-    color: rgba(10, 20, 35, .88);
+    color: rgba(30, 58, 70, 0.86);
   }
 
   .support-heading::after {
     content: "";
     display: block;
+    width: 38%;
     height: 2px;
-    width: 46%;
-    margin-top: 6px;
+    margin-top: 7px;
     border-radius: 999px;
-    background: rgba(108, 55, 99, 0.40);
+    background: rgba(95, 145, 165, 0.25);
   }
 
-  /* ROW LIST — calm + consistent */
   .support-list {
     list-style: none;
-    padding: 0;
     margin: 0;
+    padding: 0;
     display: grid;
     gap: 10px;
   }
 
   .support-item {
-    background: var(--row);
-    border: 1px solid var(--rowBorder);
-    border-radius: 18px;
-    box-shadow: var(--rowShadow);
-    padding: 10px 12px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
+    padding: 11px 12px;
+    border-radius: 18px;
+    background: var(--glass-soft);
+    border: 1px solid rgba(255, 255, 255, 0.58);
+    box-shadow: 0 8px 18px rgba(70, 110, 140, 0.08);
   }
 
   .support-left {
@@ -251,52 +240,53 @@
   }
 
   .support-title {
+    font-size: 0.95rem;
+    line-height: 1.18;
     font-weight: 900;
-    color: rgba(10, 20, 35, .92);
-    line-height: 1.1;
+    color: rgba(20, 35, 45, 0.86);
   }
 
   .support-meta {
-    margin-top: 3px;
-    font-size: .92rem;
+    margin-top: 4px;
+    font-size: 0.83rem;
+    line-height: 1.2;
     font-weight: 700;
     color: var(--muted);
-    line-height: 1.15;
   }
 
   .btn-pill {
     flex: 0 0 auto;
-    text-decoration: none;
-    font-weight: 900;
-    border-radius: 999px;
     padding: 8px 12px;
-    border: 1px solid rgba(10, 20, 35, .14);
-    background: rgba(255, 255, 255, .78);
-    color: var(--link);
-    box-shadow: 0 8px 18px rgba(0, 0, 0, .08);
+    border-radius: 999px;
+    text-decoration: none;
     white-space: nowrap;
-    -webkit-tap-highlight-color: transparent;
-    transition: transform calc(150ms * var(--motion-scale, 1));
+    font-size: 0.86rem;
+    font-weight: 900;
+    color: rgba(28, 72, 94, 0.92);
+    background: var(--button-bg);
+    border: 1px solid var(--button-border);
+    box-shadow: 0 7px 14px rgba(70, 110, 140, 0.10);
   }
 
+  .pill:active,
   .btn-pill:active {
     transform: translateY(1px);
   }
 
   .legal-footer {
+    margin: 18px auto 0;
     text-align: center;
-    margin: 14px 0 0;
-    color: rgba(10, 20, 35, .72);
+    font-size: 0.88rem;
+    line-height: 1.35;
     font-weight: 700;
+    color: var(--muted);
   }
 
   .legal-footer a {
-    color: var(--link);
+    color: rgba(28, 72, 94, 0.92);
     font-weight: 900;
-    text-decoration: underline;
   }
 
-  /* Bottom Nav */
   footer.gs-nav {
     position: fixed;
     left: 0;
@@ -311,9 +301,6 @@
     padding: 0 env(safe-area-inset-left, 8px) 0 env(safe-area-inset-right, 8px);
     z-index: 1000;
     overflow: hidden;
-    box-sizing: border-box;
-    font-size: 0;
-    line-height: 1;
     font-family: inherit;
   }
 
@@ -328,21 +315,15 @@
     text-decoration: none;
     color: var(--gs-nav-text);
     white-space: nowrap;
-    padding: 0;
-    margin: 0;
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
   }
 
   .gs-nav__item .ico {
     font-size: var(--gs-nav-ico);
-    display: block;
     line-height: 1;
   }
 
   .gs-nav__item span {
     font-size: var(--gs-nav-fs);
-    display: block;
     line-height: 1;
   }
 
@@ -351,516 +332,157 @@
     font-weight: 900;
   }
 
-  .gs-nav__item:hover {
-    color: #72aadf;
-  }
-
   .gs-nav__item.is-locked {
-    opacity: .55;
+    opacity: 0.55;
   }
 
-  @media (max-width: 420px) {
+  @media (max-width: 430px) {
+    main.page {
+      width: min(390px, 94vw);
+      padding-left: 12px;
+      padding-right: 12px;
+    }
+
     .three-d-title {
-      font-size: 1.9rem;
+      font-size: 1.85rem;
+    }
+
+    .section {
+      padding: 13px;
+    }
+
+    .support-item {
+      padding: 10px;
+      gap: 9px;
+    }
+
+    .support-title {
+      font-size: 0.9rem;
+    }
+
+    .support-meta {
+      font-size: 0.8rem;
     }
 
     .btn-pill {
       padding: 7px 10px;
+      font-size: 0.82rem;
     }
   }
 
-  /* ===== Top header tightening ===== */
-  .top-shell {
-    padding: 12px 12px 10px;
-    /* was 14px */
-    margin-top: 6px;
-    /* was 8px */
-  }
-
-  .three-d-title {
-    margin: 2px 0 4px;
-    /* less vertical space */
-    font-size: 1.85rem;
-    /* slightly smaller */
-  }
-
-  /* calmer subnote: still a pill, but less “boxy” */
-  .subnote {
-    padding: 8px 10px;
-    /* was 10px 12px */
-    border-radius: 14px;
-    /* was 18px */
-    background: rgba(255, 255, 255, .48);
-    /* was .62 */
-    box-shadow: 0 8px 18px rgba(0, 0, 0, .06);
-    /* softer */
-    border: 1px solid rgba(10, 20, 35, .08);
-    /* softer */
-  }
-
-  /* =========================
- IMPORTANT NUMBERS — DE-CROWD POLISH (override)
- Paste at END of CSS
- ========================= */
-
-  /* Give the page a little more breathing room */
-  main.page {
-    padding-top: calc(env(safe-area-inset-top, 0px) + 14px);
-  }
-
-  /* Slightly soften big glass cards (less “stacked”) */
-  .top-shell,
-  .section {
-    box-shadow: 0 14px 34px rgba(0, 0, 0, .10);
-    /* softer than 0 18px 45px */
-  }
-
-  /* Section spacing */
-  .section {
-    margin-top: 14px;
-    /* was 12px */
-    padding: 14px 14px 16px;
-  }
-
-  /* List spacing: give it air */
-  .support-list {
-    gap: 12px;
-    /* was 10px */
-  }
-
-  /* Reduce text density slightly */
-  .support-title {
-    line-height: 1.15;
-    /* was 1.1 */
-  }
-
-  .support-meta {
-    margin-top: 4px;
-    /* was 3px */
-    font-size: .90rem;
-    /* was .92rem */
-    line-height: 1.2;
-  }
-
-  /* Call button: keep it clear but calmer */
-  .btn-pill {
-    padding: 7px 11px;
-    /* slightly tighter */
-    box-shadow: 0 6px 12px rgba(0, 0, 0, .07);
-    /* softer */
-    border: 1px solid rgba(10, 20, 35, .12);
-  }
-
-  /* Heading underline: shorten a bit so it’s less “busy” */
-  .support-heading::after {
-    width: 38%;
-    /* was 46% */
-    opacity: .70;
-  }
-
-  /* Optional: give headings a touch more spacing */
-  .support-heading {
-    margin-bottom: 12px;
-    /* was 10px */
-  }
-
-  /* =========================
- IMPORTANT NUMBERS — SOFTEN COLOR SYSTEM
- ========================= */
-
-  /* Section card = main surface */
-  .section {
-    background: rgba(255, 255, 255, .26);
-    /* was more opaque */
-    border: 1px solid rgba(255, 255, 255, .38);
-  }
-
-  .support-item {
-    background: transparent;
-    /* remove inner card */
-    border: none;
-    box-shadow: none;
-    border-radius: 0;
-    padding: 8px 4px;
-    /* slightly lighter spacing */
-  }
-
-  .support-item+.support-item {
-    border-top: 1px solid rgba(10, 20, 35, .08);
-    padding-top: 10px;
-    margin-top: 6px;
-  }
-
-  /* Button should NOT be bright white */
-  .btn-pill {
-    background: rgba(230, 240, 255, .65);
-    /* gentle blue tint */
-    color: #2c4c8a;
-    border: 1px solid rgba(60, 100, 170, .22);
-  }
-
-  /* Reduce heavy ink contrast */
-  .support-title {
-    color: rgba(10, 20, 35, .88);
-    /* slightly softer */
-  }
-
-  .support-meta {
-    color: rgba(10, 20, 35, .62);
-    /* calmer */
-  }
-
-  /* Subnote tone down */
-  .subnote {
-    background: rgba(255, 255, 255, .42);
-  }
-
-  /* ---- you're not alone .... container override ---*/
-  .subnote {
-    background: linear-gradient(180deg,
-        rgba(210, 225, 255, .55),
-        rgba(210, 225, 255, .35));
-    border: 1px solid rgba(120, 150, 200, .22);
-    box-shadow: 0 8px 18px rgba(80, 120, 180, .08);
-  }
-
-  .top-shell {
-    padding: 14px 14px 10px;
-    margin: 8px 0 12px;
-    border-radius: 20px;
-
-    /* not white, not glass slab — just atmosphere */
-    background: linear-gradient(180deg,
-        rgba(200, 225, 255, .28),
-        rgba(200, 225, 255, .16));
-
-    border: 1px solid rgba(120, 150, 200, .18);
-    box-shadow: 0 12px 28px rgba(40, 80, 130, .08);
-  }
-
-  .subnote {
-    margin: 6px auto 0;
-    padding: 8px 10px;
-    border-radius: 14px;
-    font-weight: 800;
-
-    background: rgba(255, 255, 255, .42);
-    border: 1px solid rgba(10, 20, 35, .08);
-    box-shadow: 0 6px 14px rgba(0, 0, 0, .05);
-  }
-
-  /* ===============================
- HOME BUTTON — MATCH TOOLKIT/JOURNAL
- =============================== */
-
-  .topbar {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    gap: .75rem;
-    margin-bottom: .75rem;
-  }
-
-  .topbar .pill {
-    text-decoration: none !important;
-    font-weight: 800 !important;
-    padding: .5rem .8rem !important;
-    border-radius: 12px !important;
-
-    background: rgba(255, 255, 255, .78) !important;
-    /* ⭐ LIGHTER */
-    border: 1px solid rgba(0, 0, 0, .12) !important;
-    color: rgba(10, 20, 35, .92) !important;
-    /* ⭐ CRISP TEXT */
-
-    box-shadow: 0 8px 20px rgba(0, 0, 0, .06) !important;
-    line-height: 1 !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: .4rem !important;
-
-    transform: none !important;
-  }
-
-  /*====================================
-===================
-===================================*/
-  /* ===============================
- TOP HOME PILL — FORCE LIGHT LOOK
- (paste at VERY END of CSS)
- =============================== */
-  .topbar .pill {
-    background: rgba(255, 255, 255, .78) !important;
-    border: 1px solid rgba(10, 20, 35, .12) !important;
-    color: rgba(10, 20, 35, .92) !important;
-    box-shadow: 0 10px 22px rgba(0, 0, 0, .08) !important;
-    font-weight: 900 !important;
-    text-decoration: none !important;
-  }
-
-  .topbar .pill:visited {
-    color: rgba(10, 20, 35, .92) !important;
-  }
-
-  .topbar .pill:hover {
-    background: rgba(255, 255, 255, .86) !important;
-  }
-
-  .topbar .pill:active {
-    transform: translateY(1px) !important;
-  }
-
-  .home-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 12px;
-    border-radius: 999px;
-    text-decoration: none;
-
-    background: rgba(255, 255, 255, .78);
-    border: 1px solid rgba(10, 20, 35, .12);
-    color: rgba(10, 20, 35, .92);
-    box-shadow: 0 10px 22px rgba(0, 0, 0, .08);
-
-    font-weight: 900;
-    line-height: 1;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .home-pill:visited {
-    color: rgba(10, 20, 35, .92);
-  }
-
-  .home-pill:active {
-    transform: translateY(1px);
-  }
-
-  /* ✅ TOP HOME BUTTON — FINAL OVERRIDE (important-numbers.html) */
-  .topbar a.home-pill {
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 8px !important;
-
-    padding: 8px 12px !important;
-    border-radius: 999px !important;
-    text-decoration: none !important;
-
-    background: rgba(255, 255, 255, .78) !important;
-    border: 1px solid rgba(10, 20, 35, .12) !important;
-    box-shadow: 0 10px 22px rgba(0, 0, 0, .08) !important;
-
-    color: rgba(10, 20, 35, .92) !important;
-    font-weight: 900 !important;
-    line-height: 1 !important;
-
-    -webkit-tap-highlight-color: transparent !important;
-  }
-
-  .topbar a.home-pill:visited {
-    color: rgba(10, 20, 35, .92) !important;
-  }
-
-  .topbar a.home-pill:hover {
-    background: rgba(255, 255, 255, .86) !important;
-  }
-
-  .topbar a.home-pill:active {
-    transform: translateY(1px) !important;
-  } 
-
-  
-body.gs-has-nav {
-background:
-radial-gradient(1200px 700px at 20% 0%, rgba(255,255,255,.45) 0%, rgba(255,255,255,0) 55%),
-radial-gradient(900px 650px at 80% 0%, rgba(170,210,255,.40) 0%, rgba(170,210,255,0) 55%),
-linear-gradient(180deg, rgba(120,205,220,.55) 0%, rgba(120,170,255,.30) 100%) !important;
+  /* Move Home button to right */
+.topbar {
+    justify-content: flex-end !important;
 }
 
-body.gs-has-nav{
-background: linear-gradient(180deg, #e9f6fb 0%, #dff1ff 100%) !important;
+/* =====================================================
+   TOOLKIT-STYLE HEADER / HOME BUTTON
+   ===================================================== */
+
+.appbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+
+  margin: 0 -14px 12px;
+  padding: env(safe-area-inset-top, 0px) 14px 0;
+
+  backdrop-filter: blur(12px) saturate(1.1);
+  -webkit-backdrop-filter: blur(12px) saturate(1.1);
+
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.60),
+    rgba(255, 255, 255, 0.18)
+  );
+
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
-
-html,
-body.gs-has-nav{
-  height: 100%;
-      font-family: "Open Sans", sans-serif;
-      color: var(--ink);
-      background: linear-gradient(135deg,
-          rgba(205, 177, 227, 0.68) 0%,
-          rgb(42, 164, 195) 45%,
-          rgba(255, 198, 224, .24) 100%) !important;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    /* ===============================
-   LEARN.HTML GLASS COLORS — OVERRIDE
-   Paste at VERY END of important-numbers.html <style>
-   =============================== */
-
-:root{
-  --ink: rgba(10, 25, 30, .90);
-  --muted: rgba(10, 25, 30, .62);
-
-  /* match Learn */
-  --glass: rgba(255, 255, 255, .72);
-  --glass2: rgba(255, 255, 255, .62);
-  --border: rgba(0, 0, 0, .10);
-  --shadow: 0 14px 40px rgba(0, 0, 0, .10);
+.appbar-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
 }
 
-/* Big containers (top + sections) */
-.top-shell,
-.section{
-  background: var(--glass) !important;
-  border: 1px solid rgba(255,255,255,.55) !important;
-  box-shadow: var(--shadow) !important;
-  backdrop-filter: blur(10px) saturate(1.1) !important;
-  -webkit-backdrop-filter: blur(10px) saturate(1.1) !important;
+.app-title {
+  display: grid;
+  line-height: 1.05;
 }
 
-/* The inner “YOU’RE NOT ALONE…” pill */
-.subnote{
-  background: rgba(255,255,255,.55) !important;
-  border: 1px solid rgba(0,0,0,.08) !important;
-  box-shadow: 0 10px 22px rgba(0,0,0,.08) !important;
-  color: var(--ink) !important;
+.app-title .kicker {
+  font-weight: 900;
+  letter-spacing: 0.4px;
+  font-size: 0.9rem;
+  opacity: 0.75;
 }
 
-/* List items inside sections */
-.support-item{
-  background: var(--glass2) !important;
-  border: 1px solid rgba(0,0,0,.08) !important;
-  box-shadow: 0 10px 22px rgba(0,0,0,.09) !important;
-  border-radius: 18px !important;
-  padding: 10px 12px !important;
+.app-title .title {
+  font-weight: 900;
+  letter-spacing: 0.3px;
+  font-size: 1.15rem;
 }
 
-/* Kill the “transparent + divider” style you added later */
-.support-item + .support-item{
-  border-top: none !important;
-  margin-top: 0 !important;
-  padding-top: 10px !important;
+.pillrow {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 }
 
-/* Buttons: same soft white pill feel */
-.btn-pill{
-  background: rgba(255, 255, 255, .65) !important;
-  border: 1px solid rgba(0,0,0,.10) !important;
-  box-shadow: 0 10px 20px rgba(0,0,0,.06) !important;
-  color: rgba(10, 25, 30, .90) !important;
+.appbar .pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.4rem !important;
+
+  padding: 0.55rem 0.85rem !important;
+  border-radius: 999px !important;
+
+  background: rgba(255, 255, 255, 0.55) !important;
+  border: 1px solid rgba(0, 0, 0, 0.10) !important;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.06) !important;
+
+  text-decoration: none !important;
+  color: inherit !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
 }
 
-/* Text tones */
-.support-title,
-.support-heading,
-.three-d-title{
-  color: var(--ink) !important;
+.appbar .pill:active {
+  transform: translateY(1px);
 }
 
-.support-meta,
+/* ==========================
+   PROFESSIONAL LEGAL FOOTER
+   ========================== */
+
 .legal-footer{
-  color: var(--muted) !important;
+    text-align:center;
+    margin-top:20px;
+    padding:10px 0;
+    font-size:.85rem;
+    color:#6f8594;
 }
 
-/* ===============================
-   IMPORTANT NUMBERS — FINAL GLASS (Learn-like)
-   + darker bottom containers
-   Paste at VERY END of <style>
-   =============================== */
-
-:root{
-  --ink: rgba(10, 25, 30, .90);
-  --muted: rgba(10, 25, 30, .62);
-
-  /* Learn baseline */
-  --border: rgba(0, 0, 0, .10);
-  --shadow: 0 14px 40px rgba(0, 0, 0, .10);
+.legal-footer a{
+    color:#5f7f94;
+    text-decoration:none;
+    font-weight:600;
+    transition:.2s ease;
 }
 
-/* Top container (keep it Learn-bright) */
-.top-shell{
-  background: rgb(255 255 255 / .72) !important;
-  border: 1px solid rgb(255 255 255 / .55) !important;
-  box-shadow: var(--shadow) !important;
-  backdrop-filter: blur(10px) saturate(1.1) !important;
-  -webkit-backdrop-filter: blur(10px) saturate(1.1) !important;
+.legal-footer a:hover{
+    color:#3f6f8f;
+    text-decoration:underline;
 }
 
-/* ✅ Bottom containers = a bit DARKER (more background shows through) */
-.section{
-  background: rgb(255 255 255 / .58) !important;        /* darker than Learn cards */
-  border: 1px solid rgb(255 255 255 / .50) !important;
-  box-shadow: 0 12px 34px rgba(0,0,0,.10) !important;
-  backdrop-filter: blur(10px) saturate(1.08) !important;
-  -webkit-backdrop-filter: blur(10px) saturate(1.08) !important;
+.legal-footer .separator{
+    margin:0 8px;
+    opacity:.5;
 }
+  </style>
 
-/* Inner “YOU’RE NOT ALONE…” pill (Learn style) */
-.subnote{
-  background: rgb(255 255 255 / .55) !important;
-  border: 1px solid rgba(0,0,0,.08) !important;
-  box-shadow: 0 10px 22px rgba(0,0,0,.08) !important;
-  color: var(--ink) !important;
-}
-
-/* List items inside sections (darker than Learn list rows) */
-.support-item{
-  background: rgb(255 255 255 / .62) !important;        /* darker, still soft */
-  border: 1px solid rgba(0,0,0,.08) !important;
-  box-shadow: 0 10px 22px rgba(0,0,0,.09) !important;
-  border-radius: 18px !important;
-  padding: 10px 12px !important;
-}
-
-/* Kill the old transparent/divider style completely */
-.support-item + .support-item{
-  border-top: none !important;
-  margin-top: 0 !important;
-  padding-top: 10px !important;
-}
-
-/* Buttons match Learn pill feel */
-.btn-pill{
-  background: rgb(255 255 255 / .65) !important;
-  border: 1px solid rgba(0,0,0,.10) !important;
-  box-shadow: 0 10px 20px rgba(0,0,0,.06) !important;
-  color: rgba(10, 25, 30, .90) !important;
-}
-
-/* Text tones */
-.support-title,
-.support-heading,
-.three-d-title{
-  color: var(--ink) !important;
-}
-
-.support-meta,
-.legal-footer{
-  color: var(--muted) !important;
-}
-
-:root {
-      --ink: rgba(10, 25, 30, .90);
-      --muted: rgba(10, 25, 30, .62);
-
-      --glass: rgba(255, 255, 255, .72);
-      --glass2: rgba(255, 255, 255, .62);
-      --border: rgba(0, 0, 0, .10);
-      --shadow: 0 14px 40px rgba(0, 0, 0, .10);
-
-      --radius: 20px;
-      --radius-sm: 14px;
-
-      --accent: var(--accent-color, #6a5acd);
-    }
-
-</style>
 </head>
 
 <body class="gs-has-nav">

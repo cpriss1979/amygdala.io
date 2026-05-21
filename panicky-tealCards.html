@@ -48,8 +48,11 @@
             margin: 0;
             font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
             color: var(--text);
-            /* background was gradient */ 
-            background: rgb(28, 171, 210);            overflow-x: hidden;
+            background:
+                radial-gradient(1200px 700px at 10% 0%, rgba(255, 204, 242, .22), transparent 55%),
+                radial-gradient(1000px 650px at 90% 20%, rgba(140, 210, 255, .20), transparent 50%),
+                linear-gradient(135deg, var(--bg1), var(--bg2));
+            overflow-x: hidden;
         }
 
         .page {
@@ -296,35 +299,6 @@
             font-weight: 650;
             font-size: .92rem;
         }
-
-        /* ==========================
-   PROFESSIONAL LEGAL FOOTER
-   ========================== */
-
-.legal-footer{
-    text-align:center;
-    margin-top:20px;
-    padding:10px 0;
-    font-size:.85rem;
-    color:#6f8594;
-}
-
-.legal-footer a{
-    color:#5f7f94;
-    text-decoration:none;
-    font-weight:600;
-    transition:.2s ease;
-}
-
-.legal-footer a:hover{
-    color:#3f6f8f;
-    text-decoration:underline;
-}
-
-.legal-footer .separator{
-    margin:0 8px;
-    opacity:.5;
-}
     </style>
 </head>
 

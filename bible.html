@@ -70,7 +70,7 @@
         }
     
         /* top verse banner */
-        h1.badge {
+        h1.badges {
             margin: 0 0 14px;
             padding: 12px 14px;
             border-radius: 16px;
@@ -182,7 +182,7 @@
                 border-radius: 16px;
             }
     
-            h1.badge {
+            h1.s {
                 font-size: 14px;
             }
     
@@ -258,7 +258,7 @@
     box-shadow: 0 18px 50px rgba(0, 0, 0, 0.30);
   }
 
-  h1.badge {
+  h1.badges {
     margin: 0 0 14px;
     padding: 12px 14px;
     border-radius: 16px;
@@ -411,7 +411,7 @@
   @media (max-width: 520px) {
     body { padding: 18px; }
     .background-container { padding: 16px; border-radius: 16px; }
-    h1.badge { font-size: 14px; }
+    h1.badges { font-size: 14px; }
     #quote { font-size: 14px; }
   }
 
@@ -647,7 +647,7 @@ a.btn.btn-home:visited { color: #3a568c; }
 
 <body>
     <div class="background-container">
-        <h1 class="badge">Cast all your anxiety on him because he cares for you. — 1 Peter 5:7</h1>
+        <h1 class="badges">Cast all your anxiety on him because he cares for you. — 1 Peter 5:7</h1>
 
         <div id="quote-container">
             <div class="mode-row" role="group" aria-label="Verse mode">
@@ -687,23 +687,27 @@ a.btn.btn-home:visited { color: #3a568c; }
         // so keep it ONLY if you have firebase-init.js in the same folder.
         // ---------------------------
         let auth = null, db = null, onAuthStateChanged = null, doc = null, onSnapshot = null;
+            let getDoc = null, setDoc = null, updateDoc = null, increment = null, serverTimestamp = null;
 
-        try {
-            const firebase = await import("./firebase-init.js");
-            auth = firebase.auth;
-            db = firebase.db;
+            try {
+                const firebase = await import("./firebase-init.js");
+                auth = firebase.auth;
+                db = firebase.db;
 
-            const authLib = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
-            onAuthStateChanged = authLib.onAuthStateChanged;
+                const authLib = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
+                onAuthStateChanged = authLib.onAuthStateChanged;
 
-            const fsLib = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
-            doc = fsLib.doc;
-            onSnapshot = fsLib.onSnapshot;
-        } catch (e) {
-            // If Firebase isn't ready on this page yet, that's fine.
-            // Page will still work (verses + UI).
-            // console.warn("Firebase not loaded on bible.html:", e);
-        }
+                const fsLib = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+                doc = fsLib.doc;
+                onSnapshot = fsLib.onSnapshot;
+                getDoc = fsLib.getDoc;
+                setDoc = fsLib.setDoc;
+                updateDoc = fsLib.updateDoc;
+                increment = fsLib.increment;
+                serverTimestamp = fsLib.serverTimestamp;
+            } catch (e) {
+                // page still works without Firebase
+            }
 
         // ---------------------------
         // Theme helpers (same style as your index)
@@ -714,8 +718,8 @@ a.btn.btn-home:visited { color: #3a568c; }
                 const accent =
                     (cs.getPropertyValue("--accent-color") ||
                         cs.getPropertyValue("--accent") ||
-                        "#0a2351").trim() || "#0a2351";
-                const meta = document.querySelector('meta[name="theme-color"]');
+                    "#0a2351").trim() || "#0a2351";
+                        const meta = document.querySelector('meta[name="theme-color"]');
                 if (meta) meta.content = accent;
             } catch { }
         }
@@ -1097,185 +1101,259 @@ a.btn.btn-home:visited { color: #3a568c; }
             ];
 
     /* =================================== end of verse quotes =================================== */
+      /* =================================== end of verse quotes =================================== */
 
-    function pickRandom(arr) {
+      function pickRandom(arr) {
         return arr[Math.floor(Math.random() * arr.length)];
-    }
+      }
 
-    // ---------------------------
-    // UI
-    // ---------------------------
-    const quoteEl = document.getElementById("quote");
-    const generateBtn = document.getElementById("generateBtn");
-    const copyBtn = document.getElementById("copyBtn");
-    const comfortSwitch = document.getElementById("comfortSwitch");
+      // ---------------------------
+      // UI
+      // ---------------------------
+      const quoteEl = document.getElementById("quote");
+      const generateBtn = document.getElementById("generateBtn");
+      const copyBtn = document.getElementById("copyBtn");
+      const comfortSwitch = document.getElementById("comfortSwitch");
+      const modeComfortBtn = document.getElementById("modeComfort");
+      const modeAllBtn = document.getElementById("modeAll");
 
-    function getComfortOnly() {
+      function getComfortOnly() {
         const raw = localStorage.getItem(STORAGE.comfortOnly);
-        // default ON for anxiety mode
-        if (raw === null) return true;
+        if (raw === null) return true; // default ON
         return raw === "1";
-    }
+      }
 
-    function setComfortOnly(on) {
+      function setComfortOnly(on) {
         localStorage.setItem(STORAGE.comfortOnly, on ? "1" : "0");
-    }
+      }
 
-    function getActivePool() {
+      function getActivePool() {
         return getComfortOnly() ? COMFORT_VERSES : ALL_VERSES;
-    }
+      }
 
-    function generateQuote() {
+      // ---------------------------
+      // Badge helpers
+      // ---------------------------
+      async function ensureBadge(userId, id, label, emoji) {
+        if (!db || !doc || !getDoc || !setDoc || !serverTimestamp) return;
+
+        const badgeRef = doc(db, "users", userId, "badges", id);
+        const snap = await getDoc(badgeRef);
+
+        if (!snap.exists()) {
+          await setDoc(badgeRef, {
+            key: id,
+            label,
+            emoji,
+            earnedAt: serverTimestamp()
+          });
+        }
+      }
+
+      async function trackVerseViewAndAward() {
+        if (
+          !auth?.currentUser ||
+          !db ||
+          !doc ||
+          !setDoc ||
+          !updateDoc ||
+          !increment ||
+          !getDoc ||
+          !serverTimestamp
+        ) {
+          console.warn("Skipping verse tracking: Firebase/auth not ready or user not logged in.");
+          return;
+        }
+
+        const uid = auth.currentUser.uid;
+        const statsRef = doc(db, "users", uid, "stats", "bible");
+        const userRef = doc(db, "users", uid);
+
+        try {
+          await updateDoc(statsRef, {
+            views: increment(1),
+            updatedAt: serverTimestamp()
+          });
+        } catch {
+          await setDoc(
+            statsRef,
+            {
+              views: 1,
+              updatedAt: serverTimestamp()
+            },
+            { merge: true }
+          );
+        }
+
+        const statsSnap = await getDoc(statsRef);
+        const count = Number(statsSnap.data()?.views || 0);
+
+        console.log("Bible verse view count:", count);
+
+        if (count >= 5) {
+          await ensureBadge(uid, "verses5", "5 Verses", "📖");
+
+          try {
+            const userSnap = await getDoc(userRef);
+            const current = Array.isArray(userSnap.data()?.badges)
+              ? userSnap.data().badges
+              : [];
+
+            if (!current.includes("verses5")) {
+              await setDoc(
+                userRef,
+                {
+                  badges: [...current, "verses5"]
+                },
+                { merge: true }
+              );
+            }
+          } catch {
+            await setDoc(userRef, { badges: ["verses5"] }, { merge: true });
+          }
+        }
+      }
+
+      // ---------------------------
+      // Main actions
+      // ---------------------------
+      async function generateQuote(countView = true) {
         const verse = pickRandom(getActivePool());
         quoteEl.textContent = verse;
         localStorage.setItem(STORAGE.lastVerse, verse);
-    }
 
-    async function copyQuote() {
+        if (countView) {
+          try {
+            await trackVerseViewAndAward();
+          } catch (e) {
+            console.warn("Verse tracking failed:", e);
+          }
+        }
+      }
+
+      async function copyQuote() {
         const text = quoteEl.textContent.trim();
+
         try {
-            await navigator.clipboard.writeText(text);
-            copyBtn.textContent = "✅ Copied!";
-            setTimeout(() => (copyBtn.textContent = "📋 Copy"), 900);
+          await navigator.clipboard.writeText(text);
+          copyBtn.textContent = "✅ Copied!";
+          setTimeout(() => {
+            copyBtn.textContent = "📋 Copy";
+          }, 900);
         } catch {
-            // fallback for older browsers
-            const ta = document.createElement("textarea");
-            ta.value = text;
-            document.body.appendChild(ta);
-            ta.select();
-            document.execCommand("copy");
-            ta.remove();
-            copyBtn.textContent = "✅ Copied!";
-            setTimeout(() => (copyBtn.textContent = "📋 Copy"), 900);
+          const ta = document.createElement("textarea");
+          ta.value = text;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          ta.remove();
+
+          copyBtn.textContent = "✅ Copied!";
+          setTimeout(() => {
+            copyBtn.textContent = "📋 Copy";
+          }, 900);
         }
-    }
+      }
 
-    generateBtn.addEventListener("click", generateQuote);
-    copyBtn.addEventListener("click", copyQuote);
+      // ---------------------------
+      // Toggle / mode UI
+      // ---------------------------
+      function updateSwitchUI(on) {
+        if (!comfortSwitch) return;
 
-    // Restore last verse if available, otherwise generate
-    const last = localStorage.getItem(STORAGE.lastVerse);
-    if (last) quoteEl.textContent = last;
-    else generateQuote();
+        comfortSwitch.setAttribute("aria-checked", on ? "true" : "false");
+        comfortSwitch.dataset.on = on ? "1" : "0";
 
-    // ---------------------------
-        // Toggle (single switch only)
-        // ---------------------------
-        function updateSwitchUI(on) {
-            if (!comfortSwitch) return;
+        const comfortState = document.getElementById("comfortState");
+        if (comfortState) comfortState.textContent = on ? "ON" : "OFF";
+      }
 
-            comfortSwitch.setAttribute("aria-checked", on ? "true" : "false");
-            comfortSwitch.dataset.on = on ? "1" : "0";
+      function updateModeUI(on) {
+        updateSwitchUI(on);
 
-            const comfortState = document.getElementById("comfortState");
-            if (comfortState) comfortState.textContent = on ? "ON" : "OFF";
-        }
-
-        updateSwitchUI(getComfortOnly());
-
-        if (!comfortSwitch) {
-            console.warn("comfortSwitch not found (#comfortSwitch). Toggle disabled.");
-        } else {
-            comfortSwitch.addEventListener("click", (e) => {
-                e.preventDefault();
-                const next = !getComfortOnly(); // source of truth
-                setComfortOnly(next);
-                updateSwitchUI(next);
-                generateQuote();
-            });
-
-            comfortSwitch.addEventListener("keydown", (e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    const next = !getComfortOnly();
-                    setComfortOnly(next);
-                    updateSwitchUI(next);
-                    generateQuote();
-                }
-            });
-        }
-
-        // ---------------------------
-        // Toggle (switch + BOTH pills)
-        // ---------------------------
-        const modeComfortBtn = document.getElementById("modeComfort");
-        const modeAllBtn = document.getElementById("modeAll");
-
-        function updateModeUI(on) {
-            // Switch UI
-            if (comfortSwitch) {
-                comfortSwitch.setAttribute("aria-checked", on ? "true" : "false");
-                comfortSwitch.dataset.on = on ? "1" : "0";
-            }
-
-            // Pills UI (this is what you were missing)
-            if (modeComfortBtn) {
-                modeComfortBtn.classList.toggle("is-active", on);
-                modeComfortBtn.setAttribute("aria-pressed", on ? "true" : "false");
-            }
-            if (modeAllBtn) {
-                modeAllBtn.classList.toggle("is-active", !on);
-                modeAllBtn.setAttribute("aria-pressed", on ? "false" : "true");
-            }
-        }
-
-        function setMode(on) {
-            setComfortOnly(on);     // source of truth
-            updateModeUI(on);       // visuals
-            generateQuote();        // show a verse from the right pool
-        }
-
-        // init UI from saved state
-        updateModeUI(getComfortOnly());
-
-        // Switch click
-        if (comfortSwitch) {
-            comfortSwitch.addEventListener("click", (e) => {
-                e.preventDefault();
-                setMode(!getComfortOnly());
-            });
-
-            // Keyboard accessibility (Enter/Space)
-            comfortSwitch.addEventListener("keydown", (e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    setMode(!getComfortOnly());
-                }
-            });
-        }
-
-        // Pills click
         if (modeComfortBtn) {
-            modeComfortBtn.addEventListener("click", (e) => {
-                e.preventDefault();
-                setMode(true);
-            });
-        }
-        if (modeAllBtn) {
-            modeAllBtn.addEventListener("click", (e) => {
-                e.preventDefault();
-                setMode(false);
-            });
+          modeComfortBtn.classList.toggle("is-active", on);
+          modeComfortBtn.setAttribute("aria-pressed", on ? "true" : "false");
         }
 
-    // ---------------------------
-    // Optional Firebase theme listen (if Firebase loaded)
-    // ---------------------------
-    if (auth && db && onAuthStateChanged && doc && onSnapshot) {
-        onAuthStateChanged(auth, (user) => {
-            if (!user) {
-                applyThemeClass(localStorage.getItem("themeClass:last") || "theme-original");
-                return;
-            }
-            const ref = doc(db, "users", user.uid);
-            onSnapshot(ref, (snap) => {
-                const data = snap.data() || {};
-                applyThemeClass(data.themeClass || "theme-original");
-            });
+        if (modeAllBtn) {
+          modeAllBtn.classList.toggle("is-active", !on);
+          modeAllBtn.setAttribute("aria-pressed", on ? "false" : "true");
+        }
+      }
+
+      function setMode(on) {
+        setComfortOnly(on);
+        updateModeUI(on);
+        generateQuote(true);
+      }
+
+      // ---------------------------
+      // Event listeners
+      // ---------------------------
+      if (generateBtn) {
+        generateBtn.addEventListener("click", () => generateQuote(true));
+      }
+
+      if (copyBtn) {
+        copyBtn.addEventListener("click", copyQuote);
+      }
+
+      if (!comfortSwitch) {
+        console.warn("comfortSwitch not found (#comfortSwitch). Toggle disabled.");
+      } else {
+        comfortSwitch.addEventListener("click", (e) => {
+          e.preventDefault();
+          setMode(!getComfortOnly());
         });
-    } else {
+
+        comfortSwitch.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setMode(!getComfortOnly());
+          }
+        });
+      }
+
+      if (modeComfortBtn) {
+        modeComfortBtn.addEventListener("click", () => setMode(true));
+      }
+
+      if (modeAllBtn) {
+        modeAllBtn.addEventListener("click", () => setMode(false));
+      }
+
+      // ---------------------------
+      // Initial UI state
+      // ---------------------------
+      updateModeUI(getComfortOnly());
+
+      const last = localStorage.getItem(STORAGE.lastVerse);
+      if (last) {
+        quoteEl.textContent = last;
+      } else {
+        generateQuote(false);
+      }
+
+      // ---------------------------
+      // Optional Firebase theme listen
+      // ---------------------------
+      if (auth && db && onAuthStateChanged && doc && onSnapshot) {
+        onAuthStateChanged(auth, (user) => {
+          if (!user) {
+            applyThemeClass(localStorage.getItem("themeClass:last") || "theme-original");
+            return;
+          }
+
+          const ref = doc(db, "users", user.uid);
+          onSnapshot(ref, (snap) => {
+            const data = snap.data() || {};
+            applyThemeClass(data.themeClass || "theme-original");
+          });
+        });
+      } else {
         applyThemeClass(localStorage.getItem("themeClass:last") || "theme-original");
-    }
+      }
     </script>
 
 </body>

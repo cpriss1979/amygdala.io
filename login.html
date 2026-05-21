@@ -67,7 +67,9 @@
   <!-- PWA -->
   <meta name="theme-color" content="#6a5acd" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <meta name="format-detection" content="telephone=no" />
 
   <!-- Manifest + icons (keep yours as-is) -->
@@ -396,6 +398,95 @@
     .toggle-pass {
       color: var(--ink);
     }
+
+   /* updated layout */
+   .pad {
+  padding: .9rem;
+}
+
+.hero h1 {
+  margin: 0 0 .25rem;
+  font-weight: 900;
+  font-size: 1.08rem;
+}
+
+.hero p {
+  margin: 0;
+  font-weight: 700;
+  font-size: .95rem;
+  line-height: 1.3;
+}
+
+form {
+  margin-top: .65rem;
+  display: grid;
+  gap: .6rem;
+}
+
+.input {
+  padding: .7rem .85rem;
+  border-radius: 14px;
+}
+
+.btn {
+  padding: .72rem 1rem;
+}
+
+.links {
+  margin-top: .7rem;
+  display: grid;
+  gap: .45rem;
+  font-weight: 850;
+  font-size: .9rem;
+  color: var(--muted);
+}
+
+.divider {
+  margin: .75rem 0 .55rem;
+}
+
+.smallprint {
+  font-size: .78rem;
+  line-height: 1.3;
+}
+
+  /* Make login match register */
+
+  .password-row {
+    display: block;
+  }
+
+  #pass.input {
+    width: 100%;
+    padding: .78rem .9rem;
+    border-radius: 14px;
+    border: 1px solid rgba(0, 0, 0, .14);
+    background: rgba(255, 255, 255, .80);
+    font-size: 1rem;
+  }
+
+  #togglePass {
+    display: none;
+  }
+
+  #loginBtn {
+    width: auto;
+    height: 44px;
+    padding: 0 1.2rem;
+    border-radius: 8px;
+    border: none;
+    background: #3f9bb3;
+    color: white;
+    font-weight: 800;
+    font-size: .95rem;
+    box-shadow: none;
+    margin-top: .75rem;
+  }
+
+  #loginBtn.btn.primary {
+    background: #3f9bb3;
+    color: white;
+  }
   </style>
 </head>
 
@@ -405,67 +496,63 @@
       <div class="appbar-row">
         <div class="app-title">
           <div class="kicker">Amygdala</div>
+          <div class="title">Register</div>
+        </div>
+  
+        <div class="app-title centered-title">
+          <div class="kicker">Amygdala</div>
           <div class="title">Log in</div>
         </div>
-
-        <div class="pillrow">
-          <a class="pill" href="./index.html">🏠 Home</a>
-          <a class="pill primary" href="./learn.html">📘 Learn</a>
-        </div>
-      </div>
     </header>
 
-    <section class="card hero">
-      <div class="pad">
-        <h1>Welcome back.</h1>
-        <p>Sign in to continue your Amygdala planner.</p>
-
-        <form id="loginForm" novalidate>
-          <div class="field">
-            <label for="email">Email</label>
-            <input id="email" type="email" class="input" placeholder="Email (required)" autocomplete="username"
-              inputmode="email" required />
+    <main class="login-screen">
+      <section class="card hero login-card">
+        <div class="pad">
+          <div class="login-intro">
+            <h1>Welcome back.</h1>
+            <p>Sign in to continue your Amygdala planner.</p>
           </div>
 
-          <div class="field">
-            <label for="pass">Password</label>
-            <div class="password-row">
-              <input id="pass" type="password" class="input" placeholder="Password (required)"
-                autocomplete="current-password" required />
-              <button type="button" id="togglePass" class="toggle-pass" aria-pressed="false" aria-label="Show password">
-                Show
-              </button>
+          <form id="loginForm" novalidate>
+            <div class="field">
+              <label for="email">Email</label>
+              <input id="email" type="email" class="input" placeholder="Email address" autocomplete="username"
+                inputmode="email" required />
             </div>
+
+            <div class="field">
+              <label for="pass">Password</label>
+              <div class="password-row">
+                <input id="pass" type="password" class="input" placeholder="Password" autocomplete="current-password"
+                  required />
+                <button type="button" id="togglePass" class="toggle-pass" aria-pressed="false"
+                  aria-label="Show password">
+                  Show
+                </button>
+              </div>
+            </div>
+
+            <button id="loginBtn" type="submit" class="btn primary">Login</button>          </form>
+
+          <div id="msg" aria-live="polite"></div>
+
+          <div class="account-actions">
+            <a href="register.html" id="registerLink">Create account</a>
+            <span aria-hidden="true">•</span>
+            <a href="#" id="forgotPassword">Forgot password?</a>
           </div>
 
-          <button id="loginBtn" type="submit" class="btn primary">🔐 Log in</button>
-        </form>
-
-        <div id="msg" aria-live="polite"></div>
-
-        <div class="links">
-          <div>
-            Need to create an account?
-            <a href="register.html" id="registerLink">Register here</a>
-          </div>
-
-          <div>
-            <a href="#" id="forgotPassword">Forgot Password?</a>
-          </div>
-
-          <div class="divider"></div>
-
-          <div class="smallprint">
+          <p class="smallprint">
             By logging in you agree to our
             <a href="privacy.html" rel="noopener">Privacy Policy</a>
             and
             <a href="terms.html" rel="noopener">Terms of Use</a>.
-          </div>
+          </p>
         </div>
-      </div>
-    </section>
+      </section>
+    </main>
   </div>
-
+  
   <!-- keep submit tying into loginBtn -->
   <script>
     document.getElementById('loginForm')?.addEventListener('submit', function (e) {
@@ -547,7 +634,7 @@
       if (e.key === "Enter") btn?.click();
     }));
 
-    async function awardLoginBadge(uid) {
+    async function awardLoginBadges(uid) {
       const userRef = doc(db, "users", uid);
       await setDoc(userRef, { createdAt: serverTimestamp() }, { merge: true });
 
@@ -559,27 +646,26 @@
       const badgeRef = doc(db, "users", uid, "badges", "login");
       const snap = await getDoc(badgeRef);
       if (!snap.exists()) {
-        await setDoc(badgeRef, {
-          key: "login",
+        await setDoc(badgeRef, {          key: "login",
           label: "First Login",
           emoji: "🔑",
           earnedAt: serverTimestamp()
         });
-        log("created sub-badge doc");
+        log("created sub-badges doc");
       } else {
-        log("sub-badge doc already existed");
+        log("sub-badges doc already existed");
       }
     }
 
     let awarding = false;
-    async function ensureBadgeThenGo(user) {
+    async function ensureBadgesThenGo(user) {
       if (!user) return;
       if (awarding) return;
       awarding = true;
       try {
         log("awarding login badge for uid:", user.uid);
-        await awardLoginBadge(user.uid);
-        log("badge awarded");
+        await awardLoginBadges(user.uid);
+                log("badge awarded");
       } catch (e) {
         console.error("[login] award error:", e);
       } finally {
@@ -594,7 +680,7 @@
         const email = (emailEl?.value || "").trim();
         const pass = passEl?.value || "";
         await signInWithEmailAndPassword(auth, email, pass);
-        await ensureBadgeThenGo(auth.currentUser);
+        await ensureBadgesThenGo(auth.currentUser);
       } catch (err) {
         console.error(err);
         const code = err?.code || "";
@@ -616,7 +702,7 @@
       setMsg("Signing in with Google…");
       try {
         await signInWithPopup(auth, new GoogleAuthProvider());
-        await ensureBadgeThenGo(auth.currentUser);
+        await ensureBadgesThenGo(auth.currentUser);
       } catch (err) {
         console.error(err);
         setMsg(err.code || err.message, "msg-error");
@@ -624,13 +710,13 @@
     });
 
     getRedirectResult(auth)
-      .then(async (res) => { if (res?.user) await ensureBadgeThenGo(res.user); })
+      .then(async (res) => { if (res?.user) await ensureBadgesThenGo(res.user); })
       .catch((err) => console.error(err));
 
     onAuthStateChanged(auth, async (u) => {
       if (u) {
-        log("already signed in; ensuring badge");
-        await ensureBadgeThenGo(u);
+        log("already signed in; ensuring badges");
+        await ensureBadgesThenGo(u);
       }
     });
 

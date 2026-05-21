@@ -1384,17 +1384,6 @@ main {
         </div>
         <a class="btn-ghost" href="notifications.html">Open</a>
       </div>
-
-      <div class="item">
-        <div>
-          <div><strong>Accessibility</strong></div>
-          <div class="meta">Reduced motion, larger text.</div>
-        </div>
-        <div class="prefs-row">
-          <button id="btnReduceMotion" class="btn-ghost" type="button">Toggle reduced motion</button>
-          <button id="btnLargerText" class="btn-ghost" type="button">Toggle larger text</button>
-        </div>
-      </div>
     </section>
 
     <!-- About & Legal -->
@@ -1509,7 +1498,6 @@ main {
     const SESSION_BUMP_FIELD = 'sessionBumpedAt';
 
     // ---------- dom ----------
-    const headerRight = document.getElementById('headerRight');
     const acctEmail = document.getElementById('acctEmail');
     const acctName = document.getElementById('acctName');
     const btnLogout = document.getElementById('btnLogout');
@@ -1559,8 +1547,10 @@ main {
         show(on = true) { root.classList.toggle('show', on); root.setAttribute('aria-hidden', on ? 'false' : 'true'); if (on) root.querySelector('input,button,select,textarea')?.focus(); },
       };
     }
-    function setHeaderSignedOut() { headerRight.innerHTML = '<a class="muted" href="login.html">Login</a>'; }
-    function setHeaderSignedIn(user) {
+  function setHeaderSignedOut() {
+    if (acctEmail) acctEmail.textContent = '—';
+    if (acctName) acctName.textContent = '—';
+  }    function setHeaderSignedIn(user) {
       const name = user.displayName || '(no name)';
       const email = user.email || 'Account';
 
@@ -1568,11 +1558,9 @@ main {
     }
     // Human-facing names for the sections that save data
     const FEATURE_LIST = [
-      'Wellness Plan',
-      'Feel-Good Toolkit',
+      'Feel-good toolkit',
       'Journal',
-      'Letter to Future Me',
-      'Support People',
+      'Letter to self',
       'Pet'
     ];
 

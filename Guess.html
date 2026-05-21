@@ -292,6 +292,35 @@
 .legal-footer a:visited{
   color: rgba(10,35,81,0.92);
 }
+
+/* ==========================
+   PROFESSIONAL LEGAL FOOTER
+   ========================== */
+
+.legal-footer{
+    text-align:center;
+    margin-top:20px;
+    padding:10px 0;
+    font-size:.85rem;
+    color:#6f8594;
+}
+
+.legal-footer a{
+    color:#5f7f94;
+    text-decoration:none;
+    font-weight:600;
+    transition:.2s ease;
+}
+
+.legal-footer a:hover{
+    color:#3f6f8f;
+    text-decoration:underline;
+}
+
+.legal-footer .separator{
+    margin:0 8px;
+    opacity:.5;
+}
     </style>
       
 </head>
@@ -328,16 +357,36 @@
         <div class="footer-note">You’re doing something good for your brain right now.</div>
     </main>
 
-    <script>
+    <script type="module">
+        import { auth, db } from "./firebase-init.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import {
+            doc,
+            getDoc,
+            setDoc,
+            arrayUnion
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
         // =========================
         // Number Guessing Game
         // =========================
         let targetNumber = 0;
         let attempts = 0;
+        let currentUser = null;
 
         // You can change these if you want it easier/harder:
         const MIN = 1;
         const MAX = 100;
+
+        // This is the badge id already shown in your badges wall
+        const BADGE_ID = "distraction5";
+
+        // This is the field name on the user doc that stores earned badges.
+        // If your badges.html reads a different field name, change this to match.
+        const BADGES_FIELD = "badges";
+
+        // This tracks how many times the user has correctly finished this game.
+        const WINS_FIELD = "guessCorrectWins";
 
         const guessEl = document.getElementById("guess");
         const resultEl = document.getElementById("result");
@@ -345,6 +394,10 @@
         const submitBtn = document.getElementById("submitBtn");
         const resetBtn = document.getElementById("resetBtn");
         const rangeText = document.getElementById("rangeText");
+
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user || null;
+        });
 
         function startGame() {
             targetNumber = Math.floor(Math.random() * (MAX - MIN + 1)) + MIN;
@@ -360,7 +413,50 @@
             resultEl.textContent = msg;
         }
 
-        function checkGuess() {
+        async function recordCorrectGuessAndMaybeUnlockBadge() {
+            if (!currentUser) {
+                console.log("No logged-in user. Guess win not saved.");
+                return { totalWins: 0, unlockedNow: false };
+            }
+
+            try {
+                const userRef = doc(db, "users", currentUser.uid);
+                const snap = await getDoc(userRef);
+                const userData = snap.exists() ? snap.data() : {};
+
+                const currentWins = Number(userData[WINS_FIELD] || 0);
+                const nextWins = currentWins + 1;
+
+                const alreadyUnlocked = Array.isArray(userData[BADGES_FIELD]) &&
+                    userData[BADGES_FIELD].includes(BADGE_ID);
+
+                // Save updated win count first
+                await setDoc(userRef, {
+                    [WINS_FIELD]: nextWins
+                }, { merge: true });
+
+                let unlockedNow = false;
+
+                // Unlock badge exactly when user reaches 5 correct guesses
+                if (nextWins >= 5 && !alreadyUnlocked) {
+                    await setDoc(userRef, {
+                        [BADGES_FIELD]: arrayUnion(BADGE_ID)
+                    }, { merge: true });
+
+                    unlockedNow = true;
+                }
+
+                return {
+                    totalWins: nextWins,
+                    unlockedNow
+                };
+            } catch (error) {
+                console.error("Error saving guess win / unlocking badge:", error);
+                return { totalWins: 0, unlockedNow: false };
+            }
+        }
+
+        async function checkGuess() {
             const raw = guessEl.value.trim();
             const userGuess = Number(raw);
 
@@ -379,8 +475,16 @@
             attempts++;
 
             if (userGuess === targetNumber) {
-                setMessage(`🎉 You got it! ${targetNumber} in ${attempts} attempt${attempts === 1 ? "" : "s"}!`);
-                hintEl.textContent = "Auto-starting a new round in 2 seconds…";
+                const badgeResult = await recordCorrectGuessAndMaybeUnlockBadge();
+
+                if (badgeResult.unlockedNow) {
+                    setMessage(`🎉 You got it! ${targetNumber} in ${attempts} attempt${attempts === 1 ? "" : "s"}!`);
+                    hintEl.textContent = "🏅 Badge unlocked: 5 Distractions! Auto-starting a new round in 2 seconds…";
+                } else {
+                    setMessage(`🎉 You got it! ${targetNumber} in ${attempts} attempt${attempts === 1 ? "" : "s"}!`);
+                    hintEl.textContent = `Correct wins: ${badgeResult.totalWins}/5 • Auto-starting a new round in 2 seconds…`;
+                }
+
                 setTimeout(startGame, 2000);
                 return;
             }

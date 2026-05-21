@@ -95,7 +95,7 @@ export async function bootPetPage({ firestore, auth, user }) {
     const img = $("petImage");
     const stageEl = $("petStage");
     const feedsEl = $("feedCount");
-    const gridEl = $("petBadgeGrid");
+    const gridEl = $("petsGrid");
 
     const feedBtn = $("feedPetBtn");
     const feedMsg = $("feedMsg");
@@ -136,7 +136,7 @@ export async function bootPetPage({ firestore, auth, user }) {
         return (await getDoc(ref)).data() || defaults;
     }
 
-    async function ensureBadge(userId, key, label, emoji) {
+    async function ensureBadges(userId, key, label, emoji) {
         const bRef = doc(db, "users", userId, "badges", key);
         if (!(await getDoc(bRef)).exists()) {
             await setDoc(bRef, { key, label, emoji, earnedAt: serverTimestamp() }, { merge: true });
@@ -147,11 +147,11 @@ export async function bootPetPage({ firestore, auth, user }) {
     }
 
     async function maybeAwardCareBadges(userId, streak) {
-        if (streak >= 1) await ensureBadge(userId, "pawprint", "First Pet Care", "🐰");
-        if (streak >= 7) await ensureBadge(userId, "flower", "1 Week", "🌸");
-        if (streak >= 30) await ensureBadge(userId, "gem", "1 Month", "💎");
-        if (streak >= 90) await ensureBadge(userId, "crown", "3 Months", "👑");
-        if (streak >= 180) await ensureBadge(userId, "halfyear", "6 Months", "🏆");
+        if (streak >= 1) await ensureBadges(userId, "pawprint", "First Pet Care", "🐰");
+        if (streak >= 7) await ensureBadges(userId, "flower", "1 Week", "🌸");
+        if (streak >= 30) await ensureBadges(userId, "gem", "1 Month", "💎");
+        if (streak >= 90) await ensureBadges(userId, "crown", "3 Months", "👑");
+        if (streak >= 180) await ensureBadges(userId, "halfyear", "6 Months", "🏆");
     }
 
     async function rolloverDailyIfNeeded() {
@@ -351,26 +351,26 @@ export async function bootPetPage({ firestore, auth, user }) {
         { id: "halfyear", label: "6 Months", emoji: "🏆", hue: 15 },
     ];
 
-    function buildBadgeGrid() {
+    function buildBadgesGrid() {
         if (!gridEl) return;
         gridEl.innerHTML = CATALOG.map(b => `
-      <div class="badge locked" data-badge="${b.id}">
+      <div class="badges locked" data-badges="${b.id}">
         <div class="icon" style="--h:${b.hue}">${b.emoji}</div>
         <div class="label">${esc(b.label)}</div>
       </div>`).join("");
     }
 
-    function renderBadgeGrid(earned = []) {
+    function renderBadgesGrid(earned = []) {
         if (!gridEl) return;
         const ids = new Set(earned);
-        gridEl.querySelectorAll(".badge").forEach(el => {
+        gridEl.querySelectorAll(".badges").forEach(el => {
             const has = ids.has(el.dataset.badge);
             el.classList.toggle("locked", !has);
             el.classList.toggle("unlocked", has);
         });
     }
 
-    buildBadgeGrid();
+    buildBadgesGrid();
 
     // ===== Boot for the already-signed-in user =====
     try { localStorage.setItem("currentUser", uid); } catch { }
@@ -431,7 +431,7 @@ export async function bootPetPage({ firestore, auth, user }) {
     let rootEarned = new Set(), subEarned = new Set();
     const applyEarned = () => {
         const combined = new Set([...rootEarned, ...subEarned]);
-        renderBadgeGrid([...combined]);
+        renderBadgesGrid([...combined]);
     };
 
     unsubRoot = onSnapshot(doc(db, "users", uid), (s) => {

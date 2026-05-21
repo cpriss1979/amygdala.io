@@ -257,7 +257,7 @@ body {
       border: .5px solid black;
       border-radius: .85rem;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-      background-color: #3bb5b3;
+      background: rgba(190, 220, 235, .45);-color: #3bb5b3;
     }
 
     /* Container Around Chart and Button */
@@ -349,17 +349,6 @@ body {
       color: var(--text-color) !important;
     }
 
-    h1.three-d-title {
-      font-size: 1.7rem;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      font-weight: bold;
-      color: rgb(40, 130, 180);
-      letter-spacing: 1.5px;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.25);
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-
     h3 {
       text-align: center;
       font-family: 'Open Sans', sans-serif;
@@ -402,13 +391,13 @@ body {
     }
 
     #newIdea {
-      background-color: #ffffff !important;
+      background-color: #cff0f3fe !important;
       color: #4a154b;
       /* text color */
       padding: 0.75rem;
       font-size: 1rem;
-      border-radius: .5rem;
-      border-color: black !important;
+      border-radius: .75rem;
+      border-color: rgba(36, 110, 159, 0.722) !important;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
     }
 
@@ -996,9 +985,17 @@ button.btn:disabled{
    One system. No duplicates.
    ========================= */
    .btn--primary{
-  background: linear-gradient(180deg, rgba(120,210,220,.65), rgba(130,160,255,.35));
-  border-color: rgba(10,35,81,.18);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(210,235,245,.95),
+      rgba(190,215,240,.85)
+    );
+
+  border: 1px solid rgba(140,170,190,.35);
+  color: rgba(35,55,75,.9);
 }
+
 @media (hover:hover){
   .btn--primary:hover{
     background: linear-gradient(180deg, rgba(120,210,220,.75), rgba(130,160,255,.45));
@@ -1425,7 +1422,6 @@ body.gs-has-nav .pillrow{
   justify-content: flex-end;
 }
 
-
 /* The pill button (match learn) */
 body.gs-has-nav .appbar .pill{
   border: 1px solid rgba(0,0,0,.10);
@@ -1537,13 +1533,8 @@ main.page{
 }
 
 /* The reusable “white rounded card” */
-.card{
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: var(--card-radius);
-  box-shadow: var(--card-shadow);
-  padding: 14px;
-  margin: 12px 0;
+:root{
+  --card-bg: rgba(255,255,255,.78);
 }
 
 /* Card headings like letter */
@@ -1769,12 +1760,12 @@ body.gs-has-nav .app main.page{
 
 /* ✅ Force Saved Ideas title to black */
 .saved-title{
-  color: #111 !important;
+  color: #89e1da !important;
 }
 
 /* Soft grey empty state */
 .empty-ideas{
-  color: rgba(0,0,0,.35);
+  color: rgba(0, 0, 0, 0);
     text-align: center;
   font-style: italic;
   margin: 0;
@@ -1785,7 +1776,238 @@ body.gs-has-nav .appbar{
   border-radius: 0 !important;
 }
 
+.btn--primary{
+  background:
+    linear-gradient(
+      180deg,
+      rgba(210,235,245,.95),
+      rgba(190,215,240,.85)
+    );
 
+  border: 1px solid rgba(140,170,190,.35);
+  color: rgba(35,55,75,.9);
+}
+
+#toolkitList .idea-item{
+  background: rgba(255,255,255,.58);
+
+  border: 1px solid rgba(255,255,255,.65);
+
+  box-shadow:
+    0 4px 12px rgba(80,120,150,.08);
+
+  backdrop-filter: blur(10px);
+}
+
+body.gs-has-nav{
+  background:
+    linear-gradient(
+      180deg,
+      #eef5fb 0%,
+      #dce8f2 50%,
+      #d5e4ef 100%
+    );
+}
+
+
+  /* ================= register css add ons ================ */
+/* ADDED: tiny legal footer style for the Privacy link */
+/* make the Privacy link visible + themed and keep it above nav */
+.legal-footer {
+  text-align: center;
+  font-size: 0.9rem;
+  margin: 0.5rem 0 6.5rem !important; /* push it above the nav */
+  color: var(--text-color) !important;
+}
+
+.legal-footer {
+  text-align:center;
+  font-size:.9rem;
+  margin: .5rem 0 6.5rem !important;
+  color: var(--text-color) !important;
+}
+
+/* Privacy link at the bottom: make it match the accent */
+.legal-footer a { color: #2e46d1 !important; }              /* link color */
+.legal-footer a:hover { text-decoration: underline; filter: brightness(1.12); }
+  
+/* ==================================================
+   TOOLKIT CALM FINAL OVERRIDE
+   Paste at VERY BOTTOM of toolkit.html CSS
+   ================================================== */
+
+body.gs-has-nav {
+  background:
+    linear-gradient(
+      180deg,
+      #eef7fb 0%,
+      #dceef5 45%,
+      #d8edf3 100%
+    ) !important;
+  color: #1f3440 !important;
+}
+
+/* Main app spacing */
+.app {
+  width: min(640px, 94vw) !important;
+  margin: 0 auto !important;
+}
+
+/* Softer header */
+.appbar {
+  background: rgba(255, 255, 255, 0.42) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.45) !important;
+  box-shadow: 0 8px 20px rgba(80, 130, 150, 0.08) !important;
+}
+
+/* THE missing calm cards */
+.card {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  margin: 0 auto 12px !important;
+  padding: 18px 16px !important;
+
+  background: rgba(255, 255, 255, 0.48) !important;
+  border: 1px solid rgba(255, 255, 255, 0.55) !important;
+  border-radius: 22px !important;
+
+  box-shadow: 0 12px 28px rgba(70, 120, 145, 0.10) !important;
+
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+}
+
+/* Title softer */
+.card h1.three-d-title {
+  color: #233947 !important;
+  text-shadow: none !important;
+  font-size: 1.55rem !important;
+  margin: 4px 0 14px !important;
+}
+
+/* Saved title calmer */
+.saved-title {
+  color: #3e7f86 !important;
+  text-shadow: none !important;
+  font-weight: 800 !important;
+}
+
+/* Input calmer */
+#newIdea {
+  background: rgba(255, 255, 255, 0.72) !important;
+  border: 1px solid rgba(90, 130, 150, 0.25) !important;
+  color: #1f3440 !important;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,.04) !important;
+}
+
+/* Save button softer */
+#addIdeaBtn,
+.btn--primary {
+  background: rgba(255, 255, 255, 0.45) !important;
+  border: 1px solid rgba(255, 255, 255, 0.55) !important;
+  color: #243846 !important;
+  box-shadow: 0 8px 18px rgba(70, 120, 145, 0.10) !important;
+}
+
+/* Saved ideas softer */
+#toolkitList .idea-item {
+  background: rgba(255, 255, 255, 0.62) !important;
+  border: 1px solid rgba(255, 255, 255, 0.72) !important;
+  color: #1f3440 !important;
+  box-shadow: 0 6px 14px rgba(70, 120, 145, 0.08) !important;
+}
+
+/* Delete X less harsh */
+#toolkitList .idea-del {
+  color: rgba(190, 75, 90, 0.72) !important;
+}
+
+/* Privacy/footer easier to read */
+.legal-footer {
+  color: #2f4b5a !important;
+  margin-bottom: 1rem !important;
+}
+
+.legal-footer a {
+  color: #2e6f91 !important;
+}
+
+/* TOOLKIT SAVE BUTTON - MATCH JOURNAL */
+#addIdeaBtn{
+  width: 100%;
+  margin-top: 10px;
+
+  background: linear-gradient(
+    135deg,
+    rgba(153, 229, 234, 0.95),
+    rgba(190, 210, 255, 0.95)
+  ) !important;
+
+  border: 1px solid rgba(135, 170, 255, 0.45) !important;
+  border-radius: 14px !important;
+
+  color: #2f3b4d !important;
+  font-weight: 700;
+  font-size: .95rem;
+
+  box-shadow:
+    0 6px 16px rgba(130,170,220,.18);
+
+  transition: all .2s ease;
+}
+
+#addIdeaBtn:hover{
+  background: linear-gradient(
+    135deg,
+    rgba(170, 236, 240, 1),
+    rgba(205, 220, 255, 1)
+  ) !important;
+
+  transform: translateY(-1px);
+}
+
+#addIdeaBtn:active{
+  transform: translateY(0);
+}
+
+/* ===== Match Journal Title ===== */
+.card h1.three-d-title{
+  color: #2d7eb4 !important;
+  font-size: 1.9rem !important;
+  font-weight: 500 !important;
+  text-shadow: none !important;
+  letter-spacing: 0 !important;
+  margin-bottom: 1rem !important;
+}
+
+/* ==========================
+   PROFESSIONAL LEGAL FOOTER
+   ========================== */
+
+.legal-footer{
+    text-align:center;
+    margin-top:20px;
+    padding:10px 0;
+    font-size:.85rem;
+    color:#6f8594;
+}
+
+.legal-footer a{
+    color:#5f7f94;
+    text-decoration:none;
+    font-weight:600;
+    transition:.2s ease;
+}
+
+.legal-footer a:hover{
+    color:#3f6f8f;
+    text-decoration:underline;
+}
+
+.legal-footer .separator{
+    margin:0 8px;
+    opacity:.5;
+}
     </style>
 </head>
 
@@ -1997,11 +2219,12 @@ body.gs-has-nav .appbar{
       </section>
 
       <!-- Privacy (like letter.html) -->
-      <div class="page-actions">
-        <a class="pill" href="privacy.html">View our Privacy Policy</a>
-      </div>
-    </main>
-  </div>
+      <div class="legal-footer">
+        View our
+        <a href="privacy.html" rel="noopener">Privacy Policy</a>
+        and
+        <a href="terms.html" rel="noopener">Terms of Use</a>.
+        </div>
 
   <div id="appToast" class="toast" role="status" aria-live="polite"></div>
 

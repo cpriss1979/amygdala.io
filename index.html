@@ -14,10 +14,10 @@
 <meta name="apple-mobile-web-app-title" content="Amygdala">
 
 <!-- Icons -->
-<link rel="icon" type="image/svg+xml" sizes="any" href="./icons/favicon.svg">
-<link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="./icons/favicon-16.png">
-<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+<link rel="icon" type="image/svg+xml" sizes="any" href="favicon.svg">
 
 <!-- Fonts + CSS -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -971,14 +971,12 @@
     --title-color: #e0c9c9;
   }
 
-  .theme-main {
-    --bg-color: #eaf3ff;
-    --text-color: #060606b2;
-    /* title color */
-    --accent-color: #6095aa;
-    --title-color: #000;
-    /* start black */
-  }
+ .theme-main {
+  --bg-color: #eaf3ff;
+  --text-color: #20448b;
+  --accent-color: #6095aa;
+  --title-color: #20448b;
+}
 
   .subtitle {
     color: color-mix(in srgb, var(--text-color) 85%, #000 15%) !important;
@@ -1064,38 +1062,7 @@
     padding-top: 2%;
   }
 
-  .subtitle-strong {
-    font-weight: 900;
-    letter-spacing: .2px;
-    display: inline-block;
-    margin-top: 4px;
-  }
-
-  .subtitle-strong {
-    font-weight: 900;
-    display: inline-block;
-    margin-top: 6px;
-    padding: 2px 8px;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, .35);
-  }
-
-  .subtitle-strong {
-    display: block;
-    /* makes it its own line */
-    text-align: center;
-    /* centers the text */
-    font-weight: 900;
-    margin-top: 6px;
-  }
-
-  .subtitle-strong {
-    display: block;
-    text-align: center;
-    font-weight: 900;
-    margin-top: 6px;
-    letter-spacing: .3px;
-  }
+  
 
   /* kill extra gaps so it hugs */
   .feelings-wrap .subtitle {
@@ -1105,7 +1072,6 @@
   .feelings-wrap .grid {
     margin: 0 !important;
   }
-
 
   .subtitle-strong {
     display: block;
@@ -1118,6 +1084,24 @@
     border-radius: 12px;
     background: rgba(255, 255, 255, .35);
   }
+
+  .subtitle-strong{
+    color:#4f8da6 !important;
+
+    background:rgba(255,255,255,.55) !important;
+    border:1px solid rgba(120,180,200,.25);
+
+    box-shadow:
+      0 4px 10px rgba(80,140,170,.08);
+
+    font-weight:700;
+}
+
+.subtitle-strong{
+    color:#6d95a7 !important;
+    background:rgba(255,255,255,.42) !important;
+    border:1px solid rgba(255,255,255,.55);
+}
 
   main.page {
     padding: 0 14px 1rem;
@@ -1238,11 +1222,6 @@
     border-top: 1px solid rgba(0, 0, 0, .10) !important;
     margin-top: 4px !important;
   }
-
-
-  /* =========================
- FIX: dropdown text color
- ========================= */
 
   /* Main menu text */
   #authControls .menu {
@@ -1782,6 +1761,113 @@ AUTH TOP BAR — ICON LEFT, NAME RIGHT
   margin-top: 12px; /* not 20+ */
 }
 
+.theme-main {
+  color: #20448b !important;
+}
+
+.brand h1 {
+  margin: 0.15rem 0 0.85rem;
+  font-size: 34px;
+  letter-spacing: .5px;
+  line-height: 1.05;
+  font-weight: 800;
+  text-shadow: 2px 2px rgba(0, 0, 0, .18);
+  color: var(--title-color, #20448b);
+}
+
+:root {
+  --title-color: #20448b;
+}
+
+h2 {
+  font-size: 16px;
+  color: rgb(33, 130, 147) !important;
+}
+
+h1{
+  color: rgb(26, 104, 118) !important;
+}
+
+.hero .hero-pad p{
+  color: rgb(33, 130, 147) !important;
+}
+.brand h1{
+  font-size: 38px;
+  letter-spacing: 1px;
+  margin-bottom: 1rem;
+}
+.tool{
+  background: rgba(255,255,255,.82);
+  box-shadow: 0 6px 14px rgba(0,0,0,.08);
+}
+
+.intro h2{
+   font-size: 17px;
+   line-height: 1.4;
+}
+
+.feelings-wrap,
+.tools-wrap,
+.hero,
+.hero .hero-pad {
+  border-radius: 18px !important;
+}
+
+.card-btn,
+.tool {
+  border-radius: 16px !important;
+}
+
+.legal-footer,
+.legal-footer a {
+  color: rgba(32, 68, 139, 0.82) !important;
+  font-weight: 700;
+}
+.legal-footer a {
+  text-decoration-color: rgba(32, 68, 139, 0.45);
+}
+
+/* ==========================
+   PROFESSIONAL LEGAL FOOTER
+   ========================== */
+
+.legal-footer{
+    text-align:center;
+    margin-top:20px;
+    padding:10px 0;
+    font-size:.85rem;
+    color:#6f8594;
+}
+
+.legal-footer a{
+    color:#5f7f94;
+    text-decoration:none;
+    font-weight:600;
+    transition:.2s ease;
+}
+
+.legal-footer a:hover{
+    color:#3f6f8f;
+    text-decoration:underline;
+}
+
+.legal-footer .separator{
+    margin:0 8px;
+    opacity:.5;
+}
+
+.feelings-wrap,
+.tools-wrap{
+    background:rgba(255,255,255,.28) !important;
+
+    backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);
+
+    border:1px solid rgba(255,255,255,.45) !important;
+
+    box-shadow:
+      0 8px 24px rgba(60,120,150,.08) !important;
+}
 </style>
 
 <!-- BFCache reveal -->
@@ -1808,11 +1894,11 @@ AUTH TOP BAR — ICON LEFT, NAME RIGHT
 
   <main class="page">
     <header class="brand">
-      <h1 class="theme-main">𝔸𝕄𝕐𝔾𝔻𝔸𝕃𝔸</h1>
+      <h1 class="theme-original">𝔸𝕄𝕐𝔾𝔻𝔸𝕃𝔸</h1>
     </header>
 
     <section class="intro">
-      <h2 class="intro-title">If your mind feels loud, you’re not doing anything wrong.</h2>
+      <h2>If your mind feels loud, you’re not doing anything wrong.</h2>
     </section>
 
     <section class="hero" aria-label="calm hero">
@@ -1869,7 +1955,6 @@ AUTH TOP BAR — ICON LEFT, NAME RIGHT
       <button class="tool" id="goJournal" type="button">📓 <br> Journal<span></span></button>
       <button class="tool" id="goLetter" type="button">💌 <br>Letter to self<span></span></button>
 
-      <button class="tool" id="goPet" type="button">🐱 <br>Pet<span></span></button>
 
       <button class="tool" id="goSOS" type="button">🆘 <br> SOS<span></span></button>
       <button class="tool" id="learnMore" type="button">📚 <br> Learn more<span></span></button>
@@ -1887,8 +1972,16 @@ AUTH TOP BAR — ICON LEFT, NAME RIGHT
     <script type="module">
       import { auth, db } from "./firebase-init.js";
       import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-      import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-      import { signOutUser } from "./auth.js";
+      import {
+        doc,
+        getDoc,
+        setDoc,
+        updateDoc,
+        serverTimestamp,
+        onSnapshot
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { signOutUser } from "./auth.js";
+        import { Badges } from "./badges.js";
 
       const html = document.documentElement;
 
@@ -2100,7 +2193,7 @@ AUTH TOP BAR — ICON LEFT, NAME RIGHT
       </span>
     </a>
 
-    <a class="menu-item" href="./badge.html">
+    <a class="menu-item" href="./badges.html">
       <span class="mi-ico">🏆</span>
       <span class="mi-text">
         <strong>Badges</strong>
@@ -2155,8 +2248,6 @@ AUTH TOP BAR — ICON LEFT, NAME RIGHT
           $("goJournal")?.addEventListener("click", () => go("./journal.html"));
           $("goLetter")?.addEventListener("click", () => go("./letter.html"));
 
-          $("goPet")?.addEventListener("click", () => go("./pet.html"));
-
           $("goSOS")?.addEventListener("click", () => go("./important-numbers.html"));
         }
 
@@ -2175,60 +2266,164 @@ AUTH TOP BAR — ICON LEFT, NAME RIGHT
       // ---------------------------
       // MAIN
       // ---------------------------
-      document.addEventListener("DOMContentLoaded", () => {
-        wireIndexButtons();
-        markActiveNav();
-      });
+      
 
-      let unsubTheme = null;
+        document.addEventListener("DOMContentLoaded", () => {
+          wireIndexButtons();
+          markActiveNav();
+        });
 
-      onAuthStateChanged(auth, (user) => {
-        // clear prior theme listener
-        if (unsubTheme) {
-          unsubTheme();
-          unsubTheme = null;
-        }
+        let unsubTheme = null;
 
-        if (!user) {
-          try {
-            localStorage.removeItem("currentUser");
-            localStorage.setItem("themeClass:last", "theme-original");
-          } catch { }
-          applyThemeClass("theme-original");
+        // =====================================================
+          // LOGIN STREAK BADGES
+          // Awards: 3, 7, 30, 90, 180, 270, 365 day login streaks
+          // =====================================================
 
-          renderLoggedOutUI();
-          guardLinks(false);
-          showOnce();
-          return;
-        }
-
-        try {
-          localStorage.setItem("currentUser", user.uid);
-        } catch { }
-
-        renderLoggedInUI(user);
-        guardLinks(true);
-
-        let firstPaint = true;
-        unsubTheme = onSnapshot(
-          doc(db, "users", user.uid),
-          (snap) => {
-            const t = snap.exists() ? snap.data()?.themeClass : "";
-            if (t) applyThemeClass(t);
-            else syncMetaTheme();
-
-            if (firstPaint) {
-              showOnce();
-              firstPaint = false;
-            }
-          },
-          (err) => {
-            console.error("[index] theme snapshot error:", err);
-            syncMetaTheme();
-            showOnce();
+          function getTodayYMD() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, "0");
+            const day = String(now.getDate()).padStart(2, "0");
+            return `${year}-${month}-${day}`;
           }
-        );
-      });
+
+          function getDayDifference(oldDate, newDate) {
+            if (!oldDate || !newDate) return null;
+
+            const oldTime = new Date(`${oldDate}T00:00:00`).getTime();
+            const newTime = new Date(`${newDate}T00:00:00`).getTime();
+
+            return Math.round((newTime - oldTime) / 86400000);
+          }
+
+          async function updateLoginStreak(user) {
+            if (!user?.uid) return;
+
+            const userRef = doc(db, "users", user.uid);
+            const today = getTodayYMD();
+
+            let lastLoginDate = "";
+            let loginStreak = 0;
+
+            try {
+              const snap = await getDoc(userRef);
+
+              if (snap.exists()) {
+                const data = snap.data() || {};
+                lastLoginDate = data.lastLoginDate || "";
+                loginStreak = Number(data.loginStreak || 0);
+              }
+
+              const diff = getDayDifference(lastLoginDate, today);
+
+              // Already logged in today — don't count twice
+              if (diff === 0) {
+                await awardStreakBadges(loginStreak);
+                return;
+              }
+
+              // Logged in yesterday — streak continues
+              if (diff === 1) {
+                loginStreak += 1;
+              }
+              // First login or missed a day — start over
+              else {
+                loginStreak = 1;
+              }
+
+              await setDoc(
+                userRef,
+                {
+                  lastLoginDate: today,
+                  loginStreak: loginStreak,
+                  lastLoginAt: serverTimestamp()
+                },
+                { merge: true }
+              );
+
+              await awardStreakBadges(loginStreak);
+
+              console.log("[streak] login streak updated:", loginStreak);
+            } catch (err) {
+              console.error("[streak] failed to update login streak:", err);
+            }
+          }
+
+          async function awardStreakBadges(streak) {
+            if (!streak || streak < 1) return;
+
+            const streakBadges = [
+              { days: 3, id: "streak3" },
+              { days: 7, id: "streak7" },
+              { days: 30, id: "streak30" },
+              { days: 90, id: "streak90" },
+              { days: 180, id: "streak180" },
+              { days: 270, id: "streak270" },
+              { days: 365, id: "streak365" }
+            ];
+
+            for (const badge of streakBadges) {
+              if (streak >= badge.days) {
+                await Badges.award(badge.id);
+                console.log(`[badge] awarded ${badge.id}`);
+              }
+            }
+          }
+          
+            onAuthStateChanged(auth, async (user) => {          if (unsubTheme) {
+            unsubTheme();
+            unsubTheme = null;
+          }
+
+          if (!user) {
+            try {
+              localStorage.removeItem("currentUser");
+              localStorage.setItem("themeClass:last", "theme-original");
+            } catch { }
+
+            applyThemeClass("theme-original");
+            renderLoggedOutUI();
+            guardLinks(false);
+            showOnce();
+            return;
+          }
+
+          try {
+            localStorage.setItem("currentUser", user.uid);
+          } catch { }
+
+          renderLoggedInUI(user);
+
+          try {
+            await Badges.award("login");
+            await updateLoginStreak(user);
+          } catch (e) {
+            console.warn("[index] login/streak badges failed:", e);
+          }
+
+          guardLinks(true);
+
+          let firstPaint = true;
+          unsubTheme = onSnapshot(
+            doc(db, "users", user.uid),
+            (snap) => {
+              const t = snap.exists() ? snap.data()?.themeClass : "";
+              if (t) applyThemeClass(t);
+              else applyThemeClass("theme-original");
+
+              if (firstPaint) {
+                showOnce();
+                firstPaint = false;
+              }
+            },
+            (err) => {
+              console.error("[index] theme snapshot error:", err);
+              applyThemeClass("theme-original");
+              showOnce();
+            }
+          );
+        });
     </script>
 
 </body>
