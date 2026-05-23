@@ -756,84 +756,128 @@ details{
 }
 
 .three-d-title{
-    color:#3d8bbb !important;
-    font-weight:600 !important;
-    text-shadow:none !important;
-}
+    color:#4c8fbc !important;
 
+    font-size:1.65rem !important;
+
+    font-weight:700 !important;
+
+    letter-spacing:.2px !important;
+
+    text-shadow:none !important;
+
+    margin:14px 0 12px !important;
+}
 /* =====================================
    SOFTEN HEADER TEXT
    ===================================== */
+   /* ======================================
+   LETTER FINAL CALM HEADER
+   ====================================== */
 
-.app-title .kicker{
-    color: rgba(70, 100, 120, .65) !important;
-    font-weight: 700 !important;
-    letter-spacing: .3px !important;
+body{
+    background:#eef5f8 !important;
 }
 
-.app-title .title{
-    color: rgba(55, 85, 105, .78) !important;
-    font-weight: 700 !important;
-    text-shadow: none !important;
-}
-
-.appbar .pill{
-    color: rgba(55, 85, 105, .78) !important;
-    font-weight: 700 !important;
-
-    background: rgba(255,255,255,.85) !important;
-    border: 1px solid rgba(220,235,245,.8) !important;
-
-    box-shadow:
-      0 4px 10px rgba(120,160,190,.05) !important;
-}
-
+/* Header */
 .appbar{
-    background: rgba(255,255,255,.50) !important;
-    backdrop-filter: blur(12px) !important;
-    border-bottom: 1px solid rgba(255,255,255,.6) !important;
+    background:#edf4f7 !important;
+
+    backdrop-filter:none !important;
+    -webkit-backdrop-filter:none !important;
+
+    border-bottom:1px solid rgba(120,140,160,.08) !important;
+
+    box-shadow:none !important;
 }
 
-/* ==========================
-   PROFESSIONAL LEGAL FOOTER
-   ========================== */
-
-.legal-footer{
-    text-align:center;
-    margin-top:20px;
-    padding:10px 0;
-    font-size:.85rem;
-    color:#6f8594;
+/* Amygdala text */
+.kicker{
+    color:#8da0ad !important;
+    font-weight:600 !important;
+    letter-spacing:.3px !important;
 }
 
-.legal-footer a{
-    color:#5f7f94;
-    text-decoration:none;
-    font-weight:600;
-    transition:.2s ease;
+/* Letter text */
+.title{
+    color:#6f8293 !important;
+    font-weight:700 !important;
 }
 
-.legal-footer a:hover{
-    color:#3f6f8f;
-    text-decoration:underline;
+/* Home button */
+.appbar .pill{
+    background:rgba(255,255,255,.70) !important;
+
+    border:1px solid rgba(180,195,205,.30) !important;
+
+    color:#6f8293 !important;
+
+    box-shadow:none !important;
+
+    backdrop-filter:none !important;
+    -webkit-backdrop-filter:none !important;
 }
 
-.legal-footer .separator{
-    margin:0 8px;
-    opacity:.5;
+.card{
+    background:rgba(255,255,255,.55) !important;
+
+    border:1px solid rgba(255,255,255,.75) !important;
+
+    box-shadow:0 8px 20px rgba(120,150,170,.08) !important;
+
+    backdrop-filter:blur(8px) !important;
+    -webkit-backdrop-filter:blur(8px) !important;
 }
+
+
+
+
+
+
+
+
+
+/* =====================================================
+   HOME BUTTON — MATCH TOOLKIT FAVORITE
+   Paste at the VERY BOTTOM of each page's <style>
+   ===================================================== */
+
+.topbar,
+.pillrow {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+}
+
+/* =====================================================
+   HOME BUTTON — MATCH TOOLKIT FAVORITE
+   Paste at the VERY BOTTOM of each page's <style>
+   ===================================================== */
+   .appbar .pill{
+    background:rgba(255,255,255,.42) !important;
+
+    border:1px solid rgba(140,160,180,.14) !important;
+
+    color:#8698a7 !important;
+
+    box-shadow:none !important;
+
+    font-weight:700 !important;
+}
+
 </style>
 </head>
 
 <body class="gs-has-nav">
   <div class="app">
+    <!-- Sticky app header -->
     <header class="appbar">
       <div class="appbar-row">
         <div class="app-title">
           <div class="kicker">Amygdala</div>
           <div class="title">Letter</div>
         </div>
-
+    
         <div class="pillrow">
           <a class="pill" href="./index.html">🏠 Home</a>
         </div>

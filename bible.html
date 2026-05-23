@@ -44,14 +44,6 @@
             position: relative;
         }
     
-        /* soft dark overlay so the UI reads everywhere */
-        body::before {
-            content: "";
-            position: fixed;
-            inset: 0;
-            background: radial-gradient(circle at 30% 20%, rgba(10, 35, 81, 0.35), rgba(0, 0, 0, 0.55));
-            pointer-events: none;
-        }
     
         /* ---------- main container ---------- */
         .background-container {
@@ -194,13 +186,6 @@
   html { opacity: 1; }
 
   body {
-    background-image: url("garden.jpeg");
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
-
-    font-family: Georgia, serif;
-    color: white;
     margin: 0;
     min-height: 100vh;
 
@@ -209,36 +194,29 @@
     justify-content: center;
     padding: 28px;
     box-sizing: border-box;
-    position: relative;
-    overflow-x: hidden;
-  }
 
-  /* --- Amygdala "family" tint overlay + soft blur feel --- */
-  body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
+    font-family: Georgia, serif;
 
-    /* Photo stays, but we tint it to match Amygdala */
     background:
-      radial-gradient(circle at 20% 10%, rgba(190, 170, 255, 0.35), transparent 55%),
-      radial-gradient(circle at 80% 25%, rgba(120, 215, 255, 0.25), transparent 60%),
-      linear-gradient(180deg, rgba(16, 60, 88, 0.55), rgba(5, 18, 35, 0.55));
+        radial-gradient(circle at top left,
+            rgba(255,255,255,.55),
+            transparent 45%),
 
-    pointer-events: none;
-    z-index: 0;
-  }
+        radial-gradient(circle at top right,
+            rgba(210,220,255,.35),
+            transparent 50%),
 
-  /* Optional “soft-focus” layer (makes garden feel calmer) */
-  body::after {
-    content: "";
-    position: fixed;
-    inset: 0;
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    pointer-events: none;
-    z-index: 0;
-  }
+        linear-gradient(
+            135deg,
+            #d8d3ff 0%,
+            #b9b5ff 40%,
+            #8f8cff 100%
+        );
+
+    color: white;
+    overflow-x: hidden;
+    position: relative;
+}
 
   .background-container {
     position: relative;
@@ -641,9 +619,196 @@ a.btn.btn-home:visited { color: #3a568c; }
   opacity: 1;
 }
 
+.background-container {
+    position: relative;
+    z-index: 1;
+
+    padding: 24px;
+
+    border-radius: 24px;
+
+    background:
+        rgba(20,35,75,.55);
+
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+
+    border: 1px solid rgba(255,255,255,.18);
+
+    box-shadow:
+        0 25px 60px rgba(0,0,0,.22),
+        inset 0 1px 0 rgba(255,255,255,.18);
+}
+
+.sparkle {
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(255,255,255,.9),
+            transparent 70%
+        );
+
+    animation:
+        floatUp linear infinite,
+        twinkle ease-in-out infinite;
+}
+
+@keyframes floatUp {
+    from {
+        transform: translateY(100vh);
+    }
+
+    to {
+        transform: translateY(-120vh);
+    }
+}
+
+@keyframes twinkle {
+    0%,100% {
+        opacity: .15;
+    }
+
+    50% {
+        opacity: .6;
+    }
+}
+
+/*==========================
+=========================
+===========================*/
+/* BIG SPARKLES LAYER */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+
+    background:
+
+    radial-gradient(4px 4px at 5% 10%, rgba(255,255,255,.95), transparent 70%),
+    radial-gradient(5px 5px at 15% 20%, rgba(255,255,255,.9), transparent 70%),
+    radial-gradient(3px 3px at 25% 8%, rgba(255,255,255,.95), transparent 70%),
+    radial-gradient(6px 6px at 40% 15%, rgba(255,255,255,.95), transparent 70%),
+    radial-gradient(4px 4px at 60% 8%, rgba(255,255,255,.95), transparent 70%),
+    radial-gradient(5px 5px at 80% 20%, rgba(255,255,255,.9), transparent 70%),
+    radial-gradient(3px 3px at 92% 12%, rgba(255,255,255,.95), transparent 70%),
+
+    radial-gradient(4px 4px at 10% 35%, rgba(255,255,255,.95), transparent 70%),
+    radial-gradient(6px 6px at 28% 42%, rgba(255,255,255,.9), transparent 70%),
+    radial-gradient(3px 3px at 50% 38%, rgba(255,255,255,.95), transparent 70%),
+    radial-gradient(5px 5px at 70% 45%, rgba(255,255,255,.95), transparent 70%),
+    radial-gradient(4px 4px at 88% 35%, rgba(255,255,255,.9), transparent 70%),
+
+    radial-gradient(5px 5px at 12% 65%, rgba(255,255,255,.95), transparent 70%),
+    radial-gradient(4px 4px at 30% 72%, rgba(255,255,255,.9), transparent 70%),
+    radial-gradient(6px 6px at 48% 68%, rgba(255,255,255,.95), transparent 70%),
+    radial-gradient(4px 4px at 65% 80%, rgba(255,255,255,.9), transparent 70%),
+    radial-gradient(5px 5px at 90% 72%, rgba(255,255,255,.95), transparent 70%),
+
+    radial-gradient(6px 6px at 8% 90%, rgba(255,255,255,.95), transparent 70%),
+    radial-gradient(4px 4px at 35% 92%, rgba(255,255,255,.9), transparent 70%),
+    radial-gradient(5px 5px at 75% 95%, rgba(255,255,255,.95), transparent 70%);
+
+    opacity: .85;
+
+    animation: sparkleFloat 18s linear infinite;
+}
+
+@keyframes sparkleFloat {
+    from {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-8px);
+    }
+
+    to {
+        transform: translateY(0);
+    }
+}
+
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+
+    background:
+
+    radial-gradient(circle at 15% 20%,
+        rgba(255,255,255,.95) 0,
+        rgba(255,255,255,.4) 12px,
+        transparent 25px),
+
+    radial-gradient(circle at 80% 25%,
+        rgba(255,255,255,.95) 0,
+        rgba(255,255,255,.4) 14px,
+        transparent 28px),
+
+    radial-gradient(circle at 25% 70%,
+        rgba(255,255,255,.95) 0,
+        rgba(255,255,255,.4) 12px,
+        transparent 25px),
+
+    radial-gradient(circle at 90% 80%,
+        rgba(255,255,255,.95) 0,
+        rgba(255,255,255,.4) 16px,
+        transparent 30px);
+
+    opacity: .65;
+
+    filter: blur(2px);
+
+    animation: twinkle 14s ease-in-out infinite;
+}
+
+@keyframes twinkle {
+    0%,100% {
+        opacity: .4;
+    }
+
+    50% {
+        opacity: .9;
+    }
+}
 </style>     
     
 </head>
+
+<div id="sparkles"></div>
+
+<script>
+  const sparkles = document.getElementById("sparkles");
+
+  for (let i = 0; i < 35; i++) {
+
+    const s = document.createElement("div");
+
+    s.className = "sparkle";
+
+    const size = 3 + Math.random() * 8;
+
+    s.style.width = size + "px";
+    s.style.height = size + "px";
+
+    s.style.left = Math.random() * 100 + "vw";
+
+    s.style.animationDuration =
+      (20 + Math.random() * 20) + "s";
+
+    s.style.animationDelay =
+      (Math.random() * 20) + "s";
+
+    sparkles.appendChild(s);
+  }
+</script>
 
 <body>
     <div class="background-container">

@@ -540,80 +540,41 @@ main.gs-page {
    HOME BUTTON — MATCH TOOLKIT FAVORITE
    Paste at the VERY BOTTOM of each page's <style>
    ===================================================== */
+   /* =====================================================
+   HOME BUTTON — MATCH TOOLKIT EXACTLY
+   ===================================================== */
 
-.topbar,
-.pillrow {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-end !important;
+.appbar .pillrow{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-end !important;
+  gap:.5rem !important;
 }
 
-a.pill,
-a.home-pill,
-.topbar a,
-.pillrow a {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 0.4rem !important;
+.appbar .pillrow .pill{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:.4rem !important;
 
-  padding: 0.55rem 0.85rem !important;
-  border-radius: 999px !important;
+  padding:.55rem .85rem !important;
+  border-radius:999px !important;
 
-  background: rgba(255, 255, 255, 0.78) !important;
-  border: 1px solid rgba(0, 0, 0, 0.10) !important;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.06) !important;
+  background:rgba(255,255,255,.70) !important;
+  border:1px solid rgba(180,195,205,.30) !important;
+  box-shadow:none !important;
 
-  color: rgba(10, 25, 30, 0.90) !important;
-  font-size: 0.95rem !important;
-  font-weight: 900 !important;
-  line-height: 1 !important;
-  text-decoration: none !important;
+  color:#6f8293 !important;
+  font-size:.95rem !important;
+  font-weight:800 !important;
+  line-height:1 !important;
+  text-decoration:none !important;
+
+  -webkit-tap-highlight-color:transparent !important;
 }
 
-a.pill:active,
-a.home-pill:active,
-.topbar a:active,
-.pillrow a:active {
-  transform: translateY(1px) !important;
-}
-
-/* TOOLKIT SAVE BUTTON - MATCH JOURNAL */
-#addIdeaBtn{
-  width: 100%;
-  margin-top: 10px;
-
-  background: linear-gradient(
-    135deg,
-    rgba(153, 229, 234, 0.95),
-    rgba(190, 210, 255, 0.95)
-  ) !important;
-
-  border: 1px solid rgba(135, 170, 255, 0.45) !important;
-  border-radius: 14px !important;
-
-  color: #2f3b4d !important;
-  font-weight: 700;
-  font-size: .95rem;
-
-  box-shadow:
-    0 6px 16px rgba(130,170,220,.18);
-
-  transition: all .2s ease;
-}
-
-#addIdeaBtn:hover{
-  background: linear-gradient(
-    135deg,
-    rgba(170, 236, 240, 1),
-    rgba(205, 220, 255, 1)
-  ) !important;
-
-  transform: translateY(-1px);
-}
-
-#addIdeaBtn:active{
-  transform: translateY(0);
+.appbar .pillrow .pill:active{
+  transform:translateY(1px) !important;
 }
 
 /* ==========================

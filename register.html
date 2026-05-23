@@ -431,6 +431,61 @@ vertical-align: middle;
   opacity: 1 !important;
   filter: saturate(.65) brightness(1.08);
 }
+
+
+
+
+  .guest-link {
+  text-align: center;
+  margin-top: .8rem;
+}
+
+.guest-link a {
+  color: rgba(10, 25, 30, .70);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: .9rem;
+  transition: opacity .2s ease;
+}
+
+.guest-link a:hover {
+  opacity: .75;
+}
+
+.guest-link a:active {
+  opacity: .55;
+}
+
+.guest-link {
+  text-align: center;
+  margin-top: .8rem;
+}
+
+.guest-btn:hover {
+  background: rgba(255,255,255,.60);
+}
+
+.guest-link {
+  text-align: center;
+  margin-top: .8rem;
+}
+
+.guest-btn {
+  display: inline-block;
+  padding: .55rem 1rem;
+  border-radius: 999px;
+  background: rgba(255,255,255,.45);
+  border: 1px solid rgba(0,0,0,.08);
+  color: rgba(10,25,30,.75);
+  text-decoration: none;
+  font-weight: 800;
+  font-size: .9rem;
+}
+
+.guest-btn:hover {
+  background: rgba(255,255,255,.60);
+}
+
   </style>
 
   <!-- Global session bump listener (keep, but don’t overreact) -->
@@ -510,6 +565,12 @@ vertical-align: middle;
           </div>
         
         <div id="msg" aria-live="polite"></div>
+        
+        <div class="guest-link">
+          <a href="index.html" class="guest-btn">
+            Continue as Guest
+          </a>
+        </div>
         
         <div class="smallprint"></div>
           By creating an account, you agree to our

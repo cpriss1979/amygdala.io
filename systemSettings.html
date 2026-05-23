@@ -1248,6 +1248,32 @@ main {
     align-items: center !important;
   }
 }
+
+.topbar {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 12px !important;
+    margin-bottom: 12px;
+}
+
+.topbar h1 {
+    margin: 0 !important;
+    text-align: left !important;
+}
+
+/* Force Settings title left + Home button right */
+.topbar {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+}
+
+.topbar h1 {
+    margin: 0 !important;
+    text-align: left !important;
+    flex: 1;
+}
   </style>
 </head>
 
@@ -1255,12 +1281,17 @@ main {
 
   <main>
     <div class="topbar">
-      <a class="pill" href="index.html">🏠 Home</a>
+      <h1>Settings</h1>
+    
+      <a class="pill" href="index.html">
+        🏠 Home
+      </a>
     </div>
-
-    <h1>Settings</h1>
-    <p class="sub">Manage your account, security, privacy, and preferences. Deletion lives in the <strong>Danger
-        zone</strong> at the bottom.</p>
+    
+    <p class="sub">
+      Manage your account, security, privacy, and preferences.
+      Deletion lives in the <strong>Danger zone</strong> at the bottom.
+      </p>
 
     <!-- Account -->
     <section class="card">
@@ -1561,7 +1592,6 @@ main {
       'Feel-good toolkit',
       'Journal',
       'Letter to self',
-      'Pet'
     ];
 
     function dataLocationText() {

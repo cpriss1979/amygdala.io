@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Amygdala — Login</title>
-  <meta name="description" content="Log in to Amygdala. Gentle learning, then access your tools and progress." />
+  <meta name="description" content="Log in to Amygdala to access your tools and progress." />
 
   <!-- Service worker -->
   <script src="sw-register.js"></script>
@@ -487,6 +487,65 @@ form {
     background: #3f9bb3;
     color: white;
   }
+
+
+
+
+
+
+
+
+
+  .guest-link {
+  text-align: center;
+  margin-top: .8rem;
+}
+
+.guest-link a {
+  color: rgba(10, 25, 30, .70);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: .9rem;
+  transition: opacity .2s ease;
+}
+
+.guest-link a:hover {
+  opacity: .75;
+}
+
+.guest-link a:active {
+  opacity: .55;
+}
+
+.guest-link {
+  text-align: center;
+  margin-top: .8rem;
+}
+
+.guest-btn:hover {
+  background: rgba(255,255,255,.60);
+}
+
+.guest-link {
+  text-align: center;
+  margin-top: .8rem;
+}
+
+.guest-btn {
+  display: inline-block;
+  padding: .55rem 1rem;
+  border-radius: 999px;
+  background: rgba(255,255,255,.45);
+  border: 1px solid rgba(0,0,0,.08);
+  color: rgba(10,25,30,.75);
+  text-decoration: none;
+  font-weight: 800;
+  font-size: .9rem;
+}
+
+.guest-btn:hover {
+  background: rgba(255,255,255,.60);
+}
   </style>
 </head>
 
@@ -541,6 +600,13 @@ form {
             <span aria-hidden="true">•</span>
             <a href="#" id="forgotPassword">Forgot password?</a>
           </div>
+          
+          <div class="guest-link">
+            <a href="index.html" class="guest-btn">
+              Continue as Guest
+            </a>    
+          </div>
+          <br>
 
           <p class="smallprint">
             By logging in you agree to our
